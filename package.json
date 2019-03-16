@@ -1,0 +1,46 @@
+{
+	"name": "@simelation/simhub-plugins",
+	"version": "0.0.0",
+	"description": "SimElation SimHub plugins monorepo",
+	"repository": "https://github.com/simelation/simhub-plugins.git",
+	"author": "Luke Elliott <luke.b.elliott@gmail.com>",
+	"license": "MIT",
+	"private": true,
+	"workspaces": [
+		"packages/**"
+	],
+	"scripts": {
+		"lerna": "lerna",
+		"preinstall": "dotnet tool restore",
+		"prepare_comment": "echo Workaround for https://github.com/yarnpkg/yarn/issues/3911",
+		"prepare": "lerna run prepare --",
+		"build": "lerna --concurrency 4 run build --",
+		"develop": "lerna run develop --",
+		"clean": "lerna run clean && lerna clean",
+		"release": "lerna publish",
+		"test": "lerna run test --",
+		"upgrade-all": "yarn upgrade && lerna --concurrency 1 exec yarn-upgrade-all",
+		"yarn:publish-links": "lerna exec yarn link --",
+		"yarn:unpublish-links": "lerna exec yarn unlink --"
+	},
+	"devDependencies": {
+		"@commitlint/cli": "^9.1.1",
+		"@commitlint/config-conventional": "^9.1.1",
+		"@commitlint/config-lerna-scopes": "^9.1.1",
+		"husky": "^4.2.5",
+		"lerna": "^3.22.1",
+		"lint-staged": "^10.2.11",
+		"prettier": "^2.0.5",
+		"yarn-upgrade-all": "^0.5.4"
+	},
+	"husky": {
+		"hooks": {
+			"commit-msg": "commitlint -E HUSKY_GIT_PARAMS",
+			"pre-commit": "lint-staged -r"
+		}
+	},
+	"lint-staged": {
+		"*.{js,jsx,ts,tsx,json,css,md,html}": "prettier --write",
+		"*.cs": "dotnet dotnet-format -f --include"
+	}
+}
