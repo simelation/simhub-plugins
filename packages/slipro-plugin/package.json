@@ -30,6 +30,5 @@
 		"version": "rpl \"A.B.C.D\" \"%npm_package_version%.0\" Properties/AssemblyInfo.cs && git add Properties/AssemblyInfo.cs",
 		"prepublishOnly": "yarn build",
 		"test": "echo TODO"
-	},
-	"gitHead": "dfc847fb3a3cd019fc1bbe69d764168b612f8092"
+	}
 }
