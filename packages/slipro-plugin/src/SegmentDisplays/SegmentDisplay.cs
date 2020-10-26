@@ -17,14 +17,19 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 	/// </remarks>
 	public abstract class SegmentDisplay
 	{
-		private string m_name;
+		private String m_shortName;
+
+		/// <summary>Name for the segment display, to show in UI.</summary>
+		public String LongName { get; }
 
 		/// <summary>Constructor.</summary>
-		/// <param name="name">Description of the information show by the display. This will be displayed when switching
+		/// <param name="shortName">Description of the information show by the display. This will be displayed when switching
 		/// to this segment display for a period of time (so keep it fewer than 7 characters).</param>
-		public SegmentDisplay(string name)
+		/// <param name="longName">Longer form name for the segment display, to show in UI.</param>
+		public SegmentDisplay(String shortName, String longName)
 		{
-			m_name = name;
+			m_shortName = shortName;
+			LongName = longName;
 		}
 
 		/// <summary>Show the name provided to the constructor.</summary>
@@ -32,7 +37,7 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 		/// <param name="position">To pass to <see cref="SliPro.SliPro.SetSegment"/>.</param>
 		public void ShowName(SliPro.SliPro sliPro, SegmentDisplayPosition position)
 		{
-			sliPro.SetSegment(position, 0, SliPro.Constants.segmentDisplayWidth, m_name);
+			sliPro.SetSegment(position, 0, SliPro.Constants.segmentDisplayWidth, m_shortName);
 		}
 
 		/// <summary>Process game data from SimHub.</summary>

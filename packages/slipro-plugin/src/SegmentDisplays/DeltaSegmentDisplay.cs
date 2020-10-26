@@ -19,10 +19,11 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 		public delegate double? GetDelta(NormalizedData normalizedData);
 
 		/// <summary>Constructor.</summary>
-		/// <param name="name">Description of the delta time. This will be displayed when switching
+		/// <param name="shortName">Description of the delta time. This will be displayed when switching
 		/// to this segment display for a period of time (so keep it fewer than 7 characters).</param>
+		/// <param name="longName">Description of the delta time for the UI.</param>
 		/// <param name="getDelta">Function to get a delta value from <see cref="NormalizedData"/>.</param>
-		public DeltaSegmentDisplay(String name, GetDelta getDelta) : base(name)
+		public DeltaSegmentDisplay(String shortName, String longName, GetDelta getDelta) : base(shortName, longName)
 		{
 			m_getDelta = getDelta;
 		}

@@ -14,7 +14,7 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 	public class LapsToGoSegmentDisplay : SegmentDisplay
 	{
 		/// <summary>Constructor.</summary>
-		public LapsToGoSegmentDisplay() : base("togo")
+		public LapsToGoSegmentDisplay() : base("togo", "Laps remaining")
 		{
 		}
 

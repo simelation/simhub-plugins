@@ -4,6 +4,7 @@
 
 using System;
 using System.Globalization;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -51,12 +52,30 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 		/// <summary><see cref="SliProPlugin"/> accessor.</summary>
 		public SliProPlugin Plugin { get; }
 
+		/// <summary><see cref="Settings"/> accessor.</summary>
+		public Settings Settings { get; }
+
+		/// <summary>List of items for the left segment display combobox.</summary>
+		public String[] LeftSegmentDisplayComboBoxContents
+		{
+			get => Plugin.GetSegmentDisplayNameList(SliPro.SegmentDisplayPosition.left).
+				Append<String>(Settings.RotaryControlledKey).ToArray();
+		}
+
+		/// <summary>List of items for the right segment display combobox.</summary>
+		public String[] RightSegmentDisplayComboBoxContents
+		{
+			get => Plugin.GetSegmentDisplayNameList(SliPro.SegmentDisplayPosition.right).
+				Append<String>(Settings.RotaryControlledKey).ToArray();
+		}
+
 		/// <summary>Constructor.</summary>
 		/// <param name="plugin"></param>
 		public SettingsControl(SliProPlugin plugin)
 		{
-			this.DataContext = plugin.Settings;
+			this.DataContext = this;
 			this.Plugin = plugin;
+			this.Settings = plugin.Settings;
 			InitializeComponent();
 		}
 

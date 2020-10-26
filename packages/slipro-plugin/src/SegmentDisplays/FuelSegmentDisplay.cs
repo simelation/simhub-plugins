@@ -14,7 +14,7 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 	public class FuelSegmentDisplay : SegmentDisplay
 	{
 		/// <summary>Constructor.</summary>
-		public FuelSegmentDisplay() : base("Fuel")
+		public FuelSegmentDisplay() : base("Fuel", "Fuel remaining")
 		{
 		}
 

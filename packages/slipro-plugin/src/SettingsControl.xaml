@@ -20,6 +20,7 @@
 			<RowDefinition Height="350*"/>
 			<RowDefinition Height="60*"/>
 			<RowDefinition Height="60*"/>
+			<RowDefinition Height="60*"/>
 			<RowDefinition Height="40*"/>
 			<RowDefinition Height="40*"/>
 			<RowDefinition Height="40*"/>
@@ -36,54 +37,74 @@
 		<Image x:Name="SLI_PRO_RevA_bmp" Grid.ColumnSpan="2" Grid.Row="1" Source="..\assets\SLI-PRO-RevA.bmp" Stretch="None"
 			   MouseDown="OnSliProClick"/>
 
+		<StackPanel Grid.Row="2" Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Right" Margin="5,5,5,5">
+			<Label Content="Left segment display" VerticalAlignment="Center"/>
+			<ComboBox VerticalAlignment="Center"
+					  ItemsSource="{Binding LeftSegmentDisplayComboBoxContents}"
+					  SelectedItem="{Binding Path=Settings.LeftSegmentDisplay}"/>
+		</StackPanel>
+
+		<StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Left" Margin="5,5,5,5">
+			<ComboBox VerticalAlignment="Center"
+					  ItemsSource="{Binding RightSegmentDisplayComboBoxContents}"
+					  SelectedItem="{Binding Path=Settings.RightSegmentDisplay}"/>
+			<Label Content="Right segment display" VerticalAlignment="Center"/>
+		</StackPanel>
+
 		<styles:SHButtonPrimary HorizontalAlignment="Right" VerticalAlignment="Center" Click="OnLeftSegmentRotaryClick"
-								Grid.Row="2"
-								Content="{Binding Path=SliProSettings.RotarySwitchOffsets[(slipro:RotarySwitch)leftSegment],
+								Grid.Row="3"
+								Content="{Binding Path=Settings.SliProSettings.RotarySwitchOffsets[(slipro:RotarySwitch)leftSegment],
 									Converter={StaticResource RotaryDetectConverter}, ConverterParameter='left segment'}"
 								ToolTip="Learn or forget a rotary switch attached to the SLI-Pro to control what is shown in the left segment display." />
 		<styles:SHButtonPrimary HorizontalAlignment="Left" VerticalAlignment="Center" Click="OnRightSegmentRotaryClick"
-								Grid.Row="2" Grid.Column="2"
-								Content="{Binding Path=SliProSettings.RotarySwitchOffsets[(slipro:RotarySwitch)rightSegment],
+								Grid.Row="3" Grid.Column="1"
+								Content="{Binding Path=Settings.SliProSettings.RotarySwitchOffsets[(slipro:RotarySwitch)rightSegment],
 									Converter={StaticResource RotaryDetectConverter}, ConverterParameter='right segment'}"
 								ToolTip="Learn or forget a rotary switch attached to the SLI-Pro to control what is shown in the right segment display." />
 		<styles:SHButtonPrimary HorizontalAlignment="Left" VerticalAlignment="Center" Click="OnBrightnessRotaryClick"
-								Grid.Row="3" Grid.Column="2"
-								Content="{Binding Path=SliProSettings.RotarySwitchOffsets[(slipro:RotarySwitch)brightness],
+								Grid.Row="4" Grid.Column="1"
+								Content="{Binding Path=Settings.SliProSettings.RotarySwitchOffsets[(slipro:RotarySwitch)brightness],
 									Converter={StaticResource RotaryDetectConverter}, ConverterParameter='brightness'}"
 								ToolTip="Learn or forget a rotary switch attached to the SLI-Pro to control the brightness." />
 
-		<TextBlock HorizontalAlignment="Right" VerticalAlignment="Center" Grid.Row="4" Margin="0,0,10,0" Text="Welcome message" />
-		<TextBox Grid.Column="2" Grid.Row="4" Text="{Binding Path=WelcomeMessage, Mode=TwoWay}"
-			ToolTip="Text to display using the segment displays when SimHub is running but no game is." />
+		<TextBlock HorizontalAlignment="Right" VerticalAlignment="Center" Grid.Row="5" Margin="5,0,5,0" Text="Welcome message" />
+		<TextBox Grid.Column="1" Grid.Row="5" Margin="5,0,5,0" VerticalAlignment="Center"
+				 Text="{Binding Path=Settings.WelcomeMessage, Mode=TwoWay}"
+				 ToolTip="Text to display using the segment displays when SimHub is running but no game is." />
 
-		<TextBlock HorizontalAlignment="Right" VerticalAlignment="Center" Grid.Row="5" Margin="0,0,10,0"
+		<TextBlock HorizontalAlignment="Right" VerticalAlignment="Center" Grid.Row="6" Margin="5,0,5,0"
 				   Text="Pit lane animation speed (ms)" />
-		<mah:NumericUpDown Minimum="0" Maximum="20000" HasDecimals="False" Grid.Column="2" Grid.Row="5"
-						   Value="{Binding Path=PitLaneAnimationSpeedMs, Mode=TwoWay}"
+		<mah:NumericUpDown Minimum="0" Maximum="20000" HasDecimals="False" Grid.Column="1" Grid.Row="6" Margin="5,0,5,0"
+						   VerticalAlignment="Center"
+						   Value="{Binding Path=Settings.PitLaneAnimationSpeedMs, Mode=TwoWay}"
 						   ToolTip="The rate in milliseconds at which to animate the RPM LEDs when in the pitlane. 0 to disable." />
 
-		<TextBlock HorizontalAlignment="Right" VerticalAlignment="Center" Grid.Row="6" Margin="0,0,10,0"
+		<TextBlock HorizontalAlignment="Right" VerticalAlignment="Center" Grid.Row="7" Margin="5,0,5,0"
 				   Text="Shift point blink on time (ms)" />
-		<mah:NumericUpDown Minimum="0" Maximum="20000" HasDecimals="False" Grid.Column="2" Grid.Row="6"
-						   Value="{Binding Path=ShiftPointBlinkOnSpeedMs, Mode=TwoWay}"
+		<mah:NumericUpDown Minimum="0" Maximum="20000" HasDecimals="False" Grid.Column="1" Grid.Row="7" Margin="5,0,5,0"
+						   VerticalAlignment="Center"
+						   Value="{Binding Path=Settings.ShiftPointBlinkOnSpeedMs, Mode=TwoWay}"
 						   ToolTip="How long in milliseconds to light the RPM LEDs when at or above the shift threshold." />
 
-		<TextBlock HorizontalAlignment="Right" VerticalAlignment="Center" Grid.Row="7" Margin="0,0,10,0"
+		<TextBlock HorizontalAlignment="Right" VerticalAlignment="Center" Grid.Row="8" Margin="5,0,5,0"
 				   Text="Shift point blink off time (ms)" />
-		<mah:NumericUpDown Minimum="0" Maximum="20000" HasDecimals="False" Grid.Column="2" Grid.Row="7"
-						   Value="{Binding Path=ShiftPointBlinkOffSpeedMs, Mode=TwoWay}"
+		<mah:NumericUpDown Minimum="0" Maximum="20000" HasDecimals="False" Grid.Column="1" Grid.Row="8" Margin="5,0,5,0"
+						   VerticalAlignment="Center"
+						   Value="{Binding Path=Settings.ShiftPointBlinkOffSpeedMs, Mode=TwoWay}"
 						   ToolTip="How long in milliseconds to blank the RPM LEDs when at or above the shift threshold." />
 
-		<TextBlock HorizontalAlignment="Right" VerticalAlignment="Center" Grid.Row="8" Margin="0,0,10,0"
+		<TextBlock HorizontalAlignment="Right" VerticalAlignment="Center" Grid.Row="9" Margin="5,0,5,0"
 				   Text="Show new segment title for (ms)" />
-		<mah:NumericUpDown Minimum="0" Maximum="60000" HasDecimals="False" Grid.Column="2" Grid.Row="8"
-						   Value="{Binding Path=SegmentNameTimeoutMs, Mode=TwoWay}"
+		<mah:NumericUpDown Minimum="0" Maximum="60000" HasDecimals="False" Grid.Column="1" Grid.Row="9" Margin="5,0,5,0"
+						   VerticalAlignment="Center"
+						   Value="{Binding Path=Settings.SegmentNameTimeoutMs, Mode=TwoWay}"
 						   ToolTip="How long to display what information a segment display will show after changing mode." />
 
-		<TextBlock HorizontalAlignment="Right" VerticalAlignment="Center" Grid.Row="9" Margin="0,0,10,0" Text="Brightness level" />
-		<mah:NumericUpDown Minimum="0" Maximum="254" HasDecimals="False" Grid.Column="2" Grid.Row="9"
-   						   Value="{Binding Path=SliProSettings.Brightness, Mode=TwoWay,
-							Converter={StaticResource AllowNullConverter}}"
+		<TextBlock HorizontalAlignment="Right" VerticalAlignment="Center" Grid.Row="10" Margin="5,0,5,0" Text="Brightness level" />
+		<mah:NumericUpDown Minimum="0" Maximum="254" HasDecimals="False" Grid.Column="1" Grid.Row="10" Margin="5,0,5,0"
+						   VerticalAlignment="Center"
+   						   Value="{Binding Path=Settings.SliProSettings.Brightness, Mode=TwoWay,
+							   Converter={StaticResource AllowNullConverter}}"
 						   ToolTip="Any value set here overrides an assigned rotary control of the brightness." />
 	</Grid>
 </UserControl>

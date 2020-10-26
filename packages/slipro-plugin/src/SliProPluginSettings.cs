@@ -9,6 +9,40 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 	{
 		// TODO investigate helpers to reduce boilerplate.
 
+		/// <summary>Special name for rotary controlled segment display.</summary>
+		public static String RotaryControlledKey = "Rotary controlled";
+
+		/// <summary>Left segment display mode.</summary>
+		public String LeftSegmentDisplay
+		{
+			get => m_leftSegmentDisplay;
+
+			set
+			{
+				if (m_leftSegmentDisplay != value)
+				{
+					m_leftSegmentDisplay = value;
+					OnPropertyChanged();
+				}
+			}
+		}
+
+		/// <summary>Right segment display mode.</summary>
+		public String RightSegmentDisplay
+		{
+			get => m_rightSegmentDisplay;
+
+			set
+			{
+				if (m_rightSegmentDisplay != value)
+				{
+					m_rightSegmentDisplay = value;
+					OnPropertyChanged();
+				}
+			}
+		}
+
+
 		/// <summary>Text to display using the segment displays when SimHub is running but no game is.</summary>
 		public String WelcomeMessage
 		{
@@ -99,6 +133,8 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 		}
 
+		private String m_leftSegmentDisplay = RotaryControlledKey;
+		private String m_rightSegmentDisplay = RotaryControlledKey;
 		private String m_welcomeMessage = "Sim-Hub";
 		private long m_pitLaneAnimationSpeedMs = 250;
 		private long m_shiftPointBlinkOnSpeedMs = 100;

@@ -49,7 +49,10 @@ namespace SimElation.SliPro
 		left,
 
 		/// <summary>The right segment display.</summary>
-		right
+		right,
+
+		/// <summary>Number of supported positions.</summary>
+		count
 	}
 
 	/// <summary>Supported rotary switches for detection.</summary>
@@ -531,6 +534,14 @@ namespace SimElation.SliPro
 					m_rotaryDetector.Dispose();
 					m_rotaryDetector = null;
 				});
+		}
+
+		/// <summary>Reset a cached rotary switch position.</summary>
+		/// As such, the next update from the SLI-Pro with rotary switch position information will invoke the changed callback.
+		/// <param name="rotarySwitch">Which rotary to reset for.</param>
+		public void ResetRotarySwitchPosition(RotarySwitch rotarySwitch)
+		{
+			m_rotarySwitchPositions[(int)rotarySwitch] = -1;
 		}
 
 		/// <summary>Forget learned offset for a rotary switch.</summary>

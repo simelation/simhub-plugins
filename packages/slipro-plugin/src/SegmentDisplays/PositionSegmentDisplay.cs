@@ -17,7 +17,7 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 	public class PositionSegmentDisplay : SegmentDisplay
 	{
 		/// <summary>Constructor.</summary>
-		public PositionSegmentDisplay() : base("Posn")
+		public PositionSegmentDisplay() : base("Posn", "Position")
 		{
 		}
 

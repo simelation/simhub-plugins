@@ -24,24 +24,24 @@ Data that can be displayed is as follows (in parentheses is the text that will b
 
 ### Left segment display
 
-1. Lap counter (Lap)
-1. Laps to go (togo)
-1. Position (Posn)
-1. Fuel remaining as `FxxLyy` where `xx` = units remaining; `yy` = laps remaining (Fuel)
-1. Brake bias front:rear (bbias)
-1. Oil temperature (Oil)
-1. Water temperature (H2O)
+1. Current lap # (`Lap`)
+1. Laps remaining (`togo`)
+1. Position (`Posn`)
+1. Fuel remaining, as `FxxLyy` where `xx` = units remaining; `yy` = laps remaining (`Fuel`)
+1. Brake bias, front:rear (`bbias`)
+1. Oil temperature (`Oil`)
+1. Water temperature (`H2O`)
 
 ### Right segment display
 
-1. Current lap time (Currnt)
-1. Last lap time (Last)
-1. Best lap time in this session (BstSES)
-1. All-time best lap time (BstAll)
-1. Delta to session best (dltSES)
-1. Delta to all-time best (dltAll)
-1. Time gap to car ahead (gApAhd)
-1. Time gap to car behind (gApbhd)
+1. Current laptime (`Currnt`)
+1. Last laptime (`Last`)
+1. Best lap time in this session (`BstSES`)
+1. All-time best laptime (`BstAll`)
+1. Delta to session best laptime (`dltSES`)
+1. Delta to all-time best laptime (`dltAll`)
+1. Gap to car ahead (`gApAhd`)
+1. Gap to car behind (`gApbhd`)
 
 Note that some of this data will come from the SimHub PersistantTrackerPlugin if not provided by the game
 (e.g. PC2/AMS2 lap time deltas).
@@ -71,13 +71,24 @@ first foray in to WPF...
 
 ### Segment display switching
 
-Currently, the only method for changing segment displays is via a rotary switch connected to the SLI-Pro.
-As such, the plugin needs to learn which rotary to watch for changes of position.
+Segment displays can be configured to be controlled by rotary switches connected to the SLI-Pro, or manually from the UI.
+
+The next version should have the ability to assign a button (from any device) to cycle forward/back through the segment display modes.
+
+#### Rotary control
+
+For rotary switch control, the drop down for the left or right segment display must be set to `Rotary controlled`.
+Also, the plugin needs to learn which rotary to watch for changes of position.
 Press one of the `Learn ... rotary` buttons and change the position of the rotary you wish to use for that function.
 If the rotary is detected, the button should change to `Forget ... rotary`.
 
 Once assigned, changing the position of a rotary assigned to the segment displays will show some text describing the new data that
-will be displayed (e.g. "Currnt", "Fuel", etc.) for a short period (which is configurable; set to 0 to disable completely).
+will be displayed (e.g. `Currnt`, `Fuel`, etc.) for a short period (which is configurable; set to 0 to disable completely).
+
+#### UI control
+
+Simply set the drop down for the left or right segment display to the mode you require. If a rotary is also configured, changes
+of its position will be ignored when the display is not set to `Rotary controlled`.
 
 ### Brightness control
 
@@ -146,4 +157,4 @@ Building within Visual Studio Code is supported, as long as `msbuild.exe` is in 
 
 If Visual Studio 2019 is not also installed, then you will probably need the
 [build tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/) and
-[.NET Framework](https://dotnet.microsoft.com/download/visual-studio-sdks).
+[.NET Framework](https://dotnet.microsoft.com/download/visual-studio-sdks) 4.7.2.

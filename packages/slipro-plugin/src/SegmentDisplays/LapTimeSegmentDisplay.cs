@@ -19,10 +19,11 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 		public delegate TimeSpan GetTimeSpan(NormalizedData normalizedData);
 
 		/// <summary>Constructor.</summary>
-		/// <param name="name">Description of the lap time. This will be displayed when switching
+		/// <param name="shortName">Description of the lap time. This will be displayed when switching
 		/// to this segment display for a period of time (so keep it fewer than 7 characters).</param>
+		/// <param name="longName">Description of the lap time for the UI.</param>
 		/// <param name="getTimeSpan">Function to get a delta value from <see cref="NormalizedData"/>.</param>
-		public LapTimeSegmentDisplay(String name, GetTimeSpan getTimeSpan) : base(name)
+		public LapTimeSegmentDisplay(String shortName, String longName, GetTimeSpan getTimeSpan) : base(shortName, longName)
 		{
 			m_getTimeSpan = getTimeSpan;
 		}

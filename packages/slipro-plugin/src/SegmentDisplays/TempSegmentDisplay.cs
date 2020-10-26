@@ -19,11 +19,13 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 		public delegate double GetTemperature(NormalizedData normalizedData);
 
 		/// <summary>Constructor.</summary>
-		/// <param name="name">Description of the temperature. This will be displayed when switching
+		/// <param name="shortName">Description of the temperature. This will be displayed when switching
 		/// to this segment display for a period of time (so keep it fewer than 7 characters).</param>
+		/// <param name="longName">Description of the temperature for the UI.</param>
 		/// <param name="prefix">String to prefix the temperature with, e.g. "Oil", "H20".</param>
 		/// <param name="getTemperature">Function to get a temperature from <see cref="NormalizedData"/>.</param>
-		public TempSegmentDisplay(String name, String prefix, GetTemperature getTemperature) : base(name)
+		public TempSegmentDisplay(String shortName, String longName, String prefix, GetTemperature getTemperature) :
+			base(shortName, longName)
 		{
 			m_prefix = prefix;
 			m_getTemperature = getTemperature;

@@ -17,7 +17,7 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 	public class BrakeBiasSegmentDisplay : SegmentDisplay
 	{
 		/// <summary>Constructor.</summary>
-		public BrakeBiasSegmentDisplay() : base("bbias")
+		public BrakeBiasSegmentDisplay() : base("bbias", "Brake bias")
 		{
 		}
 

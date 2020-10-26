@@ -18,7 +18,7 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 	public class LapsCounterSegmentDisplay : SegmentDisplay
 	{
 		/// <summary>Constructor.</summary>
-		public LapsCounterSegmentDisplay() : base("Lap")
+		public LapsCounterSegmentDisplay() : base("Lap", "Current lap #")
 		{
 		}
 
