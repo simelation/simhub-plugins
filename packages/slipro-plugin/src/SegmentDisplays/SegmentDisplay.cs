@@ -1,4 +1,9 @@
-﻿using SimElation.SliPro;
+﻿/*
+ * Segement display base functionality.
+ */
+
+using System;
+using SimElation.SliPro;
 using SimHub.Plugins;
 
 // ---------------------------------------------------------------------------------------------------------------------------------

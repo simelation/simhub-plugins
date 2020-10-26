@@ -6,6 +6,8 @@ using System;
 using SimElation.SliPro;
 using SimHub.Plugins;
 
+// ---------------------------------------------------------------------------------------------------------------------------------
+
 namespace SimElation.SimHubIntegration.SliProPlugin
 {
 	/// <summary>Laps remaining segment display.</summary>

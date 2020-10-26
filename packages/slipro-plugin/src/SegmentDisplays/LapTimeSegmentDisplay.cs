@@ -1,18 +1,33 @@
-﻿using System;
+﻿/*
+ * Lap time segment display.
+ */
+
+using System;
 using SimElation.SliPro;
 using SimHub.Plugins;
 
+// ---------------------------------------------------------------------------------------------------------------------------------
+
 namespace SimElation.SimHubIntegration.SliProPlugin
 {
+	/// <summary>Lap time segment display.</summary>
 	class LapTimeSegmentDisplay : SegmentDisplay
 	{
+		/// <summary>Function type to get a lap time value from <see cref="NormalizedData"/>.</summary>
+		/// <param name="normalizedData"></param>
+		/// <returns>Lap time or null if not available.</returns>
 		public delegate TimeSpan GetTimeSpan(NormalizedData normalizedData);
 
+		/// <summary>Constructor.</summary>
+		/// <param name="name">Description of the lap time. This will be displayed when switching
+		/// to this segment display for a period of time (so keep it fewer than 7 characters).</param>
+		/// <param name="getTimeSpan">Function to get a delta value from <see cref="NormalizedData"/>.</param>
 		public LapTimeSegmentDisplay(String name, GetTimeSpan getTimeSpan) : base(name)
 		{
 			m_getTimeSpan = getTimeSpan;
 		}
 
+		/// <inheritdoc/>
 		public override void ProcessData(PluginManager pluginManager, NormalizedData normalizedData, SliPro.SliPro sliPro,
 			SegmentDisplayPosition position)
 		{

@@ -1,9 +1,14 @@
-﻿using System;
-using System.ComponentModel;
+﻿/*
+ * Code-behind for plugin settings UI.
+ */
+
+using System;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+
+// ---------------------------------------------------------------------------------------------------------------------------------
 
 namespace SimElation.SimHubIntegration.SliProPlugin
 {
@@ -105,6 +110,7 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 				new Point(657, 204),
 				new Point(706, 204)
 			};
+
 		private const int ledRadius = 19;
 	}
 }

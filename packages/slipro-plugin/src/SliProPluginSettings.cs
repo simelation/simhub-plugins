@@ -12,10 +12,7 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 		/// <summary>Text to display using the segment displays when SimHub is running but no game is.</summary>
 		public String WelcomeMessage
 		{
-			get
-			{
-				return m_welcomeMessage;
-			}
+			get => m_welcomeMessage;
 
 			set
 			{
@@ -30,10 +27,7 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 		/// <summary>The rate in milliseconds at which to animate the RPM LEDs when in the pitlane. 0 to disable.</summary>
 		public long PitLaneAnimationSpeedMs
 		{
-			get
-			{
-				return m_pitLaneAnimationSpeedMs;
-			}
+			get => m_pitLaneAnimationSpeedMs;
 
 			set
 			{
@@ -48,10 +42,7 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 		/// <summary>How long in milliseconds to light the RPM LEDs when at or above the shift threshold.</summary>
 		public long ShiftPointBlinkOnSpeedMs
 		{
-			get
-			{
-				return m_shiftPointBlinkOnSpeedMs;
-			}
+			get => m_shiftPointBlinkOnSpeedMs;
 
 			set
 			{
@@ -66,10 +57,7 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 		/// <summary>How long in milliseconds to blank the RPM LEDs when at or above the shift threshold.</summary>
 		public long ShiftPointBlinkOffSpeedMs
 		{
-			get
-			{
-				return m_shiftPointBlinkOffSpeedMs;
-			}
+			get => m_shiftPointBlinkOffSpeedMs;
 
 			set
 			{
@@ -84,10 +72,7 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 		/// <summary>How long to display what information a segment display will show after changing mode.</summary>
 		public long SegmentNameTimeoutMs
 		{
-			get
-			{
-				return m_segmentNameTimeoutMs;
-			}
+			get => m_segmentNameTimeoutMs;
 
 			set
 			{

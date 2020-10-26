@@ -227,7 +227,7 @@ namespace SimElation.SliPro
 				m_getLog().InfoFormat("SLI-Pro: rotary switch {0} initial offset {1}", i, m_settings.RotarySwitchOffsets[i]);
 			}
 
-			this.m_settings.PropertyChanged +=
+			m_settings.PropertyChanged +=
 				(object sender, PropertyChangedEventArgs e) =>
 				{
 					switch (e.PropertyName)

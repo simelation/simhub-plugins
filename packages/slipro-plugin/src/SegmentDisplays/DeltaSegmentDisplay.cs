@@ -6,9 +6,11 @@ using System;
 using SimElation.SliPro;
 using SimHub.Plugins;
 
+// ---------------------------------------------------------------------------------------------------------------------------------
+
 namespace SimElation.SimHubIntegration.SliProPlugin
 {
-	/// <summary>Delta times segment display.</summary>
+	/// <summary>Delta time segment display.</summary>
 	public class DeltaSegmentDisplay : SegmentDisplay
 	{
 		/// <summary>Function type to get a delta value from <see cref="NormalizedData"/>.</summary>
