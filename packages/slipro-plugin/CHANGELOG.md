@@ -12,7 +12,6 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 ### Features
 
 -   **simhub-slipro-plugin:** added UI control of segment display modes for when a rotary isn't available. ([a31302a](https://github.com/simelation/simhub-plugins/commit/a31302ae18fdd330253cdfd2afa5efbaccff6698))
--   **simhub-slipro-plugin:** initial commit of SLI-Pro SimHub plugin. ([53f6bd9](https://github.com/simelation/simhub-plugins/commit/53f6bd96d3a0ec5416db91453169be81fe7298e4))
 
 # 0.1.0 (2020-10-04)
 
