@@ -321,7 +321,6 @@ namespace SimElation.SliPro
 		/// <summary>Set a text message using the segment displays and gear indicator.</summary>
 		/// <remarks>
 		/// If the message is more than 13 characters, the beginning and end of the string are displayed.
-		/// The gear indicator is only used if the length is odd.
 		/// Naturally some characters will not display correctly on a figure-8 LED segment!
 		/// This call does not affect other LEDs than the segment displays; you may wish to call <see cref="ResetLedState"/>first.
 		/// No write to the device is performed; <see cref="SendLedState"/> would need to be called.
@@ -330,12 +329,12 @@ namespace SimElation.SliPro
 		public void SetTextMessage(String str)
 		{
 			// Split the message across the left and right segment displays and use the gear indicator if need be.
-			int segmentLength = str.Length / 2;
-			String left = str.Substring(0, segmentLength);
-			String right = str.Substring(str.Length - segmentLength);
+			int substringLength = Math.Min(str.Length / 2, (int)Constants.segmentDisplayWidth);
+			String left = str.Substring(0, substringLength);
+			String right = str.Substring(str.Length - substringLength);
 
 			m_ledHidReport.Data[LedStateReport.gearIndex] =
-				(byte)(((left.Length + right.Length) != str.Length) ? str[segmentLength] : ' ');
+				(byte)(((left.Length + right.Length) != str.Length) ? str[substringLength] : ' ');
 
 			SetSegment(SegmentDisplayPosition.left, 0, Constants.segmentDisplayWidth,
 				left.PadLeft((int)Constants.segmentDisplayWidth));
@@ -358,13 +357,13 @@ namespace SimElation.SliPro
 			switch (segmentDisplayPosition)
 			{
 				case SegmentDisplayPosition.left:
-					InternalSetSegment(LedStateReport.leftSegmentIndex, Constants.segmentDisplayWidth, firstCharacterOffset, length, str,
-						decimalOrPrimeIndexList);
+					InternalSetSegment(LedStateReport.leftSegmentIndex, Constants.segmentDisplayWidth, firstCharacterOffset,
+						length, str, decimalOrPrimeIndexList);
 					break;
 
 				case SegmentDisplayPosition.right:
-					InternalSetSegment(LedStateReport.rightSegmentIndex, Constants.segmentDisplayWidth, firstCharacterOffset, length, str,
-						decimalOrPrimeIndexList);
+					InternalSetSegment(LedStateReport.rightSegmentIndex, Constants.segmentDisplayWidth, firstCharacterOffset,
+						length, str, decimalOrPrimeIndexList);
 					break;
 			}
 		}
