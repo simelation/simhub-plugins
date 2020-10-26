@@ -3,6 +3,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Threading;
@@ -141,6 +142,14 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 		/// <param name="pluginManager"></param>
 		public void Init(PluginManager pluginManager)
 		{
+			double? NextCarDelta(List<Opponent> opponentList)
+			{
+				if ((0 == opponentList.Count) || (opponentList[0].RelativeGapToPlayer == null))
+					return null;
+
+				return Math.Abs((double)opponentList[0].RelativeGapToPlayer);
+			}
+
 			Logging.Current.InfoFormat("SLI-Pro: initializing plugin in thread {0}", Thread.CurrentThread.ManagedThreadId);
 
 			m_segmentDisplayManagerList = new SegmentDisplayManager[(int)SegmentDisplayPosition.count];
@@ -180,13 +189,13 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 						{
 							// Semantics of OpponentAtPosition seem unclear, so peek list of opponents.
 							var opponentList = normalizedData.m_statusData.OpponentsAheadOnTrackPlayerClass;
-							return (opponentList.Count > 0) ? opponentList[0].RelativeGapToPlayer : null;
+							return NextCarDelta(opponentList);
 						}),
 					new DeltaSegmentDisplay("GapBhd", "Gap to car behind", (NormalizedData normalizedData) =>
 						{
 							// Semantics of OpponentAtPosition seem unclear, so peek list of opponents.
 							var opponentList = normalizedData.m_statusData.OpponentsBehindOnTrackPlayerClass;
-							return (opponentList.Count > 0) ? opponentList[0].RelativeGapToPlayer : null;
+							return NextCarDelta(opponentList);
 						})
 				});
 
