@@ -5,6 +5,7 @@
 using System;
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -54,6 +55,13 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 
 		/// <summary><see cref="Settings"/> accessor.</summary>
 		public Settings Settings { get; }
+
+		/// <summary>Title for UI.</summary>
+		public String Title
+		{
+			get =>
+				String.Format("SLI-Pro Plugin {0} Options", Assembly.GetExecutingAssembly().GetName().Version.ToString());
+		}
 
 		/// <summary>List of items for the left segment display combobox.</summary>
 		public String[] LeftSegmentDisplayComboBoxContents

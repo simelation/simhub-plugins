@@ -32,7 +32,7 @@
 			<ColumnDefinition Width="150*"/>
 			<ColumnDefinition Width="150*"/>
 		</Grid.ColumnDefinitions>
-		<styles:SHSection Title="SLI-Pro Plugin Options" Grid.ColumnSpan="2" Grid.RowSpan="2" Grid.Row="0"/>
+		<styles:SHSection Title="{Binding Title}" Grid.ColumnSpan="2" Grid.RowSpan="2" Grid.Row="0"/>
 
 		<Image x:Name="SLI_PRO_RevA_bmp" Grid.ColumnSpan="2" Grid.Row="1" Source="..\assets\SLI-PRO-RevA.png" Stretch="None"
 			   MouseDown="OnSliProClick"/>
