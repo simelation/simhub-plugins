@@ -117,7 +117,7 @@
     <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="assets\SLI-PRO-RevA.bmp" />
+    <Resource Include="assets\SLI-PRO-RevA.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

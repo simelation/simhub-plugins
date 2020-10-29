@@ -34,7 +34,7 @@
 		</Grid.ColumnDefinitions>
 		<styles:SHSection Title="SLI-Pro Plugin Options" Grid.ColumnSpan="2" Grid.RowSpan="2" Grid.Row="0"/>
 
-		<Image x:Name="SLI_PRO_RevA_bmp" Grid.ColumnSpan="2" Grid.Row="1" Source="..\assets\SLI-PRO-RevA.bmp" Stretch="None"
+		<Image x:Name="SLI_PRO_RevA_bmp" Grid.ColumnSpan="2" Grid.Row="1" Source="..\assets\SLI-PRO-RevA.png" Stretch="None"
 			   MouseDown="OnSliProClick"/>
 
 		<StackPanel Grid.Row="2" Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Right" Margin="5,5,5,5">
