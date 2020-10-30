@@ -129,6 +129,26 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 			return Plugin.GetSegmentDisplayNameList(segmentDisplayPosition);
 		}
 
+		private void OnHelpClick(object sender, System.Windows.RoutedEventArgs e)
+		{
+			const String rootUrl = "https://github.com/simelation/simhub-plugins/blob";
+			String url, version = Assembly.GetExecutingAssembly().GetName().Version.ToString();
+			int index = version.LastIndexOf(".");
+
+			if (index == -1)
+			{
+				url = String.Format("{0}/master/README.md", rootUrl);
+			}
+			else
+			{
+				String tagVersion = version.Substring(0, index);
+				url = String.Format("{0}/%40simelation/simhub-slipro-plugin%40{1}/packages/slipro-plugin/README.md",
+					rootUrl, tagVersion);
+			}
+
+			System.Diagnostics.Process.Start(url);
+		}
+
 		private void OnSliProClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
 		{
 			var point = e.GetPosition((IInputElement)sender);

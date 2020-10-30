@@ -19,7 +19,10 @@
 	<ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
 		<StackPanel Orientation="Vertical">
 			<styles:SHSection Title="{Binding Title}">
-				<Image Source="..\assets\SLI-PRO-RevA.png" Stretch="None" MouseDown="OnSliProClick" Margin="0,20,0,20"/>
+				<StackPanel Orientation="Vertical">
+					<styles:SHLinkButtonSmall HorizontalAlignment="Left" Click="OnHelpClick">Help</styles:SHLinkButtonSmall>
+					<Image Source="..\assets\SLI-PRO-RevA.png" Stretch="None" MouseDown="OnSliProClick" Margin="0,20,0,20"/>
+				</StackPanel>
 			</styles:SHSection>
 			
 			<styles:SHSection Title="SEGMENT DISPLAYS">
