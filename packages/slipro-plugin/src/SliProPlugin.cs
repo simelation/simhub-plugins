@@ -333,14 +333,6 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 			return m_segmentDisplayManagerList[(int)segmentDisplayPosition].NameList;
 		}
 
-		/// <summary>Set the brightness of the device's LEDs.</summary>
-		/// <param name="level">The brightness between 0 (dullest) and 254 (brightest).</param>
-		public void SetBrightness(byte level)
-		{
-			if (m_sliPro.IsAvailable)
-				m_sliPro.SendBrightness(level);
-		}
-
 		/// <summary>
 		/// Learn (if not currently known) or forget (if known) the rotary switch for left/right segment control, or brightness.
 		/// </summary>
@@ -469,9 +461,9 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 					break;
 
 				case SliPro.RotarySwitch.brightness:
-					// Ignore the brightness control if we are setting one explicitly.
-					if (m_settings.SliProSettings.Brightness == null)
-						SetBrightness((byte)((254 / 12) * newPosition));
+					// Only set the brightness control if rotary control is enabled.
+					if (m_settings.SliProSettings.IsBrightnessRotaryControlled)
+						m_settings.SliProSettings.BrightnessLevel = SliPro.SliPro.GetBrightnessLevelFromRotaryPosition(newPosition);
 					break;
 			}
 		}

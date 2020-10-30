@@ -13,7 +13,7 @@
 	<UserControl.Resources>
 		<local:AllowNullConverter x:Key="AllowNullConverter" />
 		<local:RotaryDetectConverter x:Key="RotaryDetectConverter" />
-		<local:BrightnessRotaryEnabledConverter x:Key="BrightnessRotaryEnabledConverter" />
+		<local:NotConverter x:Key="NotConverter" />
 	</UserControl.Resources>
 	
 	<ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
@@ -47,55 +47,51 @@
 			</styles:SHSection>
 
 			<styles:SHSection Title="DISPLAY BRIGHTNESS">
-				<autogrid:AutoGrid RowCount="2" Columns="200,200,300">
-					<TextBlock HorizontalAlignment="Left" VerticalAlignment="Center" Margin="4,4,4,4" Text="Brightness level" />
-
-					<mah:NumericUpDown Minimum="0" Maximum="254" HasDecimals="False"
-									   Margin="4,4,4,4" VerticalAlignment="Center"
-   									   Value="{Binding Path=Settings.SliProSettings.Brightness, Mode=TwoWay,
-										   Converter={StaticResource AllowNullConverter}}"
-									   ToolTip="Any value set here overrides an assigned rotary control of the brightness." />
-
-					<styles:SHButtonPrimary HorizontalAlignment="Left" VerticalAlignment="Center" Width="200"
-											Margin="20,4,4,4" Click="OnBrightnessRotaryClick"
-											IsEnabled="{Binding Path=Settings.SliProSettings.Brightness,
-												Converter={StaticResource BrightnessRotaryEnabledConverter}}"
+				<autogrid:AutoGrid RowCount="2" Columns="200,28,172">
+					<Label VerticalAlignment="Center" Margin="4,4,4,4" Content="Rotary control"/>
+					<styles:SHToggleButton HorizontalAlignment="Left" Margin="4,4,4,4"
+										   IsChecked="{Binding Path=Settings.SliProSettings.IsBrightnessRotaryControlled, Mode=TwoWay}"/>
+					<styles:SHButtonPrimary VerticalAlignment="Center" Margin="20,4,4,4" x:Name="learnRotaryButton"
+											IsEnabled="{Binding Path=Settings.SliProSettings.IsBrightnessRotaryControlled}"
+											Click="OnBrightnessRotaryClick"
 											Content="{Binding Path=Settings.SliProSettings.RotarySwitchOffsets[(slipro:RotarySwitch)brightness],
 												Converter={StaticResource RotaryDetectConverter}, ConverterParameter='brightness'}"
 											ToolTip="Learn or forget a rotary switch attached to the SLI-Pro to control the brightness." />
+
+					<Label HorizontalAlignment="Left" VerticalAlignment="Center" Margin="4,4,4,4" Content="Brightness level" />
+					<Slider Minimum="1" Maximum="254" VerticalAlignment="Center" Grid.ColumnSpan="2" Margin="4,4,4,4"
+							IsEnabled="{Binding Path=Settings.SliProSettings.IsBrightnessRotaryControlled, Converter={StaticResource NotConverter}}"
+							Value="{Binding Path=Settings.SliProSettings.BrightnessLevel, Mode=TwoWay,
+								Converter={StaticResource AllowNullConverter}}"/>
 				</autogrid:AutoGrid>
 			</styles:SHSection>
 
 			<styles:SHSection Title="CONFIGURATION">
 				<autogrid:AutoGrid RowCount="5" Columns="200,200">
-					<TextBlock VerticalAlignment="Center" Margin="4,4,4,4" Text="Welcome message" />
+					<Label VerticalAlignment="Center" Margin="4,4,4,4" Content="Welcome message" />
 					<TextBox Margin="4,4,4,4" VerticalAlignment="Center"
 							 Text="{Binding Path=Settings.WelcomeMessage, Mode=TwoWay}"
 							 ToolTip="Text to display using the segment displays when SimHub is running but no game is." />
 
-					<TextBlock VerticalAlignment="Center" Margin="4,4,4,4"
-							   Text="Pit lane animation speed (ms)" />
+					<Label VerticalAlignment="Center" Margin="4,4,4,4" Content="Pit lane animation speed (ms)" />
 					<mah:NumericUpDown Minimum="0" Maximum="20000" HasDecimals="False" Margin="4,4,4,4"
 									   VerticalAlignment="Center"
 									   Value="{Binding Path=Settings.PitLaneAnimationSpeedMs, Mode=TwoWay}"
 									   ToolTip="The rate in milliseconds at which to animate the RPM LEDs when in the pitlane. 0 to disable." />
 
-					<TextBlock VerticalAlignment="Center" Margin="4,4,4,4"
-							   Text="Shift point blink on time (ms)" />
+					<Label VerticalAlignment="Center" Margin="4,4,4,4" Content="Shift point blink on time (ms)" />
 					<mah:NumericUpDown Minimum="0" Maximum="20000" HasDecimals="False" Margin="4,4,4,4"
 									   VerticalAlignment="Center"
 									   Value="{Binding Path=Settings.ShiftPointBlinkOnSpeedMs, Mode=TwoWay}"
 									   ToolTip="How long in milliseconds to light the RPM LEDs when at or above the shift threshold." />
 
-					<TextBlock VerticalAlignment="Center" Margin="4,4,4,4"
-							   Text="Shift point blink off time (ms)" />
+					<Label VerticalAlignment="Center" Margin="4,4,4,4" Content="Shift point blink off time (ms)" />
 					<mah:NumericUpDown Minimum="0" Maximum="20000" HasDecimals="False" Margin="4,4,4,4"
 									   VerticalAlignment="Center"
 									   Value="{Binding Path=Settings.ShiftPointBlinkOffSpeedMs, Mode=TwoWay}"
 									   ToolTip="How long in milliseconds to blank the RPM LEDs when at or above the shift threshold." />
 
-					<TextBlock VerticalAlignment="Center" Margin="4,4,4,4"
-							   Text="Show new segment title for (ms)" />
+					<Label VerticalAlignment="Center" Margin="4,4,4,4" Content="Show new segment title for (ms)" />
 					<mah:NumericUpDown Minimum="0" Maximum="60000" HasDecimals="False" Margin="4,4,4,4"
 									   VerticalAlignment="Center"
 									   Value="{Binding Path=Settings.SegmentNameTimeoutMs, Mode=TwoWay}"

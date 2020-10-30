@@ -123,16 +123,31 @@ namespace SimElation.SliPro
 			/// </remarks>
 			private RotarySwitchOffsetsImpl m_rotarySwitchOffsets = new RotarySwitchOffsetsImpl();
 
-			/// <summary>Brightness property.</summary>
-			public byte? Brightness
+			/// <summary>Brightness controlled via rotary property.</summary>
+			public bool IsBrightnessRotaryControlled
 			{
-				get => m_brightness;
+				get => m_isBrightnessRotaryControlled;
 
 				set
 				{
-					if (m_brightness != value)
+					if (m_isBrightnessRotaryControlled != value)
 					{
-						m_brightness = value;
+						m_isBrightnessRotaryControlled = value;
+						OnPropertyChanged();
+					}
+				}
+			}
+
+			/// <summary>Brightness property.</summary>
+			public byte BrightnessLevel
+			{
+				get => m_brightnessLevel;
+
+				set
+				{
+					if (m_brightnessLevel != value)
+					{
+						m_brightnessLevel = value;
 						OnPropertyChanged();
 					}
 				}
@@ -147,8 +162,8 @@ namespace SimElation.SliPro
 				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 			}
 
-			/// <summary>Optional brightness.</summary>
-			private byte? m_brightness = null;
+			private bool m_isBrightnessRotaryControlled = true;
+			private byte m_brightnessLevel = SliPro.GetBrightnessLevelFromRotaryPosition(-1);
 		}
 
 		/// <summary>Delegate to access a <see cref="log4net.ILog"/> object for logging purposes.</summary>
@@ -230,9 +245,22 @@ namespace SimElation.SliPro
 				{
 					switch (e.PropertyName)
 					{
-						case nameof(m_settings.Brightness):
-							if ((m_settings.Brightness != null) && IsAvailable)
-								SendBrightness((byte)m_settings.Brightness);
+						case nameof(m_settings.IsBrightnessRotaryControlled):
+							if (m_settings.IsBrightnessRotaryControlled)
+							{
+								// Switching to rotary control, so dig out position of the rotary switch and set the level.
+								m_settings.BrightnessLevel =
+									GetBrightnessLevelFromRotaryPosition(GetRotarySwitchPosition(RotarySwitch.brightness));
+							}
+							else if (IsAvailable)
+							{
+								SendBrightness(m_settings.BrightnessLevel);
+							}
+							break;
+
+						case nameof(m_settings.BrightnessLevel):
+							if (IsAvailable)
+								SendBrightness(m_settings.BrightnessLevel);
 							break;
 
 						default:
@@ -548,6 +576,18 @@ namespace SimElation.SliPro
 			m_settings.RotarySwitchOffsets[rotarySwitch] = RotaryDetector.undefinedOffset;
 		}
 
+		/// <summary>Calculate brightness level from rotary position.</summary>
+		/// <param name="position"></param>
+		/// <returns>Brightness level, or a default if rotary is in an unknown position.</returns>
+		public static byte GetBrightnessLevelFromRotaryPosition(int position)
+		{
+			// TODO who says it's a 12 posn rotary that's connected?
+			const int numberOfRotaryPositions = 12;
+
+			return ((position >= 0) && (position < numberOfRotaryPositions)) ?
+				(byte)((254 / numberOfRotaryPositions) * position) : (byte)100;
+		}
+
 		private void InternalSetSegment(uint segmentIndex, uint segmentLength, uint offset, uint length, String value,
 			params uint[] decimalOrPrimeIndexList)
 		{
@@ -581,8 +621,8 @@ namespace SimElation.SliPro
 			m_isAvailable = true;
 
 			// Explicit brightness set in config, so use that (and ignore any rotary).
-			if (m_settings.Brightness != null)
-				SendBrightness((byte)m_settings.Brightness);
+			if (!m_settings.IsBrightnessRotaryControlled)
+				SendBrightness(m_settings.BrightnessLevel);
 
 			// Start reading reports from the board.
 			ReadHidReport();
