@@ -47,7 +47,7 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 		/// <summary>Is the display rotary controlled?</summary>
 		public bool IsRotaryControlled
 		{
-			get => (bool)GetValue(IsRotaryControlledProperty);
+			get => (GetValue(IsRotaryControlledProperty) as bool?) ?? false;
 			set => SetValue(IsRotaryControlledProperty, value);
 		}
 
