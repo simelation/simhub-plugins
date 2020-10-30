@@ -71,32 +71,40 @@ first foray in to WPF...
 
 ### Segment display switching
 
-Segment displays can be configured to be controlled by rotary switches connected to the SLI-Pro, or manually from the UI.
-
-The next version should have the ability to assign a button (from any device) to cycle forward/back through the segment display modes.
+Segment displays can be configured to be controlled by rotary switches connected to the SLI-Pro, or manually from the UI, or using
+controller buttons.
 
 #### Rotary control
 
-For rotary switch control, the drop down for the left or right segment display must be set to `Rotary controlled`.
-Also, the plugin needs to learn which rotary to watch for changes of position.
-Press one of the `Learn ... rotary` buttons and change the position of the rotary you wish to use for that function.
-If the rotary is detected, the button should change to `Forget ... rotary`.
+For rotary switch control, the toggle button under `Rotary control` should be enabled for the left or right segment display
+(as appropriate).
+
+The plugin needs to learn which rotary to watch for changes of position.
+Press one of the `Learn rotary control` buttons and change the position of the rotary you wish to use for that function.
+If the rotary is detected, the button should change to `Forget rotary control`. Note these buttons are only enabled when the
+`Rotary control` toggle is also enabled.
 
 Once assigned, changing the position of a rotary assigned to the segment displays will show some text describing the new data that
 will be displayed (e.g. `Currnt`, `Fuel`, etc.) for a short period (which is configurable; set to 0 to disable completely).
 
 #### UI control
 
-Simply set the drop down for the left or right segment display to the mode you require. If a rotary is also configured, changes
-of its position will be ignored when the display is not set to `Rotary controlled`.
+The `Rotary control` toggle should be disabled and then you can simply set the `Mode` drop down for the left or right
+segment display to the one you require.
+
+#### Button control
+
+When `Rotary control` is disabled, you can also assign buttons to go to the next/previous display mode using the regular SimHub UI.
+Note the displays cycle, so it's not necessary to assign both.
 
 ### Brightness control
 
-Similarly, brightness can be control by a rotary switch. Press `Learn brightness rotary` and change the position of the
-rotary you wish to use for that function. If the rotary is detected, the button should change to `Forget brightness rotary`.
+Similarly, brightness can be control by a rotary switch or UI. Enable the `Rotary control` toggle under `Display Brightness`, then
+press `Learn rotary` next to it and change the position of the rotary you wish to use for that function.
+If the rotary is detected, the button should change to `Forget rotary`.
 
-Brightness can also be set explicitly in the plugin's configuraion, in which case any assigned rotary is ignored
-(therefore it isn't mandatory to assign a rotary for the brightness function).
+Brightness can also be set explicitly in the plugin's configuraion using a slider if the `Rotary control` toggle is disabled.
+Any assigned rotary is ignored (and therefore it isn't mandatory to assign a rotary for the brightness function).
 
 ### Welcome message
 
