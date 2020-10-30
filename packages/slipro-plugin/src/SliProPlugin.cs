@@ -60,7 +60,7 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 
 			private Timer m_timer;
 			private bool m_showName = false;
-			private int m_currentIndex = int.MaxValue;
+			private int m_currentIndex = -1;
 
 			public String[] NameList
 			{
@@ -76,7 +76,7 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 
 			public void ProcessData(PluginManager pluginManager, NormalizedData normalizedData, SliPro.SliPro sliPro)
 			{
-				if (m_currentIndex < m_segmentDisplayList.Length)
+				if (ValidateIndex(m_currentIndex) != -1)
 				{
 					var segmentDisplay = m_segmentDisplayList[m_currentIndex];
 
@@ -91,6 +91,23 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 				}
 			}
 
+			public int GetNextIndex()
+			{
+				int newIndex = ValidateIndex(m_currentIndex + 1);
+				return (newIndex == -1) ? 0 : newIndex;
+			}
+
+			public int GetPreviousIndex()
+			{
+				int newIndex = ValidateIndex(m_currentIndex - 1);
+				return (newIndex == -1) ? (m_segmentDisplayList.Length - 1) : newIndex;
+			}
+
+			public int ValidateIndex(int newIndex)
+			{
+				return ((newIndex >= 0) && (newIndex < m_segmentDisplayList.Length)) ? newIndex : -1;
+			}
+
 			public void SetByIndex(int newIndex, long segmentNameTimeoutMs)
 			{
 				m_currentIndex = newIndex;
@@ -101,14 +118,6 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 					m_timer.Change(segmentNameTimeoutMs, Timeout.Infinite);
 					m_showName = true;
 				}
-			}
-
-			public void SetByName(String longName, long segmentNameTimeoutMs)
-			{
-				int index =
-					Array.FindIndex(m_segmentDisplayList, (SegmentDisplay segmentDisplay) => segmentDisplay.LongName == longName);
-				if (index != -1)
-					SetByIndex(index, segmentNameTimeoutMs);
 			}
 		}
 
@@ -131,6 +140,18 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 		private static bool[] pitLaneLeds2 = { false, false, false, false, true, true, true, true, true };
 
 		private NormalizedData m_normalizedData = new NormalizedData();
+
+		/// <summary>Left segment display previous action name.</summary>
+		public static String LeftSegmentDisplayPreviousAction = "LeftSegmentDisplayPrevious";
+
+		/// <summary>Left segment display next action name.</summary>
+		public static String LeftSegmentDisplayNextAction = "LeftSegmentDisplayNext";
+
+		/// <summary>Right segment display previous action name.</summary>
+		public static String RightSegmentDisplayPreviousAction = "RightSegmentDisplayPrevious";
+
+		/// <summary>Right segment display next action name.</summary>
+		public static String RightSegmentDisplayNextAction = "RightSegmentDisplayNext";
 
 		/// <summary>Instance of the current plugin manager.</summary>
 		public PluginManager PluginManager { get; set; }
@@ -209,40 +230,73 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 			m_settings.PropertyChanged +=
 				(object sender, PropertyChangedEventArgs e) =>
 				{
-					void ProcessSegmentDisplayChange(SegmentDisplayPosition segmentDisplayPosition, String segmentDisplay,
-						RotarySwitch rotarySwitch)
-					{
-						if (segmentDisplay != null)
-						{
-							if (segmentDisplay == Settings.RotaryControlledKey)
-							{
-								// Reset such that next message from the SLI-Pro tells us which segment to display.
-								m_sliPro.ResetRotarySwitchPosition(rotarySwitch);
-							}
-							else
-							{
-								m_segmentDisplayManagerList[(int)segmentDisplayPosition].SetByName(segmentDisplay,
-									m_settings.SegmentNameTimeoutMs);
-							}
-						}
-					}
-
 					switch (e.PropertyName)
 					{
-						case nameof(m_settings.LeftSegmentDisplay):
-							ProcessSegmentDisplayChange(SegmentDisplayPosition.left, m_settings.LeftSegmentDisplay,
-								RotarySwitch.leftSegment);
+						case nameof(m_settings.IsLeftSegmentDisplayRotaryControlled):
+							if (m_settings.IsLeftSegmentDisplayRotaryControlled)
+							{
+								// Switched back to rotary controlled, so get the last position from the SLI-Pro and set that.
+								m_settings.LeftSegmentDisplayIndex = m_sliPro.GetRotarySwitchPosition(RotarySwitch.leftSegment);
+							}
 							break;
 
-						case nameof(m_settings.RightSegmentDisplay):
-							ProcessSegmentDisplayChange(SegmentDisplayPosition.right, m_settings.RightSegmentDisplay,
-								RotarySwitch.rightSegment);
+						case nameof(m_settings.IsRightSegmentDisplayRotaryControlled):
+							if (m_settings.IsRightSegmentDisplayRotaryControlled)
+							{
+								// Switched back to rotary controlled, so get the last position from the SLI-Pro and set that.
+								m_settings.RightSegmentDisplayIndex = m_sliPro.GetRotarySwitchPosition(RotarySwitch.rightSegment);
+							}
+							break;
+
+						case nameof(m_settings.LeftSegmentDisplayIndex):
+							// Left segment display has changed, by rotary, button or UI.
+							m_segmentDisplayManagerList[(int)SegmentDisplayPosition.left].SetByIndex(
+								m_settings.LeftSegmentDisplayIndex,
+								m_settings.SegmentNameTimeoutMs);
+							break;
+
+						case nameof(m_settings.RightSegmentDisplayIndex):
+							// Right segment display has changed, by rotary, button or UI.
+							m_segmentDisplayManagerList[(int)SegmentDisplayPosition.right].SetByIndex(
+								m_settings.RightSegmentDisplayIndex,
+								m_settings.SegmentNameTimeoutMs);
 							break;
 
 						default:
 							break;
 					}
 				};
+
+			int SegmentDisplayAction(SegmentDisplayPosition segmentDisplayPosition, bool isNext)
+			{
+				var segmentDisplayManager = m_segmentDisplayManagerList[(int)segmentDisplayPosition];
+				return isNext ? segmentDisplayManager.GetNextIndex() : segmentDisplayManager.GetPreviousIndex();
+			}
+
+			void LeftSegmentDisplayAction(bool isNext)
+			{
+				if (!m_settings.IsLeftSegmentDisplayRotaryControlled)
+					m_settings.LeftSegmentDisplayIndex = SegmentDisplayAction(SegmentDisplayPosition.left, isNext);
+			}
+
+			void RightSegmentDisplayAction(bool isNext)
+			{
+				if (!m_settings.IsRightSegmentDisplayRotaryControlled)
+					m_settings.RightSegmentDisplayIndex = SegmentDisplayAction(SegmentDisplayPosition.right, isNext);
+			}
+
+			// Segment display control actions.
+			pluginManager.AddAction(LeftSegmentDisplayPreviousAction, GetType(),
+				(pluginManager2, buttonName) => LeftSegmentDisplayAction(false));
+
+			pluginManager.AddAction(LeftSegmentDisplayNextAction, GetType(),
+				(pluginManager2, buttonName) => LeftSegmentDisplayAction(true));
+
+			pluginManager.AddAction(RightSegmentDisplayPreviousAction, GetType(),
+				(pluginManager2, buttonName) => RightSegmentDisplayAction(false));
+
+			pluginManager.AddAction(RightSegmentDisplayNextAction, GetType(),
+				(pluginManager2, buttonName) => RightSegmentDisplayAction(true));
 
 			Logging.Current.Info("SLI-Pro: initialization complete");
 		}
@@ -399,18 +453,18 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 			switch (rotarySwitch)
 			{
 				case SliPro.RotarySwitch.leftSegment:
-					if (m_settings.LeftSegmentDisplay == Settings.RotaryControlledKey)
+					if (m_settings.IsLeftSegmentDisplayRotaryControlled)
 					{
-						m_segmentDisplayManagerList[(int)SegmentDisplayPosition.left].SetByIndex(newPosition,
-							m_settings.SegmentNameTimeoutMs);
+						m_settings.LeftSegmentDisplayIndex = m_segmentDisplayManagerList[(int)SegmentDisplayPosition.left].
+							ValidateIndex(newPosition);
 					}
 					break;
 
 				case SliPro.RotarySwitch.rightSegment:
-					if (m_settings.RightSegmentDisplay == Settings.RotaryControlledKey)
+					if (m_settings.IsRightSegmentDisplayRotaryControlled)
 					{
-						m_segmentDisplayManagerList[(int)SegmentDisplayPosition.right].SetByIndex(newPosition,
-							m_settings.SegmentNameTimeoutMs);
+						m_settings.RightSegmentDisplayIndex = m_segmentDisplayManagerList[(int)SegmentDisplayPosition.right].
+							ValidateIndex(newPosition);
 					}
 					break;
 

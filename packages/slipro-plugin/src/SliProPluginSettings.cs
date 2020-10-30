@@ -1,6 +1,12 @@
-﻿using System;
+﻿/*
+ * SimHub SLI-Pro plugin settings.
+ */
+
+using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+
+// ---------------------------------------------------------------------------------------------------------------------------------
 
 namespace SimElation.SimHubIntegration.SliProPlugin
 {
@@ -9,39 +15,65 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 	{
 		// TODO investigate helpers to reduce boilerplate.
 
-		/// <summary>Special name for rotary controlled segment display.</summary>
-		public static String RotaryControlledKey = "Rotary controlled";
-
-		/// <summary>Left segment display mode.</summary>
-		public String LeftSegmentDisplay
+		/// <summary>Is the left segment display rotary controlled?</summary>
+		public bool IsLeftSegmentDisplayRotaryControlled
 		{
-			get => m_leftSegmentDisplay;
+			get => m_isLeftSegmentDisplayRotaryControlled;
 
 			set
 			{
-				if (m_leftSegmentDisplay != value)
+				if (m_isLeftSegmentDisplayRotaryControlled != value)
 				{
-					m_leftSegmentDisplay = value;
+					m_isLeftSegmentDisplayRotaryControlled = value;
+					OnPropertyChanged();
+				}
+			}
+		}
+
+		/// <summary>Is the right segment display rotary controlled?</summary>
+		public bool IsRightSegmentDisplayRotaryControlled
+		{
+			get => m_isRightSegmentDisplayRotaryControlled;
+
+			set
+			{
+				if (m_isRightSegmentDisplayRotaryControlled != value)
+				{
+					m_isRightSegmentDisplayRotaryControlled = value;
+					OnPropertyChanged();
+				}
+			}
+		}
+
+		/// <summary>Left segment display mode.</summary>
+		public int LeftSegmentDisplayIndex
+		{
+			get => m_leftSegmentDisplayIndex;
+
+			set
+			{
+				if (m_leftSegmentDisplayIndex != value)
+				{
+					m_leftSegmentDisplayIndex = value;
 					OnPropertyChanged();
 				}
 			}
 		}
 
 		/// <summary>Right segment display mode.</summary>
-		public String RightSegmentDisplay
+		public int RightSegmentDisplayIndex
 		{
-			get => m_rightSegmentDisplay;
+			get => m_rightSegmentDisplayIndex;
 
 			set
 			{
-				if (m_rightSegmentDisplay != value)
+				if (m_rightSegmentDisplayIndex != value)
 				{
-					m_rightSegmentDisplay = value;
+					m_rightSegmentDisplayIndex = value;
 					OnPropertyChanged();
 				}
 			}
 		}
-
 
 		/// <summary>Text to display using the segment displays when SimHub is running but no game is.</summary>
 		public String WelcomeMessage
@@ -133,8 +165,10 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 		}
 
-		private String m_leftSegmentDisplay = RotaryControlledKey;
-		private String m_rightSegmentDisplay = RotaryControlledKey;
+		private bool m_isLeftSegmentDisplayRotaryControlled = true;
+		private bool m_isRightSegmentDisplayRotaryControlled = true;
+		private int m_leftSegmentDisplayIndex = -1;
+		private int m_rightSegmentDisplayIndex = -1;
 		private String m_welcomeMessage = "Sim-Hub";
 		private long m_pitLaneAnimationSpeedMs = 250;
 		private long m_shiftPointBlinkOnSpeedMs = 100;

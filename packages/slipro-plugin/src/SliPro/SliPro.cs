@@ -35,11 +35,6 @@ namespace SimElation.SliPro
 
 		/// <summary>The number of supported potentiometers.</summary>
 		public const uint maxNumberOfPots = 2;
-
-		// TODO MahApps NumericUpDown takes a double. I'm sure there's a way to convert it in the xaml but I
-		// don't know what it is yet, so just provide a double const...
-		/// <summary>The number of LEDs in the rev display as a double.</summary>
-		public const double numberOfRevLedsDouble = numberOfRevLeds;
 	}
 
 	/// <summary>The segment display positions.</summary>
@@ -257,10 +252,10 @@ namespace SimElation.SliPro
 		}
 
 		/// <summary>Dispose.</summary>
-		/// <param name="isDisposing"></param>
 		/// <remarks>
 		/// If open, clears all the LEDs and closes the device.
 		/// </remarks>
+		/// <param name="isDisposing"></param>
 		protected virtual void Dispose(bool isDisposing)
 		{
 			if (m_isDisposed)
@@ -512,7 +507,9 @@ namespace SimElation.SliPro
 		}
 
 		/// <summary>Initiate a detection for a rotary switch.</summary>
+		/// <remarks>
 		/// The object will monitor received reports from the device for changes.
+		/// </remarks>
 		/// <param name="rotarySwitch">Which rotary switch operation to assign to the physically moved switch.</param>
 		/// <param name="timeoutMs">How long to attempt to detect the rotary for, in milliseconds.</param>
 		public void LearnRotary(RotarySwitch rotarySwitch, int timeoutMs = 5000)
@@ -536,12 +533,12 @@ namespace SimElation.SliPro
 				});
 		}
 
-		/// <summary>Reset a cached rotary switch position.</summary>
-		/// As such, the next update from the SLI-Pro with rotary switch position information will invoke the changed callback.
-		/// <param name="rotarySwitch">Which rotary to reset for.</param>
-		public void ResetRotarySwitchPosition(RotarySwitch rotarySwitch)
+		/// <summary>Get the current position of a rotary switch.</summary>
+		/// <param name="rotarySwitch"></param>
+		/// <returns>The current position of the rotary, or -1 if unknown or rotary not assigned.</returns>
+		public int GetRotarySwitchPosition(RotarySwitch rotarySwitch)
 		{
-			m_rotarySwitchPositions[(int)rotarySwitch] = -1;
+			return m_rotarySwitchPositions[(int)rotarySwitch];
 		}
 
 		/// <summary>Forget learned offset for a rotary switch.</summary>

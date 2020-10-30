@@ -6,6 +6,7 @@
 
 namespace SimElation.SliPro
 {
+	// Stop complaints about undocumented public members.
 #pragma warning disable 1591
 
 	/// <summary>Format of report received from SLI-Pro.</summary>

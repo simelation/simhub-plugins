@@ -4,7 +4,6 @@
 
 using System;
 using System.Globalization;
-using System.Linq;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
@@ -35,15 +34,38 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 	{
 		public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
 		{
-			if ((int)value == SliPro.RotaryDetector.undefinedOffset)
-				return String.Format("Learn {0} rotary", parameter);
-			else
-				return String.Format("Forget {0} rotary", parameter);
+			return String.Format("{0} rotary control", ((int)value == SliPro.RotaryDetector.undefinedOffset) ? "Learn" : "Forget");
 		}
 
 		public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
 		{
-			throw new NotSupportedException();
+			return DependencyProperty.UnsetValue;
+		}
+	}
+
+	class NotConverter : IValueConverter
+	{
+		public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+		{
+			return !(bool)value;
+		}
+
+		public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+		{
+			return DependencyProperty.UnsetValue;
+		}
+	}
+
+	class BrightnessRotaryEnabledConverter : IValueConverter
+	{
+		public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+		{
+			return value == null;
+		}
+
+		public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+		{
+			return DependencyProperty.UnsetValue;
 		}
 	}
 
@@ -57,7 +79,7 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 		public Settings Settings { get; }
 
 		/// <summary>Title for UI.</summary>
-		public String Title
+		public static String Title
 		{
 			get =>
 				String.Format("SLI-Pro Plugin {0} Options", Assembly.GetExecutingAssembly().GetName().Version.ToString());
@@ -66,15 +88,43 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 		/// <summary>List of items for the left segment display combobox.</summary>
 		public String[] LeftSegmentDisplayComboBoxContents
 		{
-			get => Plugin.GetSegmentDisplayNameList(SliPro.SegmentDisplayPosition.left).
-				Append<String>(Settings.RotaryControlledKey).ToArray();
+			get => MakeSegmentDisplayNameList(SliPro.SegmentDisplayPosition.left);
 		}
 
 		/// <summary>List of items for the right segment display combobox.</summary>
 		public String[] RightSegmentDisplayComboBoxContents
 		{
-			get => Plugin.GetSegmentDisplayNameList(SliPro.SegmentDisplayPosition.right).
-				Append<String>(Settings.RotaryControlledKey).ToArray();
+			get => MakeSegmentDisplayNameList(SliPro.SegmentDisplayPosition.right);
+		}
+
+		/// <summary>Left segment display previous action name.</summary>
+		public static String LeftSegmentDisplayPreviousAction
+		{
+			get => MakeSegmentDisplayActionName(SliProPlugin.LeftSegmentDisplayPreviousAction);
+		}
+
+		/// <summary>Left segment display next action name.</summary>
+		public static String LeftSegmentDisplayNextAction
+		{
+			get => MakeSegmentDisplayActionName(SliProPlugin.LeftSegmentDisplayNextAction);
+		}
+
+		/// <summary>Right segment display previous action name.</summary>
+		public static String RightSegmentDisplayPreviousAction
+		{
+			get => MakeSegmentDisplayActionName(SliProPlugin.RightSegmentDisplayPreviousAction);
+		}
+
+		/// <summary>Right segment display next action name.</summary>
+		public static String RightSegmentDisplayNextAction
+		{
+			get => MakeSegmentDisplayActionName(SliProPlugin.RightSegmentDisplayNextAction);
+		}
+
+		private static String MakeSegmentDisplayActionName(String baseName)
+		{
+			// NB pluginManager.AddAction() implicitly adds the plugin name to the action but we need to specify it for the xaml.
+			return String.Format("{0}.{1}", typeof(SliProPlugin).Name, baseName);
 		}
 
 		/// <summary>Constructor.</summary>
@@ -85,6 +135,11 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 			this.Plugin = plugin;
 			this.Settings = plugin.Settings;
 			InitializeComponent();
+		}
+
+		private String[] MakeSegmentDisplayNameList(SliPro.SegmentDisplayPosition segmentDisplayPosition)
+		{
+			return Plugin.GetSegmentDisplayNameList(segmentDisplayPosition);
 		}
 
 		private void OnSliProClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
