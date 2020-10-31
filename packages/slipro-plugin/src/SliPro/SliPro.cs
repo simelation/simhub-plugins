@@ -44,10 +44,7 @@ namespace SimElation.SliPro
 		left,
 
 		/// <summary>The right segment display.</summary>
-		right,
-
-		/// <summary>Number of supported positions.</summary>
-		count
+		right
 	}
 
 	/// <summary>Supported rotary switches for detection.</summary>

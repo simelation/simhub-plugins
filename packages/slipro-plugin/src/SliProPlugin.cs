@@ -121,8 +121,66 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 			}
 		}
 
+		private static double? NextCarDelta(List<Opponent> opponentList)
+		{
+			if ((0 == opponentList.Count) || (opponentList[0].RelativeGapToPlayer == null))
+				return null;
+
+			return Math.Abs((double)opponentList[0].RelativeGapToPlayer);
+		}
+
 		// Left/right segment managers.
-		private SegmentDisplayManager[] m_segmentDisplayManagerList;
+		private Dictionary<SegmentDisplayPosition, SegmentDisplayManager> m_segmentDisplayManagers =
+			new Dictionary<SegmentDisplayPosition, SegmentDisplayManager>()
+			{
+				// Left segment displays.
+				{
+					SegmentDisplayPosition.left, new SegmentDisplayManager(SliPro.SegmentDisplayPosition.left, new SegmentDisplay[]
+						{
+							new LapsCounterSegmentDisplay(),
+							new LapsToGoSegmentDisplay(),
+							new PositionSegmentDisplay(),
+							new FuelSegmentDisplay(),
+							new BrakeBiasSegmentDisplay(),
+							new TempSegmentDisplay("Oil", "Oil temperature", "Oil",
+								(NormalizedData normalizedData) => normalizedData.m_statusData.OilTemperature),
+							new TempSegmentDisplay("H20", "Water temperature", "H20",
+								(NormalizedData normalizedData) => normalizedData.m_statusData.WaterTemperature),
+						})
+				},
+
+				// Right segment displays.
+				{
+					SliPro.SegmentDisplayPosition.right, new SegmentDisplayManager(SliPro.SegmentDisplayPosition.right,
+						new SegmentDisplay[]
+						{
+							new LapTimeSegmentDisplay("Currnt", "Current laptime",
+								(NormalizedData normalizedData) => normalizedData.m_statusData.CurrentLapTime),
+							new LapTimeSegmentDisplay("Last", "Last laptime",
+								(NormalizedData normalizedData) => normalizedData.m_statusData.LastLapTime),
+							new LapTimeSegmentDisplay("BstSes", "Session best laptime",
+								(NormalizedData normalizedData) => normalizedData.m_statusData.BestLapTime),
+							new LapTimeSegmentDisplay("BstAll", "All-time best laptime",
+								(NormalizedData normalizedData) => normalizedData.m_statusData.AllTimeBest),
+							new DeltaSegmentDisplay("DltSeS", "Delta to session best laptime",
+								(NormalizedData normalizedData) => normalizedData.m_deltaToSessionBest),
+							new DeltaSegmentDisplay("DltAll", "Delta to all-time best laptime",
+								(NormalizedData normalizedData) => normalizedData.m_deltaToAllTimeBest),
+							new DeltaSegmentDisplay("GapAhd", "Gap to car ahead", (NormalizedData normalizedData) =>
+								{
+									// Semantics of OpponentAtPosition seem unclear, so peek list of opponents.
+									var opponentList = normalizedData.m_statusData.OpponentsAheadOnTrackPlayerClass;
+									return NextCarDelta(opponentList);
+								}),
+							new DeltaSegmentDisplay("GapBhd", "Gap to car behind", (NormalizedData normalizedData) =>
+								{
+									// Semantics of OpponentAtPosition seem unclear, so peek list of opponents.
+									var opponentList = normalizedData.m_statusData.OpponentsBehindOnTrackPlayerClass;
+									return NextCarDelta(opponentList);
+								})
+						})
+				}
+			};
 
 		private enum BlinkState
 		{
@@ -163,62 +221,7 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 		/// <param name="pluginManager"></param>
 		public void Init(PluginManager pluginManager)
 		{
-			double? NextCarDelta(List<Opponent> opponentList)
-			{
-				if ((0 == opponentList.Count) || (opponentList[0].RelativeGapToPlayer == null))
-					return null;
-
-				return Math.Abs((double)opponentList[0].RelativeGapToPlayer);
-			}
-
 			Logging.Current.InfoFormat("SLI-Pro: initializing plugin in thread {0}", Thread.CurrentThread.ManagedThreadId);
-
-			m_segmentDisplayManagerList = new SegmentDisplayManager[(int)SegmentDisplayPosition.count];
-
-			// Left segment displays.
-			m_segmentDisplayManagerList[(int)SegmentDisplayPosition.left] = new SegmentDisplayManager(
-				SliPro.SegmentDisplayPosition.left, new SegmentDisplay[]
-				{
-					new LapsCounterSegmentDisplay(),
-					new LapsToGoSegmentDisplay(),
-					new PositionSegmentDisplay(),
-					new FuelSegmentDisplay(),
-					new BrakeBiasSegmentDisplay(),
-					new TempSegmentDisplay("Oil", "Oil temperature", "Oil",
-						(NormalizedData normalizedData) => normalizedData.m_statusData.OilTemperature),
-					new TempSegmentDisplay("H20", "Water temperature", "H20",
-						(NormalizedData normalizedData) => normalizedData.m_statusData.WaterTemperature),
-				});
-
-			// Right segment displays.
-			m_segmentDisplayManagerList[(int)SegmentDisplayPosition.right] = new SegmentDisplayManager(
-				SliPro.SegmentDisplayPosition.right, new SegmentDisplay[]
-				{
-					new LapTimeSegmentDisplay("Currnt", "Current laptime",
-						(NormalizedData normalizedData) => normalizedData.m_statusData.CurrentLapTime),
-					new LapTimeSegmentDisplay("Last", "Last laptime",
-						(NormalizedData normalizedData) => normalizedData.m_statusData.LastLapTime),
-					new LapTimeSegmentDisplay("BstSes", "Session best laptime",
-						(NormalizedData normalizedData) => normalizedData.m_statusData.BestLapTime),
-					new LapTimeSegmentDisplay("BstAll", "All-time best laptime",
-						(NormalizedData normalizedData) => normalizedData.m_statusData.AllTimeBest),
-					new DeltaSegmentDisplay("DltSeS", "Delta to session best laptime",
-						(NormalizedData normalizedData) => normalizedData.m_deltaToSessionBest),
-					new DeltaSegmentDisplay("DltAll", "Delta to all-time best laptime",
-						(NormalizedData normalizedData) => normalizedData.m_deltaToAllTimeBest),
-					new DeltaSegmentDisplay("GapAhd", "Gap to car ahead", (NormalizedData normalizedData) =>
-						{
-							// Semantics of OpponentAtPosition seem unclear, so peek list of opponents.
-							var opponentList = normalizedData.m_statusData.OpponentsAheadOnTrackPlayerClass;
-							return NextCarDelta(opponentList);
-						}),
-					new DeltaSegmentDisplay("GapBhd", "Gap to car behind", (NormalizedData normalizedData) =>
-						{
-							// Semantics of OpponentAtPosition seem unclear, so peek list of opponents.
-							var opponentList = normalizedData.m_statusData.OpponentsBehindOnTrackPlayerClass;
-							return NextCarDelta(opponentList);
-						})
-				});
 
 			// Load settings.
 			m_settings = this.ReadCommonSettings<Settings>(settingsName, () => new Settings());
@@ -250,14 +253,14 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 
 						case nameof(m_settings.LeftSegmentDisplayIndex):
 							// Left segment display has changed, by rotary, button or UI.
-							m_segmentDisplayManagerList[(int)SegmentDisplayPosition.left].SetByIndex(
+							m_segmentDisplayManagers[SegmentDisplayPosition.left].SetByIndex(
 								m_settings.LeftSegmentDisplayIndex,
 								m_settings.SegmentNameTimeoutMs);
 							break;
 
 						case nameof(m_settings.RightSegmentDisplayIndex):
 							// Right segment display has changed, by rotary, button or UI.
-							m_segmentDisplayManagerList[(int)SegmentDisplayPosition.right].SetByIndex(
+							m_segmentDisplayManagers[SegmentDisplayPosition.right].SetByIndex(
 								m_settings.RightSegmentDisplayIndex,
 								m_settings.SegmentNameTimeoutMs);
 							break;
@@ -269,7 +272,7 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 
 			int SegmentDisplayAction(SegmentDisplayPosition segmentDisplayPosition, bool isNext)
 			{
-				var segmentDisplayManager = m_segmentDisplayManagerList[(int)segmentDisplayPosition];
+				var segmentDisplayManager = m_segmentDisplayManagers[segmentDisplayPosition];
 				return isNext ? segmentDisplayManager.GetNextIndex() : segmentDisplayManager.GetPreviousIndex();
 			}
 
@@ -330,7 +333,7 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 		/// <returns>Array of strings.</returns>
 		public String[] GetSegmentDisplayNameList(SegmentDisplayPosition segmentDisplayPosition)
 		{
-			return m_segmentDisplayManagerList[(int)segmentDisplayPosition].NameList;
+			return m_segmentDisplayManagers[segmentDisplayPosition].NameList;
 		}
 
 		/// <summary>
@@ -383,7 +386,7 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 					bool isInPit = HandlePitLane();
 					HandleShiftPoint(isInPit);
 
-					foreach (var segmentDisplayManager in m_segmentDisplayManagerList)
+					foreach (var segmentDisplayManager in m_segmentDisplayManagers.Values)
 					{
 						segmentDisplayManager.ProcessData(pluginManager, m_normalizedData, m_sliPro);
 					}
@@ -447,16 +450,16 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 				case SliPro.RotarySwitch.leftSegment:
 					if (m_settings.IsLeftSegmentDisplayRotaryControlled)
 					{
-						m_settings.LeftSegmentDisplayIndex = m_segmentDisplayManagerList[(int)SegmentDisplayPosition.left].
-							ValidateIndex(newPosition);
+						m_settings.LeftSegmentDisplayIndex =
+							m_segmentDisplayManagers[SegmentDisplayPosition.left].ValidateIndex(newPosition);
 					}
 					break;
 
 				case SliPro.RotarySwitch.rightSegment:
 					if (m_settings.IsRightSegmentDisplayRotaryControlled)
 					{
-						m_settings.RightSegmentDisplayIndex = m_segmentDisplayManagerList[(int)SegmentDisplayPosition.right].
-							ValidateIndex(newPosition);
+						m_settings.RightSegmentDisplayIndex =
+							m_segmentDisplayManagers[SegmentDisplayPosition.right].ValidateIndex(newPosition);
 					}
 					break;
 
