@@ -24,7 +24,7 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 		public static String Title
 		{
 			get =>
-				String.Format("SLI-Pro Plugin {0} Options", Assembly.GetExecutingAssembly().GetName().Version.ToString());
+				String.Format("SLI-PRO PLUGIN {0}", Assembly.GetExecutingAssembly().GetName().Version.ToString());
 		}
 
 		/// <summary>List of items for the left segment display combobox.</summary>

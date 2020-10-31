@@ -66,8 +66,7 @@ Currently not configurable.
 
 ## Configuration
 
-Configuration is available in SimHub at `Additional Plugins` then the `SLI-Pro Plugin` tab. It's not very pretty yet, as this is my
-first foray in to WPF...
+Configuration is available in SimHub at `Additional Plugins` then the `SLI-Pro Plugin` tab.
 
 ### Segment display switching
 
