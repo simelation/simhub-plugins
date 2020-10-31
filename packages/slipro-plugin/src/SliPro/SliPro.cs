@@ -118,7 +118,7 @@ namespace SimElation.SliPro
 			/// <remarks>
 			/// Initial state is no rotary switch control over brightness or segments displays.
 			/// </remarks>
-			private RotarySwitchOffsetsImpl m_rotarySwitchOffsets = new RotarySwitchOffsetsImpl();
+			private readonly RotarySwitchOffsetsImpl m_rotarySwitchOffsets = new RotarySwitchOffsetsImpl();
 
 			/// <summary>Brightness controlled via rotary property.</summary>
 			public bool IsBrightnessRotaryControlled
@@ -173,18 +173,18 @@ namespace SimElation.SliPro
 		/// <param name="newPosition">Its new position, indexed from 0.</param>
 		public delegate void RotarySwitchChange(RotarySwitch rotarySwitch, int previousPosition, int newPosition);
 
-		private Settings m_settings;
-		private GetLog m_getLog;
-		private RotarySwitchChange m_rotarySwitchChangeCallback;
+		private readonly Settings m_settings;
+		private readonly GetLog m_getLog;
+		private readonly RotarySwitchChange m_rotarySwitchChangeCallback;
 
 		private HidDevice m_device;
 		private Task<bool> m_txTask = null;
 
 		private HidReport m_ledHidReport = new HidReport((int)LedStateReport.length + 1);
 		private HidReport m_prevLedHidReport = new HidReport((int)LedStateReport.length + 1);
-		private HidReport m_brightnessHidReport = new HidReport((int)BrightnessReport.length + 1);
+		private readonly HidReport m_brightnessHidReport = new HidReport((int)BrightnessReport.length + 1);
 
-		private int[] m_rotarySwitchPositions = new int[(int)RotarySwitch.count] { -1, -1, -1 };
+		private readonly int[] m_rotarySwitchPositions = new int[(int)RotarySwitch.count] { -1, -1, -1 };
 		private RotaryDetector m_rotaryDetector = null;
 
 		private bool m_isAvailable = false;

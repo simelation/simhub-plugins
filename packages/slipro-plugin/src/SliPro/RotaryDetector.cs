@@ -22,10 +22,11 @@ namespace SimElation.SliPro
 		/// <summary>Offset value for undetected rotary.</summary>
 		public const int undefinedOffset = -1;
 
-		private Callback m_callback;
-		private Timer m_timer;
+		private readonly Callback m_callback;
+		private readonly Timer m_timer;
 
-		private int[] m_previousRotaryPositions = new int[(int)Constants.maxNumberOfRotarySwitches] { -1, -1, -1, -1, -1, -1 };
+		private readonly int[] m_previousRotaryPositions =
+			new int[(int)Constants.maxNumberOfRotarySwitches] { -1, -1, -1, -1, -1, -1 };
 		private int m_rotaryOffset = undefinedOffset;
 		private bool m_isDisposed = false;
 

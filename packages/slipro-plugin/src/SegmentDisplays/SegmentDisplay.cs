@@ -17,7 +17,7 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 	/// </remarks>
 	public abstract class SegmentDisplay
 	{
-		private String m_shortName;
+		private readonly String m_shortName;
 
 		/// <summary>Name for the segment display, to show in UI.</summary>
 		public String LongName { get; }

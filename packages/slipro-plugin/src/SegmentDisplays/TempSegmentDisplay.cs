@@ -40,7 +40,7 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 			sliPro.SetSegment(position, 0, SliPro.Constants.segmentDisplayWidth, str, 2, 3);
 		}
 
-		private String m_prefix;
-		private GetTemperature m_getTemperature;
+		private readonly String m_prefix;
+		private readonly GetTemperature m_getTemperature;
 	}
 }

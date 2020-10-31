@@ -145,7 +145,7 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 			return -1;
 		}
 
-		private static Point[] statusLedPositions = new Point[]
+		private readonly static Point[] statusLedPositions = new Point[]
 			{
 				new Point(30, 204),
 				new Point(79, 204),

@@ -174,6 +174,6 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 		private long m_shiftPointBlinkOnSpeedMs = 100;
 		private long m_shiftPointBlinkOffSpeedMs = 50;
 		private long m_segmentNameTimeoutMs = 1500;
-		private SliPro.SliPro.Settings m_sliProSettings = new SliPro.SliPro.Settings();
+		private readonly SliPro.SliPro.Settings m_sliProSettings = new SliPro.SliPro.Settings();
 	}
 }

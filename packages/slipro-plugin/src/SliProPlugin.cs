@@ -55,10 +55,10 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 		// Class to manage left/right segment displays.
 		private class SegmentDisplayManager
 		{
-			private SliPro.SegmentDisplayPosition m_position;
-			private SegmentDisplay[] m_segmentDisplayList;
+			private readonly SliPro.SegmentDisplayPosition m_position;
+			private readonly SegmentDisplay[] m_segmentDisplayList;
 
-			private Timer m_timer;
+			private readonly Timer m_timer;
 			private bool m_showName = false;
 			private int m_currentIndex = -1;
 
@@ -130,7 +130,7 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 		}
 
 		// Left/right segment managers.
-		private Dictionary<SegmentDisplayPosition, SegmentDisplayManager> m_segmentDisplayManagers =
+		private readonly Dictionary<SegmentDisplayPosition, SegmentDisplayManager> m_segmentDisplayManagers =
 			new Dictionary<SegmentDisplayPosition, SegmentDisplayManager>()
 			{
 				// Left segment displays.
@@ -190,26 +190,26 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 		}
 
 		private BlinkState m_shiftPointBlinkState = BlinkState.inactive;
-		private Stopwatch m_shiftPointStopwatch = new Stopwatch();
+		private readonly Stopwatch m_shiftPointStopwatch = new Stopwatch();
 
 		private BlinkState m_pitLaneRevLightsBlinkState = BlinkState.inactive;
-		private Stopwatch m_pitLaneRevLightsStopwatch = new Stopwatch();
-		private static bool[] pitLaneLeds1 = { true, true, true, true, false, false, false, false, false, true, true, true, true };
-		private static bool[] pitLaneLeds2 = { false, false, false, false, true, true, true, true, true };
+		private readonly Stopwatch m_pitLaneRevLightsStopwatch = new Stopwatch();
+		private static readonly bool[] pitLaneLeds1 = { true, true, true, true, false, false, false, false, false, true, true, true, true };
+		private static readonly bool[] pitLaneLeds2 = { false, false, false, false, true, true, true, true, true };
 
-		private NormalizedData m_normalizedData = new NormalizedData();
+		private readonly NormalizedData m_normalizedData = new NormalizedData();
 
 		/// <summary>Left segment display previous action name.</summary>
-		public static String LeftSegmentDisplayPreviousAction = "LeftSegmentDisplayPrevious";
+		public const String LeftSegmentDisplayPreviousAction = "LeftSegmentDisplayPrevious";
 
 		/// <summary>Left segment display next action name.</summary>
-		public static String LeftSegmentDisplayNextAction = "LeftSegmentDisplayNext";
+		public const String LeftSegmentDisplayNextAction = "LeftSegmentDisplayNext";
 
 		/// <summary>Right segment display previous action name.</summary>
-		public static String RightSegmentDisplayPreviousAction = "RightSegmentDisplayPrevious";
+		public const String RightSegmentDisplayPreviousAction = "RightSegmentDisplayPrevious";
 
 		/// <summary>Right segment display next action name.</summary>
-		public static String RightSegmentDisplayNextAction = "RightSegmentDisplayNext";
+		public const String RightSegmentDisplayNextAction = "RightSegmentDisplayNext";
 
 		/// <summary>Instance of the current plugin manager.</summary>
 		public PluginManager PluginManager { get; set; }

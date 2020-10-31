@@ -41,6 +41,6 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 			sliPro.SetSegment(position, 0, SliPro.Constants.segmentDisplayWidth, str, decimalOrPrimeIndexList);
 		}
 
-		private GetTimeSpan m_getTimeSpan;
+		private readonly GetTimeSpan m_getTimeSpan;
 	}
 }
