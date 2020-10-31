@@ -7,13 +7,14 @@
 			 xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
 			 xmlns:slipro="clr-namespace:SimElation.SliPro"
 			 xmlns:local="clr-namespace:SimElation.SimHubIntegration.SliProPlugin"
+			 xmlns:converters="clr-namespace:SimElation.SimHubIntegration.SliProPlugin.Utils.ValueConverters"
 			 xmlns:autogrid="clr-namespace:WpfAutoGrid;assembly=WpfAutoGrid"
 			 mc:Ignorable="d"
 			 d:DesignWidth="600" d:DesignHeight="800">
 	<UserControl.Resources>
-		<local:AllowNullConverter x:Key="AllowNullConverter" />
-		<local:RotaryDetectConverter x:Key="RotaryDetectConverter" />
-		<local:NotConverter x:Key="NotConverter" />
+		<converters:AllowNullConverter x:Key="AllowNullConverter" />
+		<converters:RotaryDetectConverter x:Key="RotaryDetectConverter" />
+		<converters:NotConverter x:Key="NotConverter" />
 	</UserControl.Resources>
 	
 	<ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">

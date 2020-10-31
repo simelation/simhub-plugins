@@ -3,6 +3,9 @@
  */
 
 using System;
+using System.Globalization;
+using System.Windows;
+using System.Windows.Data;
 
 // ---------------------------------------------------------------------------------------------------------------------------------
 
@@ -42,6 +45,55 @@ namespace SimElation.SimHubIntegration.SliProPlugin.Utils
 			{
 				decimalOrPrimeIndexList = new uint[] { 2, 4 };
 				str = String.Format("{0:000}{1:00}{2:0}", timeSpan.Minutes, timeSpan.Seconds, timeSpan.Milliseconds / 100);
+			}
+		}
+	}
+
+	namespace ValueConverters
+	{
+		/// <summary>Helper converter for MahApps to allow null, until 2.0.</summary>
+		/// <remarks>
+		/// See https://github.com/MahApps/MahApps.Metro/issues/3786
+		/// </remarks>
+		class AllowNullConverter : IValueConverter
+		{
+			public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+			{
+				return value;
+			}
+
+			public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+			{
+				return value;
+			}
+		}
+
+		/// <summary>Converter for rotary state to text for button.</summary>
+		class RotaryDetectConverter : IValueConverter
+		{
+			public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+			{
+				return String.Format("{0} rotary control", ((int)value == SliPro.RotaryDetector.undefinedOffset) ?
+					"Learn" : "Forget");
+			}
+
+			public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+			{
+				return DependencyProperty.UnsetValue;
+			}
+		}
+
+		/// <summary>Not operator converter.</summary>
+		class NotConverter : IValueConverter
+		{
+			public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+			{
+				return !(bool)value;
+			}
+
+			public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+			{
+				return !(bool)value;
 			}
 		}
 	}

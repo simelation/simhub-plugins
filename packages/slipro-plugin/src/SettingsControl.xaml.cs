@@ -3,59 +3,14 @@
  */
 
 using System;
-using System.Globalization;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 
 // ---------------------------------------------------------------------------------------------------------------------------------
 
 namespace SimElation.SimHubIntegration.SliProPlugin
 {
-	/// <summary>Helper converter for MahApps to allow null, until 2.0.</summary>
-	/// <remarks>
-	/// See https://github.com/MahApps/MahApps.Metro/issues/3786
-	/// </remarks>
-	class AllowNullConverter : IValueConverter
-	{
-		public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-		{
-			return value;
-		}
-
-		public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-		{
-			return value;
-		}
-	}
-
-	class RotaryDetectConverter : IValueConverter
-	{
-		public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-		{
-			return String.Format("{0} rotary control", ((int)value == SliPro.RotaryDetector.undefinedOffset) ? "Learn" : "Forget");
-		}
-
-		public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-		{
-			return DependencyProperty.UnsetValue;
-		}
-	}
-
-	class NotConverter : IValueConverter
-	{
-		public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-		{
-			return !(bool)value;
-		}
-
-		public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-		{
-			return DependencyProperty.UnsetValue;
-		}
-	}
-
 	/// <summary>Interaction logic for SettingsControl.xaml.</summary>
 	public partial class SettingsControl : UserControl
 	{
