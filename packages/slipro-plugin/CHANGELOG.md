@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.4.0](https://github.com/simelation/simhub-plugins/compare/@simelation/simhub-slipro-plugin@0.3.0...@simelation/simhub-slipro-plugin@0.4.0) (2020-11-01)
+
+### Bug Fixes
+
+-   **simhub-slipro-plugin:** don't check if a property has actually changed value before invoking OnPropertyChanged(). ([ac9ee02](https://github.com/simelation/simhub-plugins/commit/ac9ee0271c6d797d341b0de12d9492b4606c2c4f))
+
+### Features
+
+-   **simhub-slipro-plugin:** added support for blinking status LEDs. ([8f1a3d1](https://github.com/simelation/simhub-plugins/commit/8f1a3d1fbc8fc78f72b672ffc43b1b68bdc63efb))
+-   **simhub-slipro-plugin:** ui tidy ups. ([680be9d](https://github.com/simelation/simhub-plugins/commit/680be9d121c630e207e8009516b4d88e2bc00266))
+
 # [0.3.0](https://github.com/simelation/simhub-plugins/compare/@simelation/simhub-slipro-plugin@0.2.0...@simelation/simhub-slipro-plugin@0.3.0) (2020-10-30)
 
 ### Bug Fixes
