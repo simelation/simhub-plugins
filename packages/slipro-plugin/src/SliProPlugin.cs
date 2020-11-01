@@ -182,12 +182,106 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 				}
 			};
 
+		// LED state.
+		private enum LedState
+		{
+			off,                // LED off.
+			on,             // LED on (solid).
+			blink           // LED blinking.
+		}
+
+		// Function to get LED state from game data.
+		private delegate LedState GetLedState(NormalizedData normalizedData);
+
 		private enum BlinkState
 		{
 			inactive,       // Not in blinking state.
 			on,             // In blinking on state.
 			off             // In blinking off state.
 		}
+
+		private class StatusLed
+		{
+			public StatusLed(GetLedState getLedState)
+			{
+				m_getLedState = getLedState;
+			}
+
+			public bool Update(NormalizedData normalizedData, long statusLedBlinkIntervalMs)
+			{
+				var ledState = m_getLedState(normalizedData);
+
+				if (LedState.blink == ledState)
+				{
+					return HandleBlink(statusLedBlinkIntervalMs);
+				}
+				else
+				{
+					m_stopwatch.Reset();
+					m_blinkState = BlinkState.inactive;
+
+					return (LedState.on == ledState);
+				}
+			}
+
+			private bool HandleBlink(long statusLedBlinkIntervalMs)
+			{
+				bool isOn = true;
+
+				switch (m_blinkState)
+				{
+					case BlinkState.inactive:
+						m_stopwatch.Start();
+						m_blinkState = BlinkState.on;
+						break;
+
+					case BlinkState.on:
+						if (m_stopwatch.ElapsedMilliseconds >= statusLedBlinkIntervalMs)
+						{
+							m_stopwatch.Restart();
+							m_blinkState = BlinkState.off;
+							isOn = false;
+						}
+						break;
+
+					case BlinkState.off:
+						if (m_stopwatch.ElapsedMilliseconds >= statusLedBlinkIntervalMs)
+						{
+							m_stopwatch.Restart();
+							m_blinkState = BlinkState.on;
+						}
+						else
+						{
+							isOn = false;
+						}
+						break;
+				}
+
+				return isOn;
+			}
+
+			private readonly GetLedState m_getLedState;
+			private BlinkState m_blinkState = BlinkState.inactive;
+			private readonly Stopwatch m_stopwatch = new Stopwatch();
+		}
+
+		private StatusLed m_drsStatusLed = new StatusLed(
+			(NormalizedData normalizedData) =>
+			{
+				LedState ledState;
+
+				// rf2 at least reports DRS available in the pits (in a practise session).
+				if ((normalizedData.m_statusData.IsInPit != 0) || (normalizedData.m_statusData.IsInPitLane != 0))
+					ledState = LedState.off;
+				else if (normalizedData.m_statusData.DRSEnabled != 0)
+					ledState = LedState.on;
+				else if (normalizedData.m_statusData.DRSAvailable != 0)
+					ledState = LedState.blink;
+				else
+					ledState = LedState.off;
+
+				return ledState;
+			});
 
 		private BlinkState m_shiftPointBlinkState = BlinkState.inactive;
 		private readonly Stopwatch m_shiftPointStopwatch = new Stopwatch();
@@ -379,13 +473,17 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 					// Right bank status LEDs.
 					m_sliPro.SetStatusLed(3, m_normalizedData.m_statusData.ABSActive != 0);
 					m_sliPro.SetStatusLed(4, m_normalizedData.m_statusData.TCActive != 0);
-					// TODO blink for DRS available. Solid for active.
-					m_sliPro.SetStatusLed(5, m_normalizedData.m_statusData.DRSAvailable != 0);
 
+					// Blink for DRS available. Solid for enabled.
+					bool isDrsLedLit = m_drsStatusLed.Update(m_normalizedData, m_settings.StatusLedBlinkIntervalMs);
+					m_sliPro.SetStatusLed(5, isDrsLedLit);
+
+					// Gear and shift point.
 					m_sliPro.SetGear(m_normalizedData.m_statusData.Gear);
 					bool isInPit = HandlePitLane();
 					HandleShiftPoint(isInPit);
 
+					// Left/right segments displays.
 					foreach (var segmentDisplayManager in m_segmentDisplayManagers.Values)
 					{
 						segmentDisplayManager.ProcessData(pluginManager, m_normalizedData, m_sliPro);

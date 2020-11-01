@@ -83,14 +83,14 @@
 			</styles:SHSection>
 
 			<styles:SHSection Title="CONFIGURATION">
-				<autogrid:AutoGrid RowCount="5" Columns="220,200,200">
+				<autogrid:AutoGrid RowCount="6" Columns="220,200,200">
 					<Label VerticalAlignment="Center" Margin="4,4,4,4" Content="Welcome message" />
 					<TextBox Margin="4,4,4,4" VerticalAlignment="Center"
 							 Text="{Binding Path=Settings.WelcomeMessage, Mode=TwoWay}"
 							 ToolTip="Text to display using the segment displays when SimHub is running but no game is." />
 					<Label />
 
-					<Label VerticalAlignment="Center" Margin="4,4,4,4" Content="Pit lane animation speed" />
+					<Label VerticalAlignment="Center" Margin="4,4,4,4" Content="In pit lane animation speed" />
 					<mah:NumericUpDown Minimum="0" Maximum="20000" HasDecimals="False" Margin="4,4,4,4"
 									   VerticalAlignment="Center"
 									   Value="{Binding Path=Settings.PitLaneAnimationSpeedMs, Mode=TwoWay}"
@@ -109,6 +109,13 @@
 									   VerticalAlignment="Center"
 									   Value="{Binding Path=Settings.ShiftPointBlinkOffSpeedMs, Mode=TwoWay}"
 									   ToolTip="How long in milliseconds to blank the RPM LEDs when at or above the shift threshold." />
+					<Label VerticalAlignment="Center" Margin="0,4,4,4" Content="milliseconds" />
+
+					<Label VerticalAlignment="Center" Margin="4,4,4,4" Content="Status LEDs blink interval" />
+					<mah:NumericUpDown Minimum="0" Maximum="20000" HasDecimals="False" Margin="4,4,4,4"
+									   VerticalAlignment="Center"
+									   Value="{Binding Path=Settings.StatusLedBlinkIntervalMs, Mode=TwoWay}"
+									   ToolTip="How long in milliseconds to light/blank a status LED when appropriate." />
 					<Label VerticalAlignment="Center" Margin="0,4,4,4" Content="milliseconds" />
 				</autogrid:AutoGrid>
 			</styles:SHSection>

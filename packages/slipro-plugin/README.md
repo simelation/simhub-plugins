@@ -58,7 +58,7 @@ Note that some of this data will come from the SimHub PersistantTrackerPlugin if
 
 1. ABS active.
 1. TC active.
-1. DRS available.
+1. DRS: blinking = available; solid = active.
 
 ## External LEDs
 

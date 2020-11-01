@@ -135,6 +135,21 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 			}
 		}
 
+		/// <summary>How long in milliseconds to light/blank a status LED when appropriate.</summary>
+		public long StatusLedBlinkIntervalMs
+		{
+			get => m_statusLedBlinkIntervalMs;
+
+			set
+			{
+				if (m_statusLedBlinkIntervalMs != value)
+				{
+					m_statusLedBlinkIntervalMs = value;
+					OnPropertyChanged();
+				}
+			}
+		}
+
 		/// <summary>How long to display what information a segment display will show after changing mode.</summary>
 		public long SegmentNameTimeoutMs
 		{
@@ -173,6 +188,7 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 		private long m_pitLaneAnimationSpeedMs = 250;
 		private long m_shiftPointBlinkOnSpeedMs = 100;
 		private long m_shiftPointBlinkOffSpeedMs = 50;
+		private long m_statusLedBlinkIntervalMs = 500;
 		private long m_segmentNameTimeoutMs = 1500;
 		private readonly SliPro.SliPro.Settings m_sliProSettings = new SliPro.SliPro.Settings();
 	}
