@@ -22,11 +22,8 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 
 			set
 			{
-				if (m_isLeftSegmentDisplayRotaryControlled != value)
-				{
-					m_isLeftSegmentDisplayRotaryControlled = value;
-					OnPropertyChanged();
-				}
+				m_isLeftSegmentDisplayRotaryControlled = value;
+				OnPropertyChanged();
 			}
 		}
 
@@ -37,11 +34,8 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 
 			set
 			{
-				if (m_isRightSegmentDisplayRotaryControlled != value)
-				{
-					m_isRightSegmentDisplayRotaryControlled = value;
-					OnPropertyChanged();
-				}
+				m_isRightSegmentDisplayRotaryControlled = value;
+				OnPropertyChanged();
 			}
 		}
 
@@ -52,11 +46,8 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 
 			set
 			{
-				if (m_leftSegmentDisplayIndex != value)
-				{
-					m_leftSegmentDisplayIndex = value;
-					OnPropertyChanged();
-				}
+				m_leftSegmentDisplayIndex = value;
+				OnPropertyChanged();
 			}
 		}
 
@@ -67,11 +58,8 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 
 			set
 			{
-				if (m_rightSegmentDisplayIndex != value)
-				{
-					m_rightSegmentDisplayIndex = value;
-					OnPropertyChanged();
-				}
+				m_rightSegmentDisplayIndex = value;
+				OnPropertyChanged();
 			}
 		}
 
@@ -82,11 +70,8 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 
 			set
 			{
-				if (m_welcomeMessage != value)
-				{
-					m_welcomeMessage = value;
-					OnPropertyChanged();
-				}
+				m_welcomeMessage = value;
+				OnPropertyChanged();
 			}
 		}
 
@@ -97,11 +82,8 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 
 			set
 			{
-				if (m_pitLaneAnimationSpeedMs != value)
-				{
-					m_pitLaneAnimationSpeedMs = value;
-					OnPropertyChanged();
-				}
+				m_pitLaneAnimationSpeedMs = value;
+				OnPropertyChanged();
 			}
 		}
 
@@ -112,11 +94,8 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 
 			set
 			{
-				if (m_shiftPointBlinkOnSpeedMs != value)
-				{
-					m_shiftPointBlinkOnSpeedMs = value;
-					OnPropertyChanged();
-				}
+				m_shiftPointBlinkOnSpeedMs = value;
+				OnPropertyChanged();
 			}
 		}
 
@@ -127,11 +106,8 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 
 			set
 			{
-				if (m_shiftPointBlinkOffSpeedMs != value)
-				{
-					m_shiftPointBlinkOffSpeedMs = value;
-					OnPropertyChanged();
-				}
+				m_shiftPointBlinkOffSpeedMs = value;
+				OnPropertyChanged();
 			}
 		}
 
@@ -142,11 +118,8 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 
 			set
 			{
-				if (m_statusLedBlinkIntervalMs != value)
-				{
-					m_statusLedBlinkIntervalMs = value;
-					OnPropertyChanged();
-				}
+				m_statusLedBlinkIntervalMs = value;
+				OnPropertyChanged();
 			}
 		}
 
@@ -157,11 +130,8 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 
 			set
 			{
-				if (m_segmentNameTimeoutMs != value)
-				{
-					m_segmentNameTimeoutMs = value;
-					OnPropertyChanged();
-				}
+				m_segmentNameTimeoutMs = value;
+				OnPropertyChanged();
 			}
 		}
 

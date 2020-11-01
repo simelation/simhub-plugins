@@ -127,11 +127,8 @@ namespace SimElation.SliPro
 
 				set
 				{
-					if (m_isBrightnessRotaryControlled != value)
-					{
-						m_isBrightnessRotaryControlled = value;
-						OnPropertyChanged();
-					}
+					m_isBrightnessRotaryControlled = value;
+					OnPropertyChanged();
 				}
 			}
 
@@ -142,11 +139,8 @@ namespace SimElation.SliPro
 
 				set
 				{
-					if (m_brightnessLevel != value)
-					{
-						m_brightnessLevel = value;
-						OnPropertyChanged();
-					}
+					m_brightnessLevel = value;
+					OnPropertyChanged();
 				}
 			}
 
