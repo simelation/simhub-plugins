@@ -19,6 +19,12 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 	/// <summary>Game data with extras from the PersistantTrackerPlugin.</summary>
 	public class NormalizedData
 	{
+		/// <summary>In pit garage or pit lane?</summary>
+		/// <remarks>
+		/// AMS2 note: both these are false when leaving garage!
+		/// </remarks>
+		public bool m_isInPit;
+
 		/// <summary>
 		/// <see cref="StatusDataBase.DeltaToSessionBest"/> if non-null,
 		/// otherwise PersistantTrackerPlugin.SessionBestLiveDeltaSeconds.
@@ -126,6 +132,8 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 			if ((0 == opponentList.Count) || (opponentList[0].RelativeGapToPlayer == null))
 				return null;
 
+			// Returning absolute value as it seems to flicker between +ve and -ve. Shrug. The display mode ("gap ahead" or
+			// "gap behind") is sufficient.
 			return Math.Abs((double)opponentList[0].RelativeGapToPlayer);
 		}
 
@@ -185,7 +193,7 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 		// LED state.
 		private enum LedState
 		{
-			off,                // LED off.
+			off,            // LED off.
 			on,             // LED on (solid).
 			blink           // LED blinking.
 		}
@@ -195,19 +203,24 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 
 		private enum BlinkState
 		{
-			inactive,       // Not in blinking state.
 			on,             // In blinking on state.
 			off             // In blinking off state.
 		}
 
 		private class StatusLed
 		{
+			/// <summary>Constructor.</summary>
+			/// <param name="getLedState">Function to get LED state from game data.</param>
 			public StatusLed(GetLedState getLedState)
 			{
 				m_getLedState = getLedState;
 			}
 
-			public bool Update(NormalizedData normalizedData, long statusLedBlinkIntervalMs)
+			/// <summary>Process game data from SimHub.</summary>
+			/// <param name="normalizedData"></param>
+			/// <param name="statusLedBlinkIntervalMs"></param>
+			/// <returns>true if the LED should be lit.</returns>
+			public bool ProcessData(NormalizedData normalizedData, long statusLedBlinkIntervalMs)
 			{
 				var ledState = m_getLedState(normalizedData);
 
@@ -217,9 +230,7 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 				}
 				else
 				{
-					m_stopwatch.Reset();
-					m_blinkState = BlinkState.inactive;
-
+					m_stopwatch.Stop();
 					return (LedState.on == ledState);
 				}
 			}
@@ -228,13 +239,14 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 			{
 				bool isOn = true;
 
+				if (!m_stopwatch.IsRunning)
+				{
+					m_stopwatch.Restart();
+					m_blinkState = BlinkState.on;
+				}
+
 				switch (m_blinkState)
 				{
-					case BlinkState.inactive:
-						m_stopwatch.Start();
-						m_blinkState = BlinkState.on;
-						break;
-
 					case BlinkState.on:
 						if (m_stopwatch.ElapsedMilliseconds >= statusLedBlinkIntervalMs)
 						{
@@ -261,35 +273,53 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 			}
 
 			private readonly GetLedState m_getLedState;
-			private BlinkState m_blinkState = BlinkState.inactive;
+			private BlinkState m_blinkState;
 			private readonly Stopwatch m_stopwatch = new Stopwatch();
 		}
 
-		private StatusLed m_drsStatusLed = new StatusLed(
-			(NormalizedData normalizedData) =>
+		private StatusLed[] m_statusLeds = new StatusLed[(int)Constants.numberOfStatusLeds]
 			{
-				LedState ledState;
+				// Left bank status LEDs.
+				new StatusLed((NormalizedData normalizedData) =>
+					(normalizedData.m_statusData.Flag_Blue != 0) ? LedState.on : LedState.off),
+				new StatusLed((NormalizedData normalizedData) =>
+					(normalizedData.m_statusData.Flag_Yellow != 0) ? LedState.on : LedState.off),
+				new StatusLed((NormalizedData normalizedData) =>
+					(normalizedData.m_statusData.CarSettings_FuelAlertActive != 0) ? LedState.on : LedState.off),
 
-				// rf2 at least reports DRS available in the pits (in a practise session).
-				if ((normalizedData.m_statusData.IsInPit != 0) || (normalizedData.m_statusData.IsInPitLane != 0))
-					ledState = LedState.off;
-				else if (normalizedData.m_statusData.DRSEnabled != 0)
-					ledState = LedState.on;
-				else if (normalizedData.m_statusData.DRSAvailable != 0)
-					ledState = LedState.blink;
-				else
-					ledState = LedState.off;
+				// Right bank status LEDs.
+				new StatusLed((NormalizedData normalizedData) =>
+					(normalizedData.m_statusData.ABSActive != 0) ? LedState.on : LedState.off),
+				new StatusLed((NormalizedData normalizedData) =>
+					(normalizedData.m_statusData.TCActive != 0) ? LedState.on : LedState.off),
+				new StatusLed(
+					(NormalizedData normalizedData) =>
+					{
+						LedState ledState = LedState.off;
 
-				return ledState;
-			});
+						// rf2 (at least?) reports DRS available in the pits (in a practise session), so ignore DRS state if in pit.
+						if (!normalizedData.m_isInPit)
+						{
+							// Blink for DRS available; solid for DRS active.
+							if (normalizedData.m_statusData.DRSEnabled != 0)
+								ledState = LedState.on;
+							else if (normalizedData.m_statusData.DRSAvailable != 0)
+								ledState = LedState.blink;
+						}
 
-		private BlinkState m_shiftPointBlinkState = BlinkState.inactive;
+						return ledState;
+					})
+			};
+
+		private BlinkState m_shiftPointBlinkState;
 		private readonly Stopwatch m_shiftPointStopwatch = new Stopwatch();
 
-		private BlinkState m_pitLaneRevLightsBlinkState = BlinkState.inactive;
+		private BlinkState m_pitLaneRevLightsBlinkState;
 		private readonly Stopwatch m_pitLaneRevLightsStopwatch = new Stopwatch();
-		private static readonly bool[] pitLaneLeds1 = { true, true, true, true, false, false, false, false, false, true, true, true, true };
-		private static readonly bool[] pitLaneLeds2 = { false, false, false, false, true, true, true, true, true };
+		private static readonly bool[] pitLaneLeds1 = new bool[(int)Constants.numberOfRevLeds]
+			{ true, true, true, true, false, false, false, false, false, true, true, true, true };
+		private static readonly bool[] pitLaneLeds2 = new bool[(int)Constants.numberOfRevLeds]
+			{ false, false, false, false, true, true, true, true, true, false, false, false, false };
 
 		private readonly NormalizedData m_normalizedData = new NormalizedData();
 
@@ -347,15 +377,13 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 
 						case nameof(m_settings.LeftSegmentDisplayIndex):
 							// Left segment display has changed, by rotary, button or UI.
-							m_segmentDisplayManagers[SegmentDisplayPosition.left].SetByIndex(
-								m_settings.LeftSegmentDisplayIndex,
+							m_segmentDisplayManagers[SegmentDisplayPosition.left].SetByIndex(m_settings.LeftSegmentDisplayIndex,
 								m_settings.SegmentNameTimeoutMs);
 							break;
 
 						case nameof(m_settings.RightSegmentDisplayIndex):
 							// Right segment display has changed, by rotary, button or UI.
-							m_segmentDisplayManagers[SegmentDisplayPosition.right].SetByIndex(
-								m_settings.RightSegmentDisplayIndex,
+							m_segmentDisplayManagers[SegmentDisplayPosition.right].SetByIndex(m_settings.RightSegmentDisplayIndex,
 								m_settings.SegmentNameTimeoutMs);
 							break;
 
@@ -444,9 +472,9 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 
 		/// <summary>
 		/// Called one time per game data update, contains all normalized game data,
-		/// raw data are intentionnally "hidden" under a generic object type (A plugin SHOULD NOT USE IT)
+		/// raw data are intentionally "hidden" under a generic object type (A plugin SHOULD NOT USE IT).
 		///
-		/// This method is on the critical path, it must execute as fast as possible and avoid throwing any error
+		/// This method is on the critical path, it must execute as fast as possible and avoid throwing any error.
 		/// </summary>
 		/// <param name="pluginManager"></param>
 		/// <param name="data"></param>
@@ -464,24 +492,17 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 					// Fix up a few potentially missing things.
 					NormalizeData(pluginManager, data.NewData);
 
-					// Left bank status LEDs.
-					// TODO blink?
-					m_sliPro.SetStatusLed(0, m_normalizedData.m_statusData.Flag_Blue != 0);
-					m_sliPro.SetStatusLed(1, m_normalizedData.m_statusData.Flag_Yellow != 0);
-					m_sliPro.SetStatusLed(2, m_normalizedData.m_statusData.CarSettings_FuelAlertActive != 0);
+					// Status LEDs.
+					for (uint i = 0; i < m_statusLeds.Length; ++i)
+					{
+						m_sliPro.SetStatusLed(i,
+							m_statusLeds[i].ProcessData(m_normalizedData, m_settings.StatusLedBlinkIntervalMs));
+					}
 
-					// Right bank status LEDs.
-					m_sliPro.SetStatusLed(3, m_normalizedData.m_statusData.ABSActive != 0);
-					m_sliPro.SetStatusLed(4, m_normalizedData.m_statusData.TCActive != 0);
-
-					// Blink for DRS available. Solid for enabled.
-					bool isDrsLedLit = m_drsStatusLed.Update(m_normalizedData, m_settings.StatusLedBlinkIntervalMs);
-					m_sliPro.SetStatusLed(5, isDrsLedLit);
-
-					// Gear and shift point.
+					// Gear and revs.
 					m_sliPro.SetGear(m_normalizedData.m_statusData.Gear);
-					bool isInPit = HandlePitLane();
-					HandleShiftPoint(isInPit);
+					if (!HandlePitLane())
+						HandleRpms();
 
 					// Left/right segments displays.
 					foreach (var segmentDisplayManager in m_segmentDisplayManagers.Values)
@@ -507,6 +528,7 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 		private void NormalizeData(PluginManager pluginManager, StatusDataBase statusData)
 		{
 			m_normalizedData.m_statusData = statusData;
+			m_normalizedData.m_isInPit = (statusData.IsInPitLane != 0) || (statusData.IsInPit != 0);
 
 			if (statusData.DeltaToSessionBest != null)
 			{
@@ -574,69 +596,41 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 			if (0 == m_settings.PitLaneAnimationSpeedMs)
 				return false;
 
-			// AMS2 note: both these are false when leaving the car hole!
-			bool isInPits = (m_normalizedData.m_statusData.IsInPitLane != 0) || (m_normalizedData.m_statusData.IsInPit != 0);
+			if (!m_normalizedData.m_isInPit)
+			{
+				m_pitLaneRevLightsStopwatch.Stop();
+				return false;
+			}
+			else if (!m_pitLaneRevLightsStopwatch.IsRunning)
+			{
+				m_pitLaneRevLightsStopwatch.Restart();
+				m_pitLaneRevLightsBlinkState = BlinkState.on;
+			}
 
-			// TODO could maybe remove a state here; m_pitLaneRevLightsStopwatch.IsRunning is a thing.
 			switch (m_pitLaneRevLightsBlinkState)
 			{
-				case BlinkState.inactive:
-					if (isInPits)
-					{
-						m_pitLaneRevLightsBlinkState = BlinkState.on;
-						m_pitLaneRevLightsStopwatch.Start();
-					}
-					break;
-
 				case BlinkState.on:
-					if (isInPits)
+					if (m_pitLaneRevLightsStopwatch.ElapsedMilliseconds >= m_settings.PitLaneAnimationSpeedMs)
 					{
-						if (m_pitLaneRevLightsStopwatch.ElapsedMilliseconds >= m_settings.PitLaneAnimationSpeedMs)
-						{
-							m_pitLaneRevLightsBlinkState = BlinkState.off;
-							m_pitLaneRevLightsStopwatch.Restart();
-						}
-					}
-					else
-					{
-						m_pitLaneRevLightsBlinkState = BlinkState.inactive;
-						m_pitLaneRevLightsStopwatch.Stop();
+						m_pitLaneRevLightsBlinkState = BlinkState.off;
+						m_pitLaneRevLightsStopwatch.Restart();
 					}
 					break;
 
 				case BlinkState.off:
-					if (isInPits)
+					if (m_pitLaneRevLightsStopwatch.ElapsedMilliseconds >= m_settings.PitLaneAnimationSpeedMs)
 					{
-						if (m_pitLaneRevLightsStopwatch.ElapsedMilliseconds >= m_settings.PitLaneAnimationSpeedMs)
-						{
-							m_pitLaneRevLightsBlinkState = BlinkState.on;
-							m_pitLaneRevLightsStopwatch.Restart();
-						}
-					}
-					else
-					{
-						m_pitLaneRevLightsBlinkState = BlinkState.inactive;
-						m_pitLaneRevLightsStopwatch.Stop();
+						m_pitLaneRevLightsBlinkState = BlinkState.on;
+						m_pitLaneRevLightsStopwatch.Restart();
 					}
 					break;
 			}
 
-			bool[] leds = pitLaneLeds1;
-
-			if (isInPits)
-			{
-				if (BlinkState.off == m_pitLaneRevLightsBlinkState)
-					leds = pitLaneLeds2;
-
-				m_sliPro.SetRevLeds(leds);
-
-				return true;
-			}
-
-			return false;
+			m_sliPro.SetRevLeds((BlinkState.on == m_pitLaneRevLightsBlinkState) ? pitLaneLeds1 : pitLaneLeds2);
+			return true;
 		}
 
-		private void HandleShiftPoint(bool isInPit)
+		private void HandleRpms()
 		{
 			// No shift indicators if in top gear.
 			int gear;
@@ -646,37 +640,30 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 			double rpmPercent = m_normalizedData.m_statusData.CarSettings_CurrentDisplayedRPMPercent;
 			bool isShiftPointActive = !isTopGear && (0 != m_normalizedData.m_statusData.CarSettings_RPMRedLineReached);
 
-			// TODO could maybe remove a state here; m_shiftPointStopwatch.IsRunning is a thing.
-			switch (m_shiftPointBlinkState)
+			if (!isShiftPointActive)
 			{
-				case BlinkState.inactive:
-					if (isShiftPointActive)
-					{
-						m_shiftPointBlinkState = BlinkState.on;
-						m_shiftPointStopwatch.Start();
-					}
-					break;
+				m_shiftPointStopwatch.Stop();
+			}
+			else
+			{
+				if (!m_shiftPointStopwatch.IsRunning)
+				{
+					m_shiftPointStopwatch.Restart();
+					m_shiftPointBlinkState = BlinkState.on;
+				}
 
-				case BlinkState.on:
-					if (isShiftPointActive)
-					{
+				switch (m_shiftPointBlinkState)
+				{
+					case BlinkState.on:
 						if ((m_shiftPointStopwatch.ElapsedMilliseconds >= m_settings.ShiftPointBlinkOnSpeedMs) &&
 							(m_settings.ShiftPointBlinkOffSpeedMs > 0))
 						{
 							m_shiftPointBlinkState = BlinkState.off;
 							m_shiftPointStopwatch.Restart();
 						}
-					}
-					else
-					{
-						m_shiftPointBlinkState = BlinkState.inactive;
-						m_shiftPointStopwatch.Stop();
-					}
-					break;
+						break;
 
-				case BlinkState.off:
-					if (isShiftPointActive)
-					{
+					case BlinkState.off:
 						if (m_shiftPointStopwatch.ElapsedMilliseconds >= m_settings.ShiftPointBlinkOffSpeedMs)
 						{
 							m_shiftPointBlinkState = BlinkState.on;
@@ -687,22 +674,14 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 							// Turn off LEDs when blinking.
 							rpmPercent = 0;
 						}
-					}
-					else
-					{
-						m_shiftPointBlinkState = BlinkState.inactive;
-						m_shiftPointStopwatch.Stop();
-					}
-					break;
+						break;
+				}
 			}
 
-			if (!isInPit)
-			{
-				double minRpmPercent = (100 * m_normalizedData.m_statusData.CarSettings_MinimumShownRPM) /
-					m_normalizedData.m_statusData.CarSettings_MaxRPM;
+			double minRpmPercent = (100 * m_normalizedData.m_statusData.CarSettings_MinimumShownRPM) /
+				m_normalizedData.m_statusData.CarSettings_MaxRPM;
 
-				m_sliPro.SetRevLeds(minRpmPercent, rpmPercent, 0, SliPro.Constants.numberOfRevLeds);
-			}
+			m_sliPro.SetRevLeds(minRpmPercent, rpmPercent, 0, SliPro.Constants.numberOfRevLeds);
 		}
 	}
 }

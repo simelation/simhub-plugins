@@ -4,7 +4,6 @@
 
 using System;
 using System.Reflection;
-using System.Windows;
 using System.Windows.Controls;
 
 // ---------------------------------------------------------------------------------------------------------------------------------
@@ -23,8 +22,7 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 		/// <summary>Title for UI.</summary>
 		public static String Title
 		{
-			get =>
-				String.Format("SLI-PRO PLUGIN {0}", Assembly.GetExecutingAssembly().GetName().Version.ToString());
+			get => String.Format("SLI-PRO PLUGIN {0}", Assembly.GetExecutingAssembly().GetName().Version.ToString());
 		}
 
 		/// <summary>List of items for the left segment display combobox.</summary>
@@ -106,8 +104,9 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 
 		private void OnSliProClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
 		{
-			var point = e.GetPosition((IInputElement)sender);
-			var res = GetStatusLedIndex(point);
+			/*			var point = e.GetPosition((IInputElement)sender);
+						var res = GetStatusLedIndex(point);
+			*/
 		}
 
 		private void OnLeftSegmentRotaryClick(object sender, System.Windows.RoutedEventArgs e)
@@ -125,36 +124,37 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 			Plugin.LearnOrForgetRotary(SliPro.RotarySwitch.brightness);
 		}
 
-		private static bool LedHitTest(Point point, Point center)
-		{
-			// TODO maybe optimize this and/or look at VisualTreeHelper.HitTest().
-			return (point.X >= (center.X - ledRadius)) &&
-				(point.X <= (center.X + ledRadius)) &&
-				(point.Y >= (center.Y - ledRadius)) &&
-				(point.Y <= (center.Y + ledRadius));
-		}
+		/*		private static bool LedHitTest(Point point, Point center)
+				{
+					// TODO maybe optimize this and/or look at VisualTreeHelper.HitTest().
+					return (point.X >= (center.X - ledRadius)) &&
+						(point.X <= (center.X + ledRadius)) &&
+						(point.Y >= (center.Y - ledRadius)) &&
+						(point.Y <= (center.Y + ledRadius));
+				}
 
-		private static int GetStatusLedIndex(Point point)
-		{
-			for (int i = 0; i < statusLedPositions.Length; ++i)
-			{
-				if (LedHitTest(point, statusLedPositions[i]))
-					return i;
-			}
+				private static int GetStatusLedIndex(Point point)
+				{
+					for (int i = 0; i < statusLedPositions.Length; ++i)
+					{
+						if (LedHitTest(point, statusLedPositions[i]))
+							return i;
+					}
 
-			return -1;
-		}
+					return -1;
+				}
 
-		private readonly static Point[] statusLedPositions = new Point[]
-			{
-				new Point(30, 204),
-				new Point(79, 204),
-				new Point(128, 204),
-				new Point(608, 204),
-				new Point(657, 204),
-				new Point(706, 204)
-			};
+				private readonly static Point[] statusLedPositions = new Point[]
+					{
+						new Point(30, 204),
+						new Point(79, 204),
+						new Point(128, 204),
+						new Point(608, 204),
+						new Point(657, 204),
+						new Point(706, 204)
+					};
 
-		private const int ledRadius = 19;
+				private const int ledRadius = 19;
+		*/
 	}
 }

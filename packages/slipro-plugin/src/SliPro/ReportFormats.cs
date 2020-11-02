@@ -25,10 +25,10 @@ namespace SimElation.SliPro
 		public const uint button24to31Length = 1;
 
 		public const uint rotarySwitchesOffset = button24to31Offset + button24to31Length;
-		public const uint rotarySwitchLength = 6 * 2; // uint16 for each rotary (6 rotaries).
+		public const uint rotarySwitchLength = Constants.maxNumberOfRotarySwitches * sizeof(ushort); // uint16 for each rotary.
 
 		public const uint potsOffset = rotarySwitchesOffset + rotarySwitchLength;
-		public const uint potsLength = 2 * 2; // uint16 for each pot (2 pots).
+		public const uint potsLength = Constants.maxNumberOfPots * sizeof(ushort); // uint16 for each pot.
 	}
 
 	/// <summary>Common header for message format to send to SLI-Pro.</summary>
@@ -48,12 +48,10 @@ namespace SimElation.SliPro
 		public const uint revLed1Index = gearIndex + 1;
 
 		public const uint statusLed1Index = revLed1Index + Constants.numberOfRevLeds;
-		public const uint statusLedCount = 6;
 
-		public const uint externalLed1Index = statusLed1Index + statusLedCount;
-		public const uint externalLedCount = 5;
+		public const uint externalLed1Index = statusLed1Index + Constants.numberOfStatusLeds;
 
-		public const uint leftSegmentIndex = externalLed1Index + externalLedCount;
+		public const uint leftSegmentIndex = externalLed1Index + Constants.numberOfExternalLeds;
 		public const uint rightSegmentIndex = leftSegmentIndex + Constants.segmentDisplayWidth;
 
 		public const uint length = rightSegmentIndex + Constants.segmentDisplayWidth;

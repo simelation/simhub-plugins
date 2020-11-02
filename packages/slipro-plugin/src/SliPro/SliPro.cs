@@ -30,6 +30,12 @@ namespace SimElation.SliPro
 		/// <summary>The number of LEDs in the rev display.</summary>
 		public const uint numberOfRevLeds = 13;
 
+		/// <summary>The number of status LEDs (3 left, 3 right).</summary>
+		public const uint numberOfStatusLeds = 6;
+
+		/// <summary>The number of external LEDs.</summary>
+		public const uint numberOfExternalLeds = 5;
+
 		/// <summary>The number of supported rotary switches.</summary>
 		public const uint maxNumberOfRotarySwitches = 6;
 
@@ -41,9 +47,17 @@ namespace SimElation.SliPro
 	public enum SegmentDisplayPosition
 	{
 		/// <summary>The left segment display.</summary>
+		/// <remarks>
+		/// Decimal points at indexes: 0, 1, 2, 4
+		/// Primes at indexes:         3, 5
+		/// </remarks>
 		left,
 
 		/// <summary>The right segment display.</summary>
+		/// <remarks>
+		/// Decimal points at indexes: 0, 2, 3, 4
+		/// Primes at indexes:         1, 5
+		/// </remarks>
 		right
 	}
 
@@ -469,7 +483,7 @@ namespace SimElation.SliPro
 		/// <returns>false if <paramref name="ledIndex"/> is out of range, otherwise true.</returns>
 		public bool SetStatusLed(uint ledIndex, bool isSet)
 		{
-			if (ledIndex >= LedStateReport.statusLedCount)
+			if (ledIndex >= Constants.numberOfStatusLeds)
 				return false;
 
 			m_ledHidReport.Data[LedStateReport.statusLed1Index + ledIndex] = (byte)(isSet ? 1 : 0);
@@ -483,7 +497,7 @@ namespace SimElation.SliPro
 		/// <returns>false if <paramref name="ledIndex"/> is out of range, otherwise true.</returns>
 		public bool SetExternalLed(uint ledIndex, bool isSet)
 		{
-			if (ledIndex >= LedStateReport.externalLedCount)
+			if (ledIndex >= Constants.numberOfExternalLeds)
 				return false;
 
 			m_ledHidReport.Data[LedStateReport.externalLed1Index + ledIndex] = (byte)(isSet ? 1 : 0);
