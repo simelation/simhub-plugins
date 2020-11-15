@@ -17,14 +17,14 @@
 		"access": "public"
 	},
 	"files": [
-		"/bin/Release/*.dll"
+		"/bin/x86/Release/*.dll"
 	],
 	"scripts": {
 		"prepare": "cmd /c if not exist SimHub mklink /D SimHub \"C:\\Program Files (x86)\\SimHub\"",
-		"build": "msbuild.exe SimElation.SimHub.SliPlugin.csproj /property:GenerateFullPaths=true /t:build /p:Configuration=Release /p:Platform=AnyCPU /consoleloggerparameters:NoSummary",
-		"develop": "msbuild.exe SimElation.SimHub.SliPlugin.csproj /property:GenerateFullPaths=true /t:build /p:Configuration=Debug /p:Platform=AnyCPU /consoleloggerparameters:NoSummary",
-		"clean-build": "msbuild.exe SimElation.SimHub.SliPlugin.csproj /property:GenerateFullPaths=true /t:clean /p:Configuration=Release /p:Platform=AnyCPU /consoleloggerparameters:NoSummary",
-		"clean-develop": "msbuild.exe SimElation.SimHub.SliPlugin.csproj /property:GenerateFullPaths=true /t:clean /p:Configuration=Debug /p:Platform=AnyCPU /consoleloggerparameters:NoSummary",
+		"build": "msbuild.exe SimElation.SimHub.SliPlugin.csproj /property:GenerateFullPaths=true /t:build /p:Configuration=Release /p:Platform=x86 /consoleloggerparameters:NoSummary",
+		"develop": "msbuild.exe SimElation.SimHub.SliPlugin.csproj /property:GenerateFullPaths=true /t:build /p:Configuration=Debug /p:Platform=x86 /consoleloggerparameters:NoSummary",
+		"clean-build": "msbuild.exe SimElation.SimHub.SliPlugin.csproj /property:GenerateFullPaths=true /t:clean /p:Configuration=Release /p:Platform=x86 /consoleloggerparameters:NoSummary",
+		"clean-develop": "msbuild.exe SimElation.SimHub.SliPlugin.csproj /property:GenerateFullPaths=true /t:clean /p:Configuration=Debug /p:Platform=x86 /consoleloggerparameters:NoSummary",
 		"clean": "yarn clean-build && yarn clean-develop",
 		"preversion": "rpl \"%npm_package_version%.0\" \"A.B.C.D\" Properties/AssemblyInfo.cs",
 		"version": "rpl \"A.B.C.D\" \"%npm_package_version%.0\" Properties/AssemblyInfo.cs && git add Properties/AssemblyInfo.cs",

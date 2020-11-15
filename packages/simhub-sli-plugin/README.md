@@ -11,7 +11,7 @@ Release packages are available from [GitHub](https://github.com/orgs/simelation/
 Packages are currently published as gzipped tar files, so you may need an appropriate tool to unzip them
 (e.g. [7zip](https://www.7-zip.org/)).
 
-Copy the `package\bin\Release\SimElation.SimHub.SliPlugin.dll` file from the package to your SimHub installation directory
+Copy the `package\bin\x86\Release\SimElation.SimHub.SliPlugin.dll` file from the package to your SimHub installation directory
 (e.g. `C:\Program Files (x86)\SimHub`) and (re)start SimHub. SimHub should ask for confirmation to enable the new plugin.
 
 ## Stock SLI-Pro firmware vs. Roso firmware
