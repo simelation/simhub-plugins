@@ -5,18 +5,20 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:styles="clr-namespace:SimHub.Plugins.Styles;assembly=SimHub.Plugins"
 			 xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
-			 xmlns:slipro="clr-namespace:SimElation.SliPro"
 			 xmlns:local="clr-namespace:SimElation.SimHubIntegration.SliProPlugin"
 			 xmlns:converters="clr-namespace:SimElation.SimHubIntegration.SliProPlugin.Utils.ValueConverters"
 			 xmlns:autogrid="clr-namespace:WpfAutoGrid;assembly=WpfAutoGrid"
+			 xmlns:dialog="clr-namespace:MahApps.Metro.Controls.Dialogs;assembly=MahApps.Metro"
+			 dialog:DialogParticipation.Register="{Binding}"
 			 mc:Ignorable="d"
 			 d:DesignWidth="600" d:DesignHeight="800">
 	<UserControl.Resources>
 		<converters:AllowNullConverter x:Key="AllowNullConverter" />
-		<converters:RotaryDetectConverter x:Key="RotaryDetectConverter" />
-		<converters:NotConverter x:Key="NotConverter" />
+		<converters:RotarySwitchIndexConverter x:Key="RotarySwitchIndexConverter" />
+		<converters:IsRotarySwitchControlledConverter x:Key="IsRotarySwitchControlledConverter" />
+		<converters:IsNotRotarySwitchControlledConverter x:Key="IsNotRotarySwitchControlledConverter" />
 	</UserControl.Resources>
-	
+
 	<ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
 		<StackPanel Orientation="Vertical">
 			<styles:SHSection Title="{Binding Title}">
@@ -30,9 +32,9 @@
 				<StackPanel Orientation="Vertical">
 					<UniformGrid Rows="1" Columns="2">
 						<local:SegmentDisplayControl Label="Left display"
-													 IsRotaryControlled="{Binding Path=Settings.IsLeftSegmentDisplayRotaryControlled, Mode=TwoWay}"
-													 LearnRotaryButtonContent="{Binding Path=Settings.SliProSettings.RotarySwitchOffsets[(slipro:RotarySwitch)leftSegment],
-														 Converter={StaticResource RotaryDetectConverter}}"
+													 RotarySwitchIndex="{Binding Path=Settings.LeftSegmentDisplayRotarySwitchIndex, Mode=TwoWay}"
+													 LearnRotaryButtonContent="{Binding Path=Settings.LeftSegmentDisplayRotarySwitchIndex,
+														 Converter={StaticResource RotarySwitchIndexConverter}}"
 				 									 ItemsSource="{Binding LeftSegmentDisplayComboBoxContents}"
 													 SelectedIndex="{Binding Path=Settings.LeftSegmentDisplayIndex, Mode=TwoWay}"
 													 LearnRotaryClick="OnLeftSegmentRotaryClick"
@@ -40,9 +42,9 @@
 													 PreviousDisplay="{x:Static Member=local:SettingsControl.LeftSegmentDisplayPreviousAction}"/>
 
 						<local:SegmentDisplayControl Label="Right display"
-													 IsRotaryControlled="{Binding Path=Settings.IsRightSegmentDisplayRotaryControlled, Mode=TwoWay}"
-													 LearnRotaryButtonContent="{Binding Path=Settings.SliProSettings.RotarySwitchOffsets[(slipro:RotarySwitch)rightSegment],
-														 Converter={StaticResource RotaryDetectConverter}}"
+													 RotarySwitchIndex="{Binding Path=Settings.RightSegmentDisplayRotarySwitchIndex, Mode=TwoWay}"
+													 LearnRotaryButtonContent="{Binding Path=Settings.RightSegmentDisplayRotarySwitchIndex,
+														 Converter={StaticResource RotarySwitchIndexConverter}}"
 													 ItemsSource="{Binding RightSegmentDisplayComboBoxContents}"
 													 SelectedIndex="{Binding Path=Settings.RightSegmentDisplayIndex, Mode=TwoWay}"
 													 LearnRotaryClick="OnRightSegmentRotaryClick"
@@ -52,7 +54,7 @@
 
 					<!-- NB bug with RowCount 1 https://github.com/carbonrobot/wpf-autogrid/issues/6 -->
 					<autogrid:AutoGrid RowCount="2" Columns="220,200,400">
-						<Label VerticalAlignment="Center" Margin="4,4,4,4" Content="Show new segment mode name for" />
+						<Label VerticalAlignment="Center" Margin="4,4,4,4" Content="Show name of new segment mode for" />
 						<mah:NumericUpDown Minimum="0" Maximum="60000" HasDecimals="False" Margin="4,4,4,4"
 										   VerticalAlignment="Center"
 										   Value="{Binding Path=Settings.SegmentNameTimeoutMs, Mode=TwoWay}"
@@ -63,20 +65,26 @@
 			</styles:SHSection>
 
 			<styles:SHSection Title="DISPLAY BRIGHTNESS">
-				<autogrid:AutoGrid RowCount="2" Columns="220,28,172">
-					<Label VerticalAlignment="Center" Margin="4,4,4,4" Content="Rotary control"/>
-					<styles:SHToggleButton HorizontalAlignment="Left" Margin="4,4,4,4"
-										   IsChecked="{Binding Path=Settings.SliProSettings.IsBrightnessRotaryControlled, Mode=TwoWay}"/>
-					<styles:SHButtonPrimary VerticalAlignment="Center" Margin="20,4,4,4" x:Name="learnRotaryButton"
-											IsEnabled="{Binding Path=Settings.SliProSettings.IsBrightnessRotaryControlled}"
-											Click="OnBrightnessRotaryClick"
-											Content="{Binding Path=Settings.SliProSettings.RotarySwitchOffsets[(slipro:RotarySwitch)brightness],
-												Converter={StaticResource RotaryDetectConverter}, ConverterParameter='brightness'}"
+				<autogrid:AutoGrid RowCount="3" Columns="220,28,172">
+					<Label />
+					<styles:SHButtonPrimary VerticalAlignment="Center" Margin="4,4,4,4" Grid.ColumnSpan="2"
+											x:Name="learnRotaryButton" Click="OnBrightnessRotaryClick"
+											Content="{Binding Path=Settings.SliProSettings.BrightnessRotarySwitchIndex,
+												Converter={StaticResource RotarySwitchIndexConverter}, ConverterParameter='brightness'}"
 											ToolTip="Learn or forget a rotary switch attached to the SLI-Pro to control the brightness." />
+
+					<Label VerticalAlignment="Center" Margin="4,4,4,4" Content="Number of rotary positions" />
+					<mah:NumericUpDown Minimum="2" Maximum="64" HasDecimals="False" Margin="4,4,4,4"
+									   IsEnabled="{Binding Path=Settings.SliProSettings.BrightnessRotarySwitchIndex,
+										   Converter={StaticResource IsRotarySwitchControlledConverter}}"
+									   VerticalAlignment="Center" Grid.ColumnSpan="2"
+									   Value="{Binding Path=Settings.SliProSettings.NumberOfBrightnessRotaryPositions, Mode=TwoWay}"
+									   ToolTip="How many positions the brightness rotary switch has." />
 
 					<Label HorizontalAlignment="Left" VerticalAlignment="Center" Margin="4,4,4,4" Content="Brightness level" />
 					<Slider Minimum="1" Maximum="254" VerticalAlignment="Center" Grid.ColumnSpan="2" Margin="4,4,4,4"
-							IsEnabled="{Binding Path=Settings.SliProSettings.IsBrightnessRotaryControlled, Converter={StaticResource NotConverter}}"
+						    IsEnabled="{Binding Path=Settings.SliProSettings.BrightnessRotarySwitchIndex,
+								Converter={StaticResource IsNotRotarySwitchControlledConverter}}"
 							Value="{Binding Path=Settings.SliProSettings.BrightnessLevel, Mode=TwoWay,
 								Converter={StaticResource AllowNullConverter}}"/>
 				</autogrid:AutoGrid>
@@ -119,6 +127,7 @@
 					<Label VerticalAlignment="Center" Margin="0,4,4,4" Content="milliseconds" />
 				</autogrid:AutoGrid>
 			</styles:SHSection>
+
 		</StackPanel>
 	</ScrollViewer>
 </UserControl>

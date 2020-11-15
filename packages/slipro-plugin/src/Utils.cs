@@ -68,13 +68,15 @@ namespace SimElation.SimHubIntegration.SliProPlugin.Utils
 			}
 		}
 
-		/// <summary>Converter for rotary state to text for button.</summary>
-		class RotaryDetectConverter : IValueConverter
+		/// <summary>Converter for rotary switch index to text for button.</summary>
+		class RotarySwitchIndexConverter : IValueConverter
 		{
 			public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
 			{
-				return String.Format("{0} rotary control", ((int)value == SliPro.RotaryDetector.undefinedOffset) ?
-					"Learn" : "Forget");
+				if ((int)value == SliPro.RotaryDetector.unknownIndex)
+					return "Learn rotary switch";
+				else
+					return String.Format("Forget rotary switch {0}", (int)value + 1);
 			}
 
 			public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
@@ -83,17 +85,35 @@ namespace SimElation.SimHubIntegration.SliProPlugin.Utils
 			}
 		}
 
-		/// <summary>Not operator converter.</summary>
-		class NotConverter : IValueConverter
+		/// <summary>Boolean converter for IsEnabled based off rotary switch control enabled.</summary>
+		class IsRotarySwitchControlledConverter : IValueConverter
 		{
 			public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
 			{
-				return !(bool)value;
+				int rotarySwitchIndex = (int)value;
+
+				return rotarySwitchIndex != SliPro.RotaryDetector.unknownIndex;
 			}
 
 			public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
 			{
-				return !(bool)value;
+				return DependencyProperty.UnsetValue;
+			}
+		}
+
+		/// <summary>Boolean converter for IsEnabled based off rotary switch control not enabled.</summary>
+		class IsNotRotarySwitchControlledConverter : IValueConverter
+		{
+			public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+			{
+				int rotarySwitchIndex = (int)value;
+
+				return rotarySwitchIndex == SliPro.RotaryDetector.unknownIndex;
+			}
+
+			public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+			{
+				return DependencyProperty.UnsetValue;
 			}
 		}
 	}

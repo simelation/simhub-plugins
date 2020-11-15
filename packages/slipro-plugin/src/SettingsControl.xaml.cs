@@ -4,7 +4,10 @@
 
 using System;
 using System.Reflection;
+using System.Threading.Tasks;
 using System.Windows.Controls;
+using MahApps.Metro.Controls.Dialogs;
+using SimElation.SliPro;
 
 // ---------------------------------------------------------------------------------------------------------------------------------
 
@@ -71,9 +74,9 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 		/// <param name="plugin"></param>
 		public SettingsControl(SliProPlugin plugin)
 		{
-			this.DataContext = this;
-			this.Plugin = plugin;
-			this.Settings = plugin.Settings;
+			DataContext = this;
+			Plugin = plugin;
+			Settings = plugin.Settings;
 			InitializeComponent();
 		}
 
@@ -85,46 +88,98 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 		private void OnHelpClick(object sender, System.Windows.RoutedEventArgs e)
 		{
 			const String rootUrl = "https://github.com/simelation/simhub-plugins/blob";
-			String url, version = Assembly.GetExecutingAssembly().GetName().Version.ToString();
+			String branch = "master", version = Assembly.GetExecutingAssembly().GetName().Version.ToString();
 			int index = version.LastIndexOf(".");
 
-			if (index == -1)
-			{
-				url = String.Format("{0}/master/README.md", rootUrl);
-			}
-			else
+			if (index != -1)
 			{
 				String tagVersion = version.Substring(0, index);
-				url = String.Format("{0}/%40simelation/simhub-slipro-plugin%40{1}/packages/slipro-plugin/README.md",
-					rootUrl, tagVersion);
+				branch = String.Format("%40simelation/simhub-slipro-plugin%40{0}", tagVersion);
 			}
 
+			String url = String.Format("{0}/{1}/packages/slipro-plugin/README.md", rootUrl, branch);
 			System.Diagnostics.Process.Start(url);
+		}
+
+		private async void OnLeftSegmentRotaryClick(object sender, System.Windows.RoutedEventArgs e)
+		{
+			Settings.LeftSegmentDisplayRotarySwitchIndex =
+				await DetectOrForgetRotary(Settings.LeftSegmentDisplayRotarySwitchIndex, "left segment display control");
+		}
+
+		private async void OnRightSegmentRotaryClick(object sender, System.Windows.RoutedEventArgs e)
+		{
+			Settings.RightSegmentDisplayRotarySwitchIndex =
+				await DetectOrForgetRotary(Settings.RightSegmentDisplayRotarySwitchIndex, "right segment display control");
+		}
+
+		private async void OnBrightnessRotaryClick(object sender, System.Windows.RoutedEventArgs e)
+		{
+			Settings.SliProSettings.BrightnessRotarySwitchIndex =
+				await DetectOrForgetRotary(Settings.SliProSettings.BrightnessRotarySwitchIndex, "brightness level");
+		}
+
+		private Task<int> DetectOrForgetRotary(int rotarySwitchIndex, String type)
+		{
+			return (rotarySwitchIndex == RotaryDetector.unknownIndex) ?
+				DetectRotary(type) : Task.FromResult<int>(RotaryDetector.unknownIndex);
+		}
+
+		private async Task<int> DetectRotary(String type)
+		{
+			int rotarySwitchIndex = RotaryDetector.unknownIndex;
+
+			try
+			{
+				var dialog = await DialogCoordinator.Instance.ShowProgressAsync(this,
+					String.Format("Detecting rotary switch for {0}...", type),
+					"Change the position of a rotary switch", true,
+					new MetroDialogSettings()
+					{
+						AnimateShow = false,
+						AnimateHide = false
+					});
+
+				try
+				{
+					// TODO I suppose the actual rotary detection code should be cancelleable and cancelling the dialog should
+					// trigger that really. For now we'll just close the dialog and the detection code will silently timeout.
+					dialog.Canceled += async (sender, eventArgs) => await dialog.CloseAsync();
+					dialog.SetIndeterminate();
+
+					rotarySwitchIndex = await Plugin.DetectRotary();
+
+					// Just ignore detection result if cancelled.
+					if (!dialog.IsCanceled)
+					{
+						dialog.SetProgress(1);
+						dialog.SetMessage((rotarySwitchIndex == RotaryDetector.unknownIndex) ?
+							"No rotary detected" : String.Format("Detected rotary switch {0}", rotarySwitchIndex + 1));
+
+						// Wait a bit to display detection feedback.
+						await Task.Delay(2000);
+					}
+				}
+				finally
+				{
+					if (dialog.IsOpen)
+						_ = dialog.CloseAsync();
+				}
+			}
+			catch (Exception)
+			{
+			}
+
+			return rotarySwitchIndex;
 		}
 
 		private void OnSliProClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
 		{
-			/*			var point = e.GetPosition((IInputElement)sender);
-						var res = GetStatusLedIndex(point);
-			*/
+			//var point = e.GetPosition((IInputElement)sender);
+			//var res = GetStatusLedIndex(point);
 		}
-
-		private void OnLeftSegmentRotaryClick(object sender, System.Windows.RoutedEventArgs e)
-		{
-			Plugin.LearnOrForgetRotary(SliPro.RotarySwitch.leftSegment);
-		}
-
-		private void OnRightSegmentRotaryClick(object sender, System.Windows.RoutedEventArgs e)
-		{
-			Plugin.LearnOrForgetRotary(SliPro.RotarySwitch.rightSegment);
-		}
-
-		private void OnBrightnessRotaryClick(object sender, System.Windows.RoutedEventArgs e)
-		{
-			Plugin.LearnOrForgetRotary(SliPro.RotarySwitch.brightness);
-		}
-
-		/*		private static bool LedHitTest(Point point, Point center)
+		/*
+				private static bool LedHitTest(Point point, Point center)
 				{
 					// TODO maybe optimize this and/or look at VisualTreeHelper.HitTest().
 					return (point.X >= (center.X - ledRadius)) &&
@@ -146,12 +201,12 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 
 				private readonly static Point[] statusLedPositions = new Point[]
 					{
-						new Point(30, 204),
-						new Point(79, 204),
-						new Point(128, 204),
-						new Point(608, 204),
-						new Point(657, 204),
-						new Point(706, 204)
+								new Point(30, 204),
+								new Point(79, 204),
+								new Point(128, 204),
+								new Point(608, 204),
+								new Point(657, 204),
+								new Point(706, 204)
 					};
 
 				private const int ledRadius = 19;

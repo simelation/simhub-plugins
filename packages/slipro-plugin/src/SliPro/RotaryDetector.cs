@@ -13,21 +13,21 @@ namespace SimElation.SliPro
 	class RotaryDetector : IDisposable
 	{
 		/// <summary>Callback type for when a rotary switch is detected, or times out.</summary>
-		/// <param name="offset">
-		/// The offset of the rotary switch data within a <see cref="HidLibrary.HidReport"/> data buffer.
-		/// If no rotary is found when the detection times out, the callback is invoked with <see cref="undefinedOffset"/>.
+		/// <param name="rotarySwitchIndex">
+		/// The index of the detected rotary switch.
+		/// If no rotary is found when the detection times out, the callback is invoked with <see cref="unknownIndex"/>.
 		/// </param>
-		public delegate void Callback(int offset);
+		public delegate void Callback(int rotarySwitchIndex);
 
 		/// <summary>Offset value for undetected rotary.</summary>
-		public const int undefinedOffset = -1;
+		public const int unknownIndex = -1;
 
 		private readonly Callback m_callback;
 		private readonly Timer m_timer;
 
 		private readonly int[] m_previousRotaryPositions =
 			new int[(int)Constants.maxNumberOfRotarySwitches] { -1, -1, -1, -1, -1, -1 };
-		private int m_rotaryOffset = undefinedOffset;
+		private bool m_isFound = false;
 		private bool m_isDisposed = false;
 
 		/// <summary>Constructor.</summary>
@@ -40,8 +40,8 @@ namespace SimElation.SliPro
 			// Cancelleation timer for nothing found.
 			m_timer = new Timer((object state) =>
 			{
-				if (!m_isDisposed && (m_rotaryOffset == undefinedOffset))
-					m_callback(undefinedOffset);
+				if (!m_isDisposed && !m_isFound)
+					m_callback(unknownIndex);
 			}, null, timeoutMs, Timeout.Infinite);
 		}
 
@@ -56,6 +56,7 @@ namespace SimElation.SliPro
 			if (m_isDisposed)
 				return;
 
+			// TODO does disposing timer invoke its callback?
 			if (isDisposing)
 				m_timer.Dispose();
 
@@ -66,11 +67,11 @@ namespace SimElation.SliPro
 		/// <param name="rxBuffer">Received <see cref="HidLibrary.HidReport.Data"/> from the SLI-Pro.</param>
 		public void ProcessHidReport(byte[] rxBuffer)
 		{
-			if (m_rotaryOffset != undefinedOffset)
+			if (m_isFound)
 				return;
 
 			// Rotary position is a uint16 in the InputReport but we are only reading the low byte.
-			for (uint i = 0; i < Constants.maxNumberOfRotarySwitches; ++i)
+			for (int i = 0; i < Constants.maxNumberOfRotarySwitches; ++i)
 			{
 				var offset = InputReport.rotarySwitchesOffset + (i * sizeof(ushort));
 
@@ -82,8 +83,8 @@ namespace SimElation.SliPro
 					{
 						if (newPosition != m_previousRotaryPositions[i])
 						{
-							m_rotaryOffset = (int)offset;
-							m_callback(m_rotaryOffset);
+							m_isFound = true;
+							m_callback(i);
 							return;
 						}
 					}

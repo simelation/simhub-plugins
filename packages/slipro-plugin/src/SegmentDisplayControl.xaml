@@ -11,26 +11,23 @@
              mc:Ignorable="d"
 			 Loaded="OnLoaded">
 	<UserControl.Resources>
-		<converters:NotConverter x:Key="NotConverter" />
+		<converters:IsNotRotarySwitchControlledConverter x:Key="IsNotRotarySwitchControlledConverter" />
 	</UserControl.Resources>
 	<GroupBox Header="{Binding Label, ElementName=SegmentDisplayControlObject}">
 		<StackPanel Orientation="Vertical" Margin="0,5,0,5">
 
-			<styles:SHSection Title="Rotary control">
+			<styles:SHSection Title="Rotary switch control">
 				<!-- NB bug with RowCount 1 https://github.com/carbonrobot/wpf-autogrid/issues/6 -->
 				<autogrid:AutoGrid RowCount="2" Columns="2*,5*,5*">
-					<Label Content="Enabled" VerticalAlignment="Center"/>
-					<styles:SHToggleButton HorizontalAlignment="Left"
-										   IsChecked="{Binding IsRotaryControlled, ElementName=SegmentDisplayControlObject, Mode=TwoWay}"/>
-					<styles:SHButtonPrimary VerticalAlignment="Center" x:Name="learnRotaryButton"
-											IsEnabled="{Binding IsRotaryControlled, ElementName=SegmentDisplayControlObject}"
+					<styles:SHButtonPrimary VerticalAlignment="Center" x:Name="learnRotaryButton" Grid.ColumnSpan="2"
 											Content="{Binding LearnRotaryButtonContent, ElementName=SegmentDisplayControlObject}"
-											ToolTip="Learn or forget a rotary switch attached to the SLI-Pro to control what is shown in the segment display." />
+											ToolTip="Learn or forget a rotary switch attached to the SLI-Pro to select the display mode." />
 				</autogrid:AutoGrid>
 			</styles:SHSection>
 
 			<styles:SHSection Title="Manual / button control"
-							  IsEnabled="{Binding IsRotaryControlled, ElementName=SegmentDisplayControlObject, Converter={StaticResource NotConverter}}">
+							  IsEnabled="{Binding RotarySwitchIndex, ElementName=SegmentDisplayControlObject,
+								  Converter={StaticResource IsNotRotarySwitchControlledConverter}}">
 				<StackPanel Orientation="Vertical">
 					<!-- NB bug with RowCount 1 https://github.com/carbonrobot/wpf-autogrid/issues/6 -->
 					<autogrid:AutoGrid RowCount="2" Columns="2*,5*,5*">

@@ -9,7 +9,6 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using HidLibrary;
-using Newtonsoft.Json;
 
 // ---------------------------------------------------------------------------------------------------------------------------------
 
@@ -61,22 +60,6 @@ namespace SimElation.SliPro
 		right
 	}
 
-	/// <summary>Supported rotary switches for detection.</summary>
-	public enum RotarySwitch
-	{
-		/// <summary>Rotary switch to control the left segment display.</summary>
-		leftSegment,
-
-		/// <summary>Rotary switch to control the right segment display.</summary>
-		rightSegment,
-
-		/// <summary>Rotary switch to control the brightness.</summary>
-		brightness,
-
-		/// <summary>Number of supported control rotaries.</summary>
-		count
-	}
-
 	/// <summary>Interface to control an SLI-Pro board (https://www.leobodnar.com/products/SLI-PRO/).</summary>
 	/// <remarks>
 	/// Provides control over all LEDs and segment displays, and detection of rotary switches
@@ -87,61 +70,26 @@ namespace SimElation.SliPro
 		/// <summary>Public settings for the SLI-Pro.</summary>
 		public class Settings : INotifyPropertyChanged
 		{
-			/// <summary>Offsets into  <see cref="InputReport"/> for supported rotary switches.</summary>
-			public class RotarySwitchOffsetsImpl : INotifyPropertyChanged
+			/// <summary>Index of the rotary switch for brightness control.</summary>
+			public int BrightnessRotarySwitchIndex
 			{
-				/// <summary>Array indexer.</summary>
-				/// <param name="rotarySwitch"></param>
-				/// <returns>The offset into the <see cref="InputReport"/> for <see cref="RotarySwitch"/></returns>
-				public int this[RotarySwitch rotarySwitch]
-				{
-					get => m_offsets[(int)rotarySwitch];
-					set
-					{
-						m_offsets[(int)rotarySwitch] = value;
-						OnPropertyChanged();
-					}
-				}
-
-				/// <inheritdoc/>
-				public event PropertyChangedEventHandler PropertyChanged;
-
-				/// <inheritdoc/>
-				protected void OnPropertyChanged([CallerMemberName] string name = null)
-				{
-					// TODO can't get Item[0] etc. working so fire change for all array elements.
-					PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name + "[]"));
-				}
-
-				[JsonProperty]
-				private int[] m_offsets = new int[(int)RotarySwitch.count]
-				{
-					RotaryDetector.undefinedOffset,
-					RotaryDetector.undefinedOffset,
-					RotaryDetector.undefinedOffset
-				};
-			}
-
-			/// <summary>RotarySwitchOffsetsImpl accessor.</summary>
-			public RotarySwitchOffsetsImpl RotarySwitchOffsets
-			{
-				get => m_rotarySwitchOffsets;
-			}
-
-			/// <summary>Offsets of the rotary switch state in received HidReport data.</summary>
-			/// <remarks>
-			/// Initial state is no rotary switch control over brightness or segments displays.
-			/// </remarks>
-			private readonly RotarySwitchOffsetsImpl m_rotarySwitchOffsets = new RotarySwitchOffsetsImpl();
-
-			/// <summary>Brightness controlled via rotary property.</summary>
-			public bool IsBrightnessRotaryControlled
-			{
-				get => m_isBrightnessRotaryControlled;
+				get => m_brightnessRotarySwitchIndex;
 
 				set
 				{
-					m_isBrightnessRotaryControlled = value;
+					m_brightnessRotarySwitchIndex = value;
+					OnPropertyChanged();
+				}
+			}
+
+			/// <summary>Number of positions in brightness rotary switch.</summary>
+			public int NumberOfBrightnessRotaryPositions
+			{
+				get => m_numberOfBrightnessRotaryPositions;
+
+				set
+				{
+					m_numberOfBrightnessRotaryPositions = value;
 					OnPropertyChanged();
 				}
 			}
@@ -167,8 +115,12 @@ namespace SimElation.SliPro
 				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 			}
 
-			private bool m_isBrightnessRotaryControlled = true;
-			private byte m_brightnessLevel = SliPro.GetBrightnessLevelFromRotaryPosition(-1);
+			private int m_brightnessRotarySwitchIndex = RotaryDetector.unknownIndex;
+
+			private const int defaultNumberOfBrightnessRotaryPositions = 12;
+			private int m_numberOfBrightnessRotaryPositions = defaultNumberOfBrightnessRotaryPositions;
+			private byte m_brightnessLevel =
+				SliPro.GetBrightnessLevelFromRotaryPosition(-1, defaultNumberOfBrightnessRotaryPositions);
 		}
 
 		/// <summary>Delegate to access a <see cref="log4net.ILog"/> object for logging purposes.</summary>
@@ -179,11 +131,11 @@ namespace SimElation.SliPro
 		/// <param name="rotarySwitch">The rotary which has changed.</param>
 		/// <param name="previousPosition">Its previous position. May be -1 on startup.</param>
 		/// <param name="newPosition">Its new position, indexed from 0.</param>
-		public delegate void RotarySwitchChange(RotarySwitch rotarySwitch, int previousPosition, int newPosition);
+		public delegate void RotarySwitchChangeCallback(int rotarySwitch, int previousPosition, int newPosition);
 
 		private readonly Settings m_settings;
 		private readonly GetLog m_getLog;
-		private readonly RotarySwitchChange m_rotarySwitchChangeCallback;
+		private readonly RotarySwitchChangeCallback m_rotarySwitchChangeCallback;
 
 		private HidDevice m_device;
 		private Task<bool> m_txTask = null;
@@ -192,7 +144,8 @@ namespace SimElation.SliPro
 		private HidReport m_prevLedHidReport = new HidReport((int)LedStateReport.length + 1);
 		private readonly HidReport m_brightnessHidReport = new HidReport((int)BrightnessReport.length + 1);
 
-		private readonly int[] m_rotarySwitchPositions = new int[(int)RotarySwitch.count] { -1, -1, -1 };
+		private readonly int[] m_rotarySwitchPositions = new int[(int)Constants.maxNumberOfRotarySwitches]
+			{ -1, -1, -1, -1, -1, -1 };
 		private RotaryDetector m_rotaryDetector = null;
 
 		private bool m_isAvailable = false;
@@ -202,7 +155,7 @@ namespace SimElation.SliPro
 		/// <param name="settings">Settings for the SLI-Pro.</param>
 		/// <param name="getLog">Function to use for logging.</param>
 		/// <param name="rotarySwitchChangeCallback">Callback for when a rotary switch changes position.</param>
-		public SliPro(Settings settings, GetLog getLog, RotarySwitchChange rotarySwitchChangeCallback)
+		public SliPro(Settings settings, GetLog getLog, RotarySwitchChangeCallback rotarySwitchChangeCallback)
 		{
 			getLog().InfoFormat("SLI-Pro: constructing in thread {0}", Thread.CurrentThread.ManagedThreadId);
 
@@ -240,22 +193,18 @@ namespace SimElation.SliPro
 				});
 			timer.Change(500, 1000);
 
-			for (RotarySwitch i = 0; i < RotarySwitch.count; ++i)
-			{
-				m_getLog().InfoFormat("SLI-Pro: rotary switch {0} initial offset {1}", i, m_settings.RotarySwitchOffsets[i]);
-			}
-
 			m_settings.PropertyChanged +=
 				(object sender, PropertyChangedEventArgs e) =>
 				{
 					switch (e.PropertyName)
 					{
-						case nameof(m_settings.IsBrightnessRotaryControlled):
-							if (m_settings.IsBrightnessRotaryControlled)
+						case nameof(m_settings.BrightnessRotarySwitchIndex):
+							if (m_settings.BrightnessRotarySwitchIndex != RotaryDetector.unknownIndex)
 							{
-								// Switching to rotary control, so dig out position of the rotary switch and set the level.
-								m_settings.BrightnessLevel =
-									GetBrightnessLevelFromRotaryPosition(GetRotarySwitchPosition(RotarySwitch.brightness));
+								// Changing to rotary switch control, so dig out position of the rotary switch and set the level.
+								m_settings.BrightnessLevel = GetBrightnessLevelFromRotaryPosition(
+									GetRotarySwitchPosition(m_settings.BrightnessRotarySwitchIndex),
+									m_settings.NumberOfBrightnessRotaryPositions);
 							}
 							else if (IsAvailable)
 							{
@@ -543,54 +492,63 @@ namespace SimElation.SliPro
 		/// <remarks>
 		/// The object will monitor received reports from the device for changes.
 		/// </remarks>
-		/// <param name="rotarySwitch">Which rotary switch operation to assign to the physically moved switch.</param>
 		/// <param name="timeoutMs">How long to attempt to detect the rotary for, in milliseconds.</param>
-		public void LearnRotary(RotarySwitch rotarySwitch, int timeoutMs = 5000)
+		/// <returns>A waitable task.</returns>
+		public Task<int> DetectRotary(int timeoutMs = 5000)
 		{
-			m_getLog().InfoFormat("SLI-Pro: detecting rotary {0}...", rotarySwitch);
+			var task = new TaskCompletionSource<int>();
+
+			m_getLog().InfoFormat("SLI-Pro: detecting rotary in thread {0}...", Thread.CurrentThread.ManagedThreadId);
 
 			if (m_rotaryDetector != null)
 				m_rotaryDetector.Dispose();
 
-			m_rotaryDetector = new RotaryDetector(timeoutMs, (int offset) =>
+			m_rotaryDetector = new RotaryDetector(timeoutMs,
+				(int rotarySwitchIndex) =>
 				{
-					if (offset == RotaryDetector.undefinedOffset)
-						m_getLog().InfoFormat("SLI-Pro: no rotary detected for {0}", rotarySwitch);
+					if (rotarySwitchIndex == RotaryDetector.unknownIndex)
+					{
+						m_getLog().InfoFormat("SLI-Pro: no rotary detected in thread {0}", Thread.CurrentThread.ManagedThreadId);
+					}
 					else
-						m_getLog().InfoFormat("SLI-Pro: setting buffer offset for {0} to {1}", rotarySwitch, offset);
-
-					m_settings.RotarySwitchOffsets[rotarySwitch] = offset;
+					{
+						m_getLog().InfoFormat("SLI-Pro: detected rotary {0} in thread {1}", rotarySwitchIndex,
+							Thread.CurrentThread.ManagedThreadId);
+					}
 
 					m_rotaryDetector.Dispose();
 					m_rotaryDetector = null;
+
+					task.SetResult(rotarySwitchIndex);
 				});
+
+			return task.Task;
 		}
 
 		/// <summary>Get the current position of a rotary switch.</summary>
-		/// <param name="rotarySwitch"></param>
-		/// <returns>The current position of the rotary, or -1 if unknown or rotary not assigned.</returns>
-		public int GetRotarySwitchPosition(RotarySwitch rotarySwitch)
+		/// <param name="rotarySwitchIndex"></param>
+		/// <returns>The current position of the rotary, or -1 if unknown.</returns>
+		public int GetRotarySwitchPosition(int rotarySwitchIndex)
 		{
-			return m_rotarySwitchPositions[(int)rotarySwitch];
-		}
-
-		/// <summary>Forget learned offset for a rotary switch.</summary>
-		/// <param name="rotarySwitch">Which rotary switch to forget.</param>
-		public void ForgetRotary(RotarySwitch rotarySwitch)
-		{
-			m_settings.RotarySwitchOffsets[rotarySwitch] = RotaryDetector.undefinedOffset;
+			if ((rotarySwitchIndex >= 0) && (rotarySwitchIndex < m_rotarySwitchPositions.Length))
+				return m_rotarySwitchPositions[rotarySwitchIndex];
+			else
+				return -1;
 		}
 
 		/// <summary>Calculate brightness level from rotary position.</summary>
 		/// <param name="position"></param>
+		/// <param name="numberOfRotaryPositions"></param>
 		/// <returns>Brightness level, or a default if rotary is in an unknown position.</returns>
-		public static byte GetBrightnessLevelFromRotaryPosition(int position)
+		public static byte GetBrightnessLevelFromRotaryPosition(int position, int numberOfRotaryPositions)
 		{
-			// TODO who says it's a 12 posn rotary that's connected?
-			const int numberOfRotaryPositions = 12;
+			if (position < 0)
+				return 100;
 
-			return ((position >= 0) && (position < numberOfRotaryPositions)) ?
-				(byte)((254 / numberOfRotaryPositions) * position) : (byte)100;
+			--numberOfRotaryPositions;
+			position = Math.Min(position, numberOfRotaryPositions);
+
+			return (byte)((254.0 / numberOfRotaryPositions) * position);
 		}
 
 		private void InternalSetSegment(uint segmentIndex, uint segmentLength, uint offset, uint length, String value,
@@ -626,7 +584,7 @@ namespace SimElation.SliPro
 			m_isAvailable = true;
 
 			// Explicit brightness set in config, so use that (and ignore any rotary).
-			if (!m_settings.IsBrightnessRotaryControlled)
+			if (m_settings.BrightnessRotarySwitchIndex == RotaryDetector.unknownIndex)
 				SendBrightness(m_settings.BrightnessLevel);
 
 			// Start reading reports from the board.
@@ -671,9 +629,10 @@ namespace SimElation.SliPro
 					{
 						if (m_rotaryDetector == null)
 						{
-							ProcessRotarySwitch(RotarySwitch.leftSegment, hidReport.Data);
-							ProcessRotarySwitch(RotarySwitch.rightSegment, hidReport.Data);
-							ProcessRotarySwitch(RotarySwitch.brightness, hidReport.Data);
+							for (int rotarySwitchIndex = 0; rotarySwitchIndex < m_rotarySwitchPositions.Length; ++rotarySwitchIndex)
+							{
+								ProcessRotarySwitch(rotarySwitchIndex, hidReport.Data);
+							}
 						}
 						else
 						{
@@ -689,21 +648,22 @@ namespace SimElation.SliPro
 			}
 		}
 
-		private void ProcessRotarySwitch(RotarySwitch rotarySwitch, byte[] rxBuffer)
+		private void ProcessRotarySwitch(int rotarySwitchIndex, byte[] rxBuffer)
 		{
-			int bufferOffset = m_settings.RotarySwitchOffsets[rotarySwitch];
+			// TODO should probably read ushorts...
+			int bufferOffset = (int)InputReport.rotarySwitchesOffset + (rotarySwitchIndex * 2);
 
 			if ((bufferOffset < 0) || (bufferOffset >= rxBuffer.Length))
 				return;
 
 			int newPosition = (int)rxBuffer[bufferOffset];
-			ref int previousPosition = ref m_rotarySwitchPositions[(int)rotarySwitch];
+			ref int previousPosition = ref m_rotarySwitchPositions[(int)rotarySwitchIndex];
 
 			if (newPosition != previousPosition)
 			{
 				// Swap first in case callback throws.
 				(newPosition, previousPosition) = (previousPosition, newPosition);
-				m_rotarySwitchChangeCallback(rotarySwitch, newPosition, previousPosition);
+				m_rotarySwitchChangeCallback(rotarySwitchIndex, newPosition, previousPosition);
 			}
 		}
 

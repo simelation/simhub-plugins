@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Threading;
+using System.Threading.Tasks;
 using GameReaderCommon;
 using SimElation.SliPro;
 using SimHub.Plugins;
@@ -76,8 +77,10 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 			public SegmentDisplayManager(SliPro.SegmentDisplayPosition position, SegmentDisplay[] segmentDisplayList)
 			{
 				m_position = position;
-				m_timer = new Timer((object state) => m_showName = false);
 				m_segmentDisplayList = segmentDisplayList;
+
+				// When timer fires, stop showing segment name.
+				m_timer = new Timer((object state) => m_showName = false);
 			}
 
 			public void ProcessData(PluginManager pluginManager, NormalizedData normalizedData, SliPro.SliPro sliPro)
@@ -338,7 +341,7 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 		/// <summary>Instance of the current plugin manager.</summary>
 		public PluginManager PluginManager { get; set; }
 
-		/// <summary>Settings.</summary>
+		/// <summary>Settings property.</summary>
 		public Settings Settings { get => m_settings; }
 
 		/// <summary>Called once after plugins startup. Plugins are rebuilt at game change.</summary>
@@ -350,28 +353,27 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 			// Load settings.
 			m_settings = this.ReadCommonSettings<Settings>(settingsName, () => new Settings());
 
-			// I'm assuming Logging.Current changes when the log file rolls over, so pass a function to access it.
-			m_sliPro = new SliPro.SliPro(m_settings.SliProSettings, () => Logging.Current, OnRotarySwitchChange);
-
 			// Watch for some property changes in settings.
 			m_settings.PropertyChanged +=
 				(object sender, PropertyChangedEventArgs e) =>
 				{
 					switch (e.PropertyName)
 					{
-						case nameof(m_settings.IsLeftSegmentDisplayRotaryControlled):
-							if (m_settings.IsLeftSegmentDisplayRotaryControlled)
+						case nameof(m_settings.LeftSegmentDisplayRotarySwitchIndex):
+							if (m_settings.LeftSegmentDisplayRotarySwitchIndex != RotaryDetector.unknownIndex)
 							{
-								// Switched back to rotary controlled, so get the last position from the SLI-Pro and set that.
-								m_settings.LeftSegmentDisplayIndex = m_sliPro.GetRotarySwitchPosition(RotarySwitch.leftSegment);
+								// Changed back to rotary switch controlled, so get the last position from the SLI-Pro and set that.
+								m_settings.LeftSegmentDisplayIndex =
+									m_sliPro.GetRotarySwitchPosition(m_settings.LeftSegmentDisplayRotarySwitchIndex);
 							}
 							break;
 
-						case nameof(m_settings.IsRightSegmentDisplayRotaryControlled):
-							if (m_settings.IsRightSegmentDisplayRotaryControlled)
+						case nameof(m_settings.RightSegmentDisplayRotarySwitchIndex):
+							if (m_settings.RightSegmentDisplayRotarySwitchIndex != RotaryDetector.unknownIndex)
 							{
-								// Switched back to rotary controlled, so get the last position from the SLI-Pro and set that.
-								m_settings.RightSegmentDisplayIndex = m_sliPro.GetRotarySwitchPosition(RotarySwitch.rightSegment);
+								// Changed back to rotary switch controlled, so get the last position from the SLI-Pro and set that.
+								m_settings.RightSegmentDisplayIndex =
+									m_sliPro.GetRotarySwitchPosition(m_settings.RightSegmentDisplayRotarySwitchIndex);
 							}
 							break;
 
@@ -392,36 +394,50 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 					}
 				};
 
-			int SegmentDisplayAction(SegmentDisplayPosition segmentDisplayPosition, bool isNext)
+			// I'm assuming Logging.Current changes when the log file rolls over, so pass a function to access it.
+			m_sliPro = new SliPro.SliPro(m_settings.SliProSettings, () => Logging.Current, OnRotarySwitchChange);
+
+			// Set initial left/right segment displays.
+			// HACK I don't like this. Settings reading is a bit racey; can't get notification of change due to the read
+			// as PropertyChanged not yet set!
+			m_segmentDisplayManagers[SegmentDisplayPosition.left].SetByIndex(m_settings.LeftSegmentDisplayIndex,
+				m_settings.SegmentNameTimeoutMs);
+
+			m_segmentDisplayManagers[SegmentDisplayPosition.right].SetByIndex(m_settings.RightSegmentDisplayIndex,
+				m_settings.SegmentNameTimeoutMs);
+
+			int CycleSegmentDisplayAction(SegmentDisplayPosition segmentDisplayPosition, bool isNext)
 			{
 				var segmentDisplayManager = m_segmentDisplayManagers[segmentDisplayPosition];
 				return isNext ? segmentDisplayManager.GetNextIndex() : segmentDisplayManager.GetPreviousIndex();
 			}
 
-			void LeftSegmentDisplayAction(bool isNext)
+			void CycleLeftSegmentDisplayAction(bool isNext)
 			{
-				if (!m_settings.IsLeftSegmentDisplayRotaryControlled)
-					m_settings.LeftSegmentDisplayIndex = SegmentDisplayAction(SegmentDisplayPosition.left, isNext);
+				// Only allow button control if not using rotary.
+				if (m_settings.LeftSegmentDisplayRotarySwitchIndex == RotaryDetector.unknownIndex)
+					m_settings.LeftSegmentDisplayIndex = CycleSegmentDisplayAction(SegmentDisplayPosition.left, isNext);
 			}
 
-			void RightSegmentDisplayAction(bool isNext)
+			void CycleRightSegmentDisplayAction(bool isNext)
 			{
-				if (!m_settings.IsRightSegmentDisplayRotaryControlled)
-					m_settings.RightSegmentDisplayIndex = SegmentDisplayAction(SegmentDisplayPosition.right, isNext);
+				// Only allow button control if not using rotary.
+				if (m_settings.RightSegmentDisplayRotarySwitchIndex == RotaryDetector.unknownIndex)
+					m_settings.RightSegmentDisplayIndex = CycleSegmentDisplayAction(SegmentDisplayPosition.right, isNext);
 			}
 
 			// Segment display control actions.
 			pluginManager.AddAction(LeftSegmentDisplayPreviousAction, GetType(),
-				(pluginManager2, buttonName) => LeftSegmentDisplayAction(false));
+				(pluginManager2, buttonName) => CycleLeftSegmentDisplayAction(false));
 
 			pluginManager.AddAction(LeftSegmentDisplayNextAction, GetType(),
-				(pluginManager2, buttonName) => LeftSegmentDisplayAction(true));
+				(pluginManager2, buttonName) => CycleLeftSegmentDisplayAction(true));
 
 			pluginManager.AddAction(RightSegmentDisplayPreviousAction, GetType(),
-				(pluginManager2, buttonName) => RightSegmentDisplayAction(false));
+				(pluginManager2, buttonName) => CycleRightSegmentDisplayAction(false));
 
 			pluginManager.AddAction(RightSegmentDisplayNextAction, GetType(),
-				(pluginManager2, buttonName) => RightSegmentDisplayAction(true));
+				(pluginManager2, buttonName) => CycleRightSegmentDisplayAction(true));
 
 			Logging.Current.Info("SLI-Pro: initialization complete");
 		}
@@ -458,16 +474,11 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 			return m_segmentDisplayManagers[segmentDisplayPosition].NameList;
 		}
 
-		/// <summary>
-		/// Learn (if not currently known) or forget (if known) the rotary switch for left/right segment control, or brightness.
-		/// </summary>
-		/// <param name="rotarySwitch">Which rotary switch to detect/forget.</param>
-		public void LearnOrForgetRotary(SliPro.RotarySwitch rotarySwitch)
+		/// <summary>Detect a rotary switch.</summary>
+		/// <returns>A task that completes with the discovered rotary switch index.</returns>
+		public Task<int> DetectRotary()
 		{
-			if (m_settings.SliProSettings.RotarySwitchOffsets[rotarySwitch] == SliPro.RotaryDetector.undefinedOffset)
-				m_sliPro.LearnRotary(rotarySwitch);
-			else
-				m_sliPro.ForgetRotary(rotarySwitch);
+			return m_sliPro.DetectRotary();
 		}
 
 		/// <summary>
@@ -540,33 +551,25 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 				(double?)pluginManager.GetPropertyValue("DataCorePlugin.Computed.Fuel_RemainingLaps");
 		}
 
-		private void OnRotarySwitchChange(SliPro.RotarySwitch rotarySwitch, int previousPosition, int newPosition)
+		private void OnRotarySwitchChange(int rotarySwitchIndex, int previousPosition, int newPosition)
 		{
-			Logging.Current.InfoFormat("SLI-Pro: rotary switch {0} was {1}, now {2}", rotarySwitch, previousPosition, newPosition);
+			Logging.Current.InfoFormat("SLI-Pro: rotary switch {0} was {1}, now {2}", rotarySwitchIndex, previousPosition,
+				newPosition);
 
-			switch (rotarySwitch)
+			if (rotarySwitchIndex == m_settings.LeftSegmentDisplayRotarySwitchIndex)
 			{
-				case SliPro.RotarySwitch.leftSegment:
-					if (m_settings.IsLeftSegmentDisplayRotaryControlled)
-					{
-						m_settings.LeftSegmentDisplayIndex =
-							m_segmentDisplayManagers[SegmentDisplayPosition.left].ValidateIndex(newPosition);
-					}
-					break;
-
-				case SliPro.RotarySwitch.rightSegment:
-					if (m_settings.IsRightSegmentDisplayRotaryControlled)
-					{
-						m_settings.RightSegmentDisplayIndex =
-							m_segmentDisplayManagers[SegmentDisplayPosition.right].ValidateIndex(newPosition);
-					}
-					break;
-
-				case SliPro.RotarySwitch.brightness:
-					// Only set the brightness control if rotary control is enabled.
-					if (m_settings.SliProSettings.IsBrightnessRotaryControlled)
-						m_settings.SliProSettings.BrightnessLevel = SliPro.SliPro.GetBrightnessLevelFromRotaryPosition(newPosition);
-					break;
+				m_settings.LeftSegmentDisplayIndex =
+					m_segmentDisplayManagers[SegmentDisplayPosition.left].ValidateIndex(newPosition);
+			}
+			else if (rotarySwitchIndex == m_settings.RightSegmentDisplayRotarySwitchIndex)
+			{
+				m_settings.RightSegmentDisplayIndex =
+					m_segmentDisplayManagers[SegmentDisplayPosition.right].ValidateIndex(newPosition);
+			}
+			else if (rotarySwitchIndex == m_settings.SliProSettings.BrightnessRotarySwitchIndex)
+			{
+				m_settings.SliProSettings.BrightnessLevel = SliPro.SliPro.GetBrightnessLevelFromRotaryPosition(newPosition,
+					m_settings.SliProSettings.NumberOfBrightnessRotaryPositions);
 			}
 		}
 

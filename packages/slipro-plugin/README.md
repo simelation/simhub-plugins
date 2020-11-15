@@ -18,6 +18,11 @@ Packages are currently published as gzipped tar files, so you may need an approp
 Copy the `package\bin\Release\SimElation.SimHub.SliPro.dll` file from the package to your SimHub installation directory
 (e.g. `C:\Program Files (x86)\SimHub`) and (re)start SimHub. SimHub should ask for confirmation to enable the new plugin.
 
+## Stock SLI-Pro firmware vs. Roso firmware
+
+The plugin was written using the custom Roso SLI-Pro firmware. I don't think there's any reason why it shouldn't work with the
+stock firmware, however. HID report layouts appear the same.
+
 ## Segment displays
 
 Data that can be displayed is as follows (in parentheses is the text that will be shown temporarily when changing mode):
@@ -73,37 +78,33 @@ Configuration is available in SimHub at `Additional Plugins` then the `SLI-Pro P
 Segment displays can be configured to be controlled by rotary switches connected to the SLI-Pro, or manually from the UI, or using
 controller buttons.
 
-#### Rotary control
+#### Rotary switch control
 
-For rotary switch control, the toggle button under `Rotary control` should be enabled for the left or right segment display
-(as appropriate).
-
-The plugin needs to learn which rotary to watch for changes of position.
-Press one of the `Learn rotary control` buttons and change the position of the rotary you wish to use for that function.
-If the rotary is detected, the button should change to `Forget rotary control`. Note these buttons are only enabled when the
-`Rotary control` toggle is also enabled.
+For rotary switch control, the plugin needs to learn which rotary to watch for changes of position.
+Press one of the `Learn rotary switch` buttons and change the position of the rotary you wish to use for that function.
+If the rotary is detected, the button should change to `Forget rotary switch N` (where N is the rotary's number).
 
 Once assigned, changing the position of a rotary assigned to the segment displays will show some text describing the new data that
 will be displayed (e.g. `Currnt`, `Fuel`, etc.) for a short period (which is configurable; set to 0 to disable completely).
 
 #### UI control
 
-The `Rotary control` toggle should be disabled and then you can simply set the `Mode` drop down for the left or right
-segment display to the one you require.
+No rotary switch should be assigned in order to control the display from the UI. You can then simply set the `Mode` drop down for
+the left or right segment display to the one you require.
 
-#### Button control
+#### Button (or rotary encoder) control
 
-When `Rotary control` is disabled, you can also assign buttons to go to the next/previous display mode using the regular SimHub UI.
-Note the displays cycle, so it's not necessary to assign both.
+No rotary switch should be assigned in order to control the display using buttons, which can be assigned by pressing the
+`Click to configure` buttons for `Next` and `Previous` (which use the regular SimHub UI).
+Note the displays cycle, so it's not necessary to assign both (or you could assign short press to go to next,
+long press for previous).
 
 ### Brightness control
 
-Similarly, brightness can be control by a rotary switch or UI. Enable the `Rotary control` toggle under `Display Brightness`, then
-press `Learn rotary` next to it and change the position of the rotary you wish to use for that function.
-If the rotary is detected, the button should change to `Forget rotary`.
+Similarly, brightness can be control by a rotary switch or UI. Press `Learn rotary` next to it and change the position of
+the rotary you wish to use for that function. If the rotary is detected, the button should change to `Forget rotary N`.
 
-Brightness can also be set explicitly in the plugin's configuraion using a slider if the `Rotary control` toggle is disabled.
-Any assigned rotary is ignored (and therefore it isn't mandatory to assign a rotary for the brightness function).
+Brightness can also be set explicitly in the plugin's configuraion using a slider if no rotary switch is assigned.
 
 ### Welcome message
 
@@ -127,12 +128,7 @@ for the display. 0 will disable.
 
 ### Brightness level
 
-Brightness for the LEDs. Any value set here will override the position of an assigned rotary control (i.e. the rotary is ignored).
-
-## Stock SLI-Pro firmware vs. Roso firmware
-
-The plugin was written using the custom Roso SLI-Pro firmware. I don't think there's any reason why it shouldn't work with the
-stock firmware, however. HID report layouts appear the same.
+Brightness for the LEDs. Any value set here will override the position of an assigned rotary switch (i.e. the rotary is ignored).
 
 ## Building from source
 

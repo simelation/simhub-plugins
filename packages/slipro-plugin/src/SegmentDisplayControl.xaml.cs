@@ -17,8 +17,8 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 		private static readonly DependencyProperty LabelProperty =
 			DependencyProperty.Register("Label", typeof(string), typeof(SegmentDisplayControl));
 
-		private static readonly DependencyProperty IsRotaryControlledProperty =
-			DependencyProperty.Register("IsRotaryControlled", typeof(bool), typeof(SegmentDisplayControl));
+		private static readonly DependencyProperty RotarySwitchIndexProperty =
+			DependencyProperty.Register("RotarySwitchIndex", typeof(int), typeof(SegmentDisplayControl));
 
 		private static readonly DependencyProperty LearnRotaryButtonContentProperty =
 			DependencyProperty.Register("LearnRotaryButtonContent", typeof(string), typeof(SegmentDisplayControl));
@@ -44,11 +44,11 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 			set => SetValue(LabelProperty, value);
 		}
 
-		/// <summary>Is the display rotary controlled?</summary>
-		public bool IsRotaryControlled
+		/// <summary>Assigned rotary switch index.</summary>
+		public int RotarySwitchIndex
 		{
-			get => (GetValue(IsRotaryControlledProperty) as bool?) ?? false;
-			set => SetValue(IsRotaryControlledProperty, value);
+			get => (GetValue(RotarySwitchIndexProperty) as int?) ?? SliPro.RotaryDetector.unknownIndex;
+			set => SetValue(RotarySwitchIndexProperty, value);
 		}
 
 		/// <summary>Content for the learn rotary button.</summary>

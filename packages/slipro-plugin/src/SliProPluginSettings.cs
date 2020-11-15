@@ -15,31 +15,19 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 	{
 		// TODO investigate helpers to reduce boilerplate.
 
-		/// <summary>Is the left segment display rotary controlled?</summary>
-		public bool IsLeftSegmentDisplayRotaryControlled
+		/// <summary>The index of the rotary switch used to control the left segment display.</summary>
+		public int LeftSegmentDisplayRotarySwitchIndex
 		{
-			get => m_isLeftSegmentDisplayRotaryControlled;
+			get => m_leftSegmentDisplayRotarySwitchIndex;
 
 			set
 			{
-				m_isLeftSegmentDisplayRotaryControlled = value;
+				m_leftSegmentDisplayRotarySwitchIndex = value;
 				OnPropertyChanged();
 			}
 		}
 
-		/// <summary>Is the right segment display rotary controlled?</summary>
-		public bool IsRightSegmentDisplayRotaryControlled
-		{
-			get => m_isRightSegmentDisplayRotaryControlled;
-
-			set
-			{
-				m_isRightSegmentDisplayRotaryControlled = value;
-				OnPropertyChanged();
-			}
-		}
-
-		/// <summary>Left segment display mode.</summary>
+		/// <summary>Current left segment display mode.</summary>
 		public int LeftSegmentDisplayIndex
 		{
 			get => m_leftSegmentDisplayIndex;
@@ -51,7 +39,19 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 			}
 		}
 
-		/// <summary>Right segment display mode.</summary>
+		/// <summary>The index of the rotary switch used to control the right segment display.</summary>
+		public int RightSegmentDisplayRotarySwitchIndex
+		{
+			get => m_rightSegmentDisplayRotarySwitchIndex;
+
+			set
+			{
+				m_rightSegmentDisplayRotarySwitchIndex = value;
+				OnPropertyChanged();
+			}
+		}
+
+		/// <summary>Current right segment display mode.</summary>
 		public int RightSegmentDisplayIndex
 		{
 			get => m_rightSegmentDisplayIndex;
@@ -150,10 +150,12 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 		}
 
-		private bool m_isLeftSegmentDisplayRotaryControlled = true;
-		private bool m_isRightSegmentDisplayRotaryControlled = true;
-		private int m_leftSegmentDisplayIndex = -1;
-		private int m_rightSegmentDisplayIndex = -1;
+		private int m_leftSegmentDisplayRotarySwitchIndex = SliPro.RotaryDetector.unknownIndex;
+		private int m_leftSegmentDisplayIndex = 0;
+
+		private int m_rightSegmentDisplayRotarySwitchIndex = SliPro.RotaryDetector.unknownIndex;
+		private int m_rightSegmentDisplayIndex = 0;
+
 		private String m_welcomeMessage = "Sim-Hub";
 		private long m_pitLaneAnimationSpeedMs = 250;
 		private long m_shiftPointBlinkOnSpeedMs = 100;
