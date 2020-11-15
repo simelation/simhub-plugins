@@ -530,35 +530,14 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 			m_normalizedData.m_statusData = statusData;
 			m_normalizedData.m_isInPit = (statusData.IsInPitLane != 0) || (statusData.IsInPit != 0);
 
-			if (statusData.DeltaToSessionBest != null)
-			{
-				m_normalizedData.m_deltaToSessionBest = statusData.DeltaToSessionBest;
-			}
-			else
-			{
-				m_normalizedData.m_deltaToSessionBest =
-					(double?)pluginManager.GetPropertyValue("PersistantTrackerPlugin.SessionBestLiveDeltaSeconds");
-			}
+			m_normalizedData.m_deltaToSessionBest = statusData.DeltaToSessionBest ??
+				(double?)pluginManager.GetPropertyValue("PersistantTrackerPlugin.SessionBestLiveDeltaSeconds");
 
-			if (statusData.DeltaToAllTimeBest != null)
-			{
-				m_normalizedData.m_deltaToAllTimeBest = statusData.DeltaToAllTimeBest;
-			}
-			else
-			{
-				m_normalizedData.m_deltaToAllTimeBest =
-					(double?)pluginManager.GetPropertyValue("PersistantTrackerPlugin.AllTimeBestLiveDeltaSeconds");
-			}
+			m_normalizedData.m_deltaToAllTimeBest = statusData.DeltaToAllTimeBest ??
+				(double?)pluginManager.GetPropertyValue("PersistantTrackerPlugin.AllTimeBestLiveDeltaSeconds");
 
-			if (statusData.EstimatedFuelRemaingLaps != null)
-			{
-				m_normalizedData.m_fuelRemainingLaps = statusData.EstimatedFuelRemaingLaps;
-			}
-			else
-			{
-				m_normalizedData.m_fuelRemainingLaps =
-					(double?)pluginManager.GetPropertyValue("DataCorePlugin.Computed.Fuel_RemainingLaps");
-			}
+			m_normalizedData.m_fuelRemainingLaps = statusData.EstimatedFuelRemaingLaps ??
+				(double?)pluginManager.GetPropertyValue("DataCorePlugin.Computed.Fuel_RemainingLaps");
 		}
 
 		private void OnRotarySwitchChange(SliPro.RotarySwitch rotarySwitch, int previousPosition, int newPosition)

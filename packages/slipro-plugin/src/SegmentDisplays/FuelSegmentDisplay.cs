@@ -24,10 +24,7 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 		{
 			// NB round down both the fuel level and estimated laps.
 			String str = String.Format("F{0:00}", Math.Min((int)normalizedData.m_statusData.Fuel, 99));
-			double value = 0.0;
-
-			if (normalizedData.m_fuelRemainingLaps != null)
-				value = (double)normalizedData.m_fuelRemainingLaps;
+			double value = normalizedData.m_fuelRemainingLaps ?? 0.0;
 
 			if (value != 0.0)
 				str += String.Format("L{0:00}", Math.Min((int)value, 99));
