@@ -137,6 +137,8 @@ namespace SimElation.SliPro
 		private readonly GetLog m_getLog;
 		private readonly RotarySwitchChangeCallback m_rotarySwitchChangeCallback;
 
+		private CancellationTokenSource m_devicePollTaskCancellation = new CancellationTokenSource();
+		private Task m_devicePollTask = null;
 		private HidDevice m_device;
 		private Task<bool> m_txTask = null;
 
@@ -162,36 +164,6 @@ namespace SimElation.SliPro
 			m_settings = settings;
 			m_getLog = getLog;
 			m_rotarySwitchChangeCallback = rotarySwitchChangeCallback;
-
-			// Initial device is searched for on timer, in case it's not plugged in yet.
-			Timer timer = new Timer((object state) =>
-				{
-					if (m_device != null)
-						return;
-
-					m_getLog().Info("SLI-Pro: searching for device");
-
-					// TODO multiple device support, I guess.
-					m_device = HidDevices.Enumerate(Constants.vendorId, Constants.productId).FirstOrDefault();
-
-					if (m_device == null)
-					{
-						// Try again on next timer.
-						m_getLog().Warn("SLI-Pro: no device");
-						return;
-					}
-
-					((Timer)state).Dispose();
-
-					m_getLog().InfoFormat("SLI-Pro: {0} found at {1}", m_device.Description, m_device.DevicePath);
-					m_device.Inserted += OnInserted;
-					m_device.Removed += OnRemoved;
-					m_device.MonitorDeviceEvents = true;
-					m_device.OpenDevice();
-
-					// No need to init here, "Inserted" event will fire.
-				});
-			timer.Change(500, 1000);
 
 			m_settings.PropertyChanged +=
 				(object sender, PropertyChangedEventArgs e) =>
@@ -222,6 +194,8 @@ namespace SimElation.SliPro
 
 					}
 				};
+
+			PollForDevices();
 		}
 
 		/// <summary>Dispose.</summary>
@@ -245,7 +219,16 @@ namespace SimElation.SliPro
 
 			if (isDisposing)
 			{
-				m_getLog().InfoFormat("SLI-Pro::Dispose() from thread {0}", Thread.CurrentThread.ManagedThreadId);
+				m_getLog().InfoFormat("SLI-Pro: Dispose() from thread {0}", Thread.CurrentThread.ManagedThreadId);
+
+				if (m_devicePollTask != null)
+				{
+					m_devicePollTaskCancellation.Cancel();
+					// Not disposing of m_devicePollTask as possibly we should await it after requesting cancellation,
+					// but can't in Dispose().
+					// TODO what is the correct thing to do?
+					m_devicePollTask = null;
+				}
 
 				if (m_isAvailable)
 				{
@@ -565,6 +548,53 @@ namespace SimElation.SliPro
 				if (i < segmentLength)
 					m_ledHidReport.Data[segmentIndex + i] |= LedStateReport.segmentDecimalOrPrimeBit;
 			}
+		}
+
+		private async void PollForDevices()
+		{
+			while (true)
+			{
+				try
+				{
+					m_devicePollTask = Task.Delay(1000, m_devicePollTaskCancellation.Token);
+
+					await m_devicePollTask;
+				}
+				catch (Exception e)
+				{
+					m_getLog().InfoFormat("SLI-Pro: exception {0} in {1}", e, nameof(PollForDevices));
+					return;
+				}
+
+				PollForDevicesOnce();
+			}
+		}
+
+		private void PollForDevicesOnce()
+		{
+			if (m_device != null)
+				return;
+
+			m_getLog().Info("SLI-Pro: searching for device");
+
+			// TODO multiple device support, I guess.
+			m_device = HidDevices.Enumerate(Constants.vendorId, Constants.productId).FirstOrDefault();
+
+			if (m_device == null)
+			{
+				// Try again on next timer.
+				m_getLog().Warn("SLI-Pro: no device");
+				return;
+			}
+
+			m_getLog().InfoFormat("SLI-Pro: {0} found at {1}", m_device.Description, m_device.DevicePath);
+
+			// Marshal events back to the initial (ui) thread.
+			var syncContext = SynchronizationContext.Current;
+			m_device.Inserted += () => syncContext.Post((_) => OnInserted(), null);
+			m_device.Removed += () => syncContext.Post((_) => OnRemoved(), null);
+			m_device.MonitorDeviceEvents = true;
+			m_device.OpenDevice();
 		}
 
 		private void OnInserted()
