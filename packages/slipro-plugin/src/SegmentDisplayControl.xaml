@@ -6,7 +6,6 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:styles="clr-namespace:SimHub.Plugins.Styles;assembly=SimHub.Plugins"
              xmlns:ui="clr-namespace:SimHub.Plugins.UI;assembly=SimHub.Plugins"
- 			 xmlns:slipro="clr-namespace:SimElation.SliPro"
  			 xmlns:autogrid="clr-namespace:WpfAutoGrid;assembly=WpfAutoGrid"
 			 xmlns:converters="clr-namespace:SimElation.SimHubIntegration.SliProPlugin.Utils.ValueConverters"
              mc:Ignorable="d"

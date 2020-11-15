@@ -100,10 +100,7 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 			InitializeComponent();
 		}
 
-		/// <summary>Control loaded callback.</summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
-		public void OnLoaded(object sender, RoutedEventArgs e)
+		private void OnLoaded(object sender, RoutedEventArgs e)
 		{
 			// TODO figure out how to do this in xaml. Problem is NextDisplay property is null before InitializeComponent()
 			// and then it blows up making the ui:ControlEditor trying to assign null for ActionName.
