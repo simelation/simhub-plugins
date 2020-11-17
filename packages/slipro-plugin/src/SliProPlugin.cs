@@ -135,9 +135,7 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 			if ((0 == opponentList.Count) || (opponentList[0].RelativeGapToPlayer == null))
 				return null;
 
-			// Returning absolute value as it seems to flicker between +ve and -ve. Shrug. The display mode ("gap ahead" or
-			// "gap behind") is sufficient.
-			return Math.Abs((double)opponentList[0].RelativeGapToPlayer);
+			return (double)opponentList[0].RelativeGapToPlayer;
 		}
 
 		// Left/right segment managers.

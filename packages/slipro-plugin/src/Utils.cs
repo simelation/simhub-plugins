@@ -15,16 +15,69 @@ namespace SimElation.SimHubIntegration.SliProPlugin.Utils
 	public static class Formatters
 	{
 		/// <summary>Format a delta time.</summary>
-		/// <remarks>
-		/// As "sss.ttt" where sss=seconds, ttt=thousandths.
-		/// </remarks>
 		/// <param name="delta">The delta time (in seconds).</param>
 		/// <param name="str">To receive the formatted string.</param>
 		/// <param name="decimalOrPrimeIndexList">To receive the index of decimal point.</param>
 		static public void DeltaTime(double delta, out String str, out uint[] decimalOrPrimeIndexList)
 		{
-			decimalOrPrimeIndexList = new uint[] { 2 };
-			str = String.Format("{0,3}{1:000}", (int)delta, Math.Abs((delta * 1000) % 1000));
+			const String overflowStr = "-";
+
+			if (delta >= 0.0)
+			{
+				if (delta < 1.0)
+				{
+					str = String.Format("   {0:000}", delta * 100.0);
+					decimalOrPrimeIndexList = new uint[] { 3 };
+				}
+				else if (delta < 10000.0)
+				{
+					str = String.Format("{0,6:F0}", delta * 100.0);
+					decimalOrPrimeIndexList = new uint[] { 3 };
+				}
+				else if (delta < 100000.0)
+				{
+					str = String.Format("{0,6:F0}", delta * 10.0);
+					decimalOrPrimeIndexList = new uint[] { 4 };
+				}
+				else if (delta <= 1000000.0)
+				{
+					str = String.Format("{0,6:F0}", delta);
+					decimalOrPrimeIndexList = new uint[] { };
+				}
+				else
+				{
+					str = overflowStr;
+					decimalOrPrimeIndexList = new uint[] { };
+				}
+			}
+			else
+			{
+				if (delta > -1.0)
+				{
+					str = String.Format("  {0:000}", delta * 100.0);
+					decimalOrPrimeIndexList = new uint[] { 3 };
+				}
+				else if (delta > -1000.0)
+				{
+					str = String.Format("{0,6:F0}", delta * 100.0);
+					decimalOrPrimeIndexList = new uint[] { 3 };
+				}
+				else if (delta > -10000.0)
+				{
+					str = String.Format("{0,6:F0}", delta * 10.0);
+					decimalOrPrimeIndexList = new uint[] { 4 };
+				}
+				else if (delta > -100000.0)
+				{
+					str = String.Format("{0,6:F0}", delta);
+					decimalOrPrimeIndexList = new uint[] { };
+				}
+				else
+				{
+					str = overflowStr;
+					decimalOrPrimeIndexList = new uint[] { };
+				}
+			}
 		}
 
 		/// <summary>Format a lap time.</summary>
@@ -36,15 +89,20 @@ namespace SimElation.SimHubIntegration.SliProPlugin.Utils
 		/// <param name="decimalOrPrimeIndexList">To receive the indexes of decimal points/primes.</param>
 		static public void LapTime(TimeSpan timeSpan, out String str, out uint[] decimalOrPrimeIndexList)
 		{
-			if (timeSpan.Minutes <= 9)
+			if (timeSpan.TotalMinutes < 10.0)
 			{
 				decimalOrPrimeIndexList = new uint[] { 0, 1, 2 };
-				str = String.Format("{0:0}{1:00}{2:000}", timeSpan.Minutes, timeSpan.Seconds, timeSpan.Milliseconds);
+				str = String.Format("{0:0}{1:00}{2:000}", (int)timeSpan.TotalMinutes, timeSpan.Seconds, timeSpan.Milliseconds);
+			}
+			else if (timeSpan.TotalMinutes < 1000.0)
+			{
+				decimalOrPrimeIndexList = new uint[] { 2, 4 };
+				str = String.Format("{0,3}{1:00}{2:0}", (int)timeSpan.TotalMinutes, timeSpan.Seconds, timeSpan.Milliseconds / 100);
 			}
 			else
 			{
-				decimalOrPrimeIndexList = new uint[] { 2, 4 };
-				str = String.Format("{0:000}{1:00}{2:0}", timeSpan.Minutes, timeSpan.Seconds, timeSpan.Milliseconds / 100);
+				decimalOrPrimeIndexList = new uint[] { };
+				str = "slo";
 			}
 		}
 	}
