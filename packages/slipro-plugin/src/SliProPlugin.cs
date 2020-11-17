@@ -342,6 +342,13 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 		/// <summary>Settings property.</summary>
 		public Settings Settings { get => m_settings; }
 
+		/// <summary>SliF1 accessor.</summary>
+		/// <remarks>
+		/// TODO want to remove this really. It's just for access to m_sliF1.Status binding.
+		/// https://github.com/StephenCleary/CalculatedProperties maybe?
+		/// </remarks>
+		public SliPro.SliPro Device { get => m_sliPro; }
+
 		/// <summary>Called once after plugins startup. Plugins are rebuilt at game change.</summary>
 		/// <param name="pluginManager"></param>
 		public void Init(PluginManager pluginManager)
@@ -352,6 +359,7 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 			m_settings = this.ReadCommonSettings<Settings>(settingsName, () => new Settings());
 
 			// Watch for some property changes in settings.
+			// TODO something better. https://github.com/StephenCleary/CalculatedProperties maybe? 
 			m_settings.PropertyChanged +=
 				(object sender, PropertyChangedEventArgs e) =>
 				{

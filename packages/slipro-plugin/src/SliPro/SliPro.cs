@@ -6,6 +6,7 @@ using System;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using HidLibrary;
@@ -65,7 +66,7 @@ namespace SimElation.SliPro
 	/// Provides control over all LEDs and segment displays, and detection of rotary switches
 	/// for changing brightness and the left/right segment displays.
 	/// </remarks>
-	public class SliPro : IDisposable
+	public class SliPro : IDisposable, INotifyPropertyChanged
 	{
 		/// <summary>Public settings for the SLI-Pro.</summary>
 		public class Settings : INotifyPropertyChanged
@@ -133,6 +134,30 @@ namespace SimElation.SliPro
 		/// <param name="newPosition">Its new position, indexed from 0.</param>
 		public delegate void RotarySwitchChangeCallback(int rotarySwitch, int previousPosition, int newPosition);
 
+		/// <inheritdoc/>
+		public event PropertyChangedEventHandler PropertyChanged;
+
+		/// <inheritdoc/>
+		protected void OnPropertyChanged([CallerMemberName] string name = null)
+		{
+			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+		}
+
+		/// <summary>Nice device status string to show in a UI.</summary>
+		public String Status
+		{
+			get => m_status;
+
+			set
+			{
+				if (m_status != value)
+				{
+					m_status = value;
+					OnPropertyChanged();
+				}
+			}
+		}
+
 		private readonly Settings m_settings;
 		private readonly GetLog m_getLog;
 		private readonly RotarySwitchChangeCallback m_rotarySwitchChangeCallback;
@@ -140,6 +165,7 @@ namespace SimElation.SliPro
 		private CancellationTokenSource m_devicePollTaskCancellation = new CancellationTokenSource();
 		private Task m_devicePollTask = null;
 		private HidDevice m_device;
+		private String m_deviceInfo;
 		private Task<bool> m_txTask = null;
 
 		private HidReport m_ledHidReport = new HidReport((int)LedStateReport.length + 1);
@@ -151,6 +177,7 @@ namespace SimElation.SliPro
 		private RotaryDetector m_rotaryDetector = null;
 
 		private bool m_isAvailable = false;
+		private String m_status = "Initializing";
 		private bool m_isDisposed = false;
 
 		/// <summary>Constructor.</summary>
@@ -236,8 +263,10 @@ namespace SimElation.SliPro
 					SendLedState();
 
 					m_device.CloseDevice();
+					m_device.Dispose();
 					m_device = null;
 					m_isAvailable = false;
+					Status = "Disposed";
 				}
 
 				if (m_rotaryDetector != null)
@@ -552,7 +581,7 @@ namespace SimElation.SliPro
 
 		private async void PollForDevices()
 		{
-			while (true)
+			do
 			{
 				try
 				{
@@ -565,16 +594,16 @@ namespace SimElation.SliPro
 					m_getLog().InfoFormat("SLI-Pro: exception {0} in {1}", e, nameof(PollForDevices));
 					return;
 				}
-
-				PollForDevicesOnce();
 			}
+			while (!PollForDevicesOnce());
 		}
 
-		private void PollForDevicesOnce()
+		private bool PollForDevicesOnce()
 		{
 			if (m_device != null)
-				return;
+				return true;
 
+			Status = "Polling for devices...";
 			m_getLog().Info("SLI-Pro: searching for device");
 
 			// TODO multiple device support, I guess.
@@ -584,10 +613,25 @@ namespace SimElation.SliPro
 			{
 				// Try again on next timer.
 				m_getLog().Warn("SLI-Pro: no device");
-				return;
+				Status = "Polling for devices: not found";
+				return false;
 			}
 
 			m_getLog().InfoFormat("SLI-Pro: {0} found at {1}", m_device.Description, m_device.DevicePath);
+
+			// Format up a nice device info string.
+			byte[] data;
+			String manufacturer = m_device.ReadManufacturer(out data) ? Encoding.Unicode.GetString(data).TrimEnd('\0') : "";
+			String product = m_device.ReadProduct(out data) ? Encoding.Unicode.GetString(data).TrimEnd('\0') : "";
+			String serial = m_device.ReadSerialNumber(out data) ? Encoding.Unicode.GetString(data).TrimEnd('\0') : "";
+			m_deviceInfo = String.Format("{0}{1}{2}{3}{4}{5}{6}",
+				manufacturer, (manufacturer.Length > 0) ? " " : "",
+				product, (product.Length > 0) ? " " : "",
+				(serial.Length > 0) ? "(" : "",
+				serial,
+				(serial.Length > 0) ? ")" : "").Trim();
+			if (m_deviceInfo.Length == 0)
+				m_deviceInfo = m_device.Description;
 
 			// Marshal events back to the initial (ui) thread.
 			var syncContext = SynchronizationContext.Current;
@@ -595,6 +639,8 @@ namespace SimElation.SliPro
 			m_device.Removed += () => syncContext.Post((_) => OnRemoved(), null);
 			m_device.MonitorDeviceEvents = true;
 			m_device.OpenDevice();
+
+			return true;
 		}
 
 		private void OnInserted()
@@ -612,6 +658,7 @@ namespace SimElation.SliPro
 			ResetLedHidReport(m_prevLedHidReport);
 
 			m_isAvailable = true;
+			Status = String.Format("{0}: available", m_deviceInfo);
 
 			// Explicit brightness set in config, so use that (and ignore any rotary).
 			if (m_settings.BrightnessRotarySwitchIndex == RotaryDetector.unknownIndex)
@@ -627,12 +674,15 @@ namespace SimElation.SliPro
 
 			if (!m_isAvailable)
 			{
-				m_getLog().Warn("SLI-Pro: inserted event when already available");
+				m_getLog().Warn("SLI-Pro: removed event when not available");
 				return;
 			}
 
+			// NB no need to CloseDevice() here; we can just wait for an OnInserted() event rather than poll.
+
 			m_txTask = null;
 			m_isAvailable = false;
+			Status = String.Format("{0}: removed", m_deviceInfo);
 		}
 
 		private async void ReadHidReport()

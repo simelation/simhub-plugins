@@ -25,6 +25,7 @@
 				<StackPanel Orientation="Vertical">
 					<styles:SHLinkButtonSmall HorizontalAlignment="Left" Click="OnHelpClick">Help</styles:SHLinkButtonSmall>
 					<Image Source="..\assets\SLI-PRO-RevA.png" Stretch="None" MouseDown="OnSliProClick" Margin="0,20,0,20"/>
+					<TextBlock Text="{Binding Path=Plugin.Device.Status}" FontSize="14" FontWeight="DemiBold"/>
 				</StackPanel>
 			</styles:SHSection>
 			
