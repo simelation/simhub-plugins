@@ -6,6 +6,7 @@ using System;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
+using System.Windows.Media;
 
 // ---------------------------------------------------------------------------------------------------------------------------------
 
@@ -167,6 +168,39 @@ namespace SimElation.SimHubIntegration.SliProPlugin.Utils
 				int rotarySwitchIndex = (int)value;
 
 				return rotarySwitchIndex == SliPro.RotaryDetector.unknownIndex;
+			}
+
+			public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+			{
+				return DependencyProperty.UnsetValue;
+			}
+		}
+
+		/// <summary>Converter for tooltips on something holding a game property key (e.g. LED).</summary>
+		class GamePropertyToolTipConverter : IValueConverter
+		{
+			public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+			{
+				var propertyKey = (String)value;
+
+				return (propertyKey == GameProperty.Unassigned) ? "No property assigned. Left click to set." :
+					String.Format("Assigned property: {0}. Right-click to clear.", propertyKey);
+			}
+
+			public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+			{
+				return DependencyProperty.UnsetValue;
+			}
+		}
+
+		/// <summary>Converter for LED colors to indicate assigned/not assigned.</summary>
+		class GamePropertyLedColorConverter : IValueConverter
+		{
+			public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+			{
+				var propertyKey = (String)value;
+
+				return (propertyKey == GameProperty.Unassigned) ? Colors.DimGray.ToString() : Colors.Red.ToString();
 			}
 
 			public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

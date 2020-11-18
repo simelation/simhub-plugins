@@ -530,14 +530,30 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 			{
 				if (!data.GamePaused && (data.NewData != null))
 				{
+					uint i;
+
 					// Fix up a few potentially missing things.
 					NormalizeData(pluginManager, data.NewData);
 
 					// Status LEDs.
-					for (uint i = 0; i < m_statusLeds.Length; ++i)
+					for (i = 0; i < m_statusLeds.Length; ++i)
 					{
 						m_sliPro.SetStatusLed(i,
 							m_statusLeds[i].ProcessData(m_normalizedData, m_settings.StatusLedBlinkIntervalMs));
+					}
+
+					// External LEDs.
+					i = 0;
+					foreach (var property in m_settings.ExternalLedProperties)
+					{
+						if (property.Key.Length > 0)
+						{
+							// TODO a "compiled" way to read properties from data by name?
+							var value = pluginManager.GetPropertyValue(property.Key);
+							m_sliPro.SetExternalLed(i, Convert.ToBoolean(value));
+						}
+
+						++i;
 					}
 
 					// Gear and revs.

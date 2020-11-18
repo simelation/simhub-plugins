@@ -53,6 +53,8 @@ Note that some of this data will come from the SimHub PersistantTrackerPlugin if
 
 ## Status LEDs
 
+These are currently hard-coded to show the following data:
+
 ### Left bank
 
 1. Blue flag.
@@ -65,13 +67,20 @@ Note that some of this data will come from the SimHub PersistantTrackerPlugin if
 1. TC active.
 1. DRS: blinking = available; solid = active.
 
-## External LEDs
-
-Currently not configurable.
-
 ## Configuration
 
 Configuration is available in SimHub at `Additional Plugins` then the `SLI-Pro Plugin` tab.
+
+### External LEDs
+
+External LEDs can currently be configured to display a SimHub property, e.g. `DataCorePlugin.GameData.Flag_Yellow`.
+There's no support yet for ncalc formulas, blinking, etc., though this may follow.
+
+Click on an external LED in the UI and use the property picker to choose the property. It should be one that makes
+sense to be interpreted as either "on" or "off".
+
+An assigned external LED will turn red in the UI. You hover over an LED to see what its assignment is and right click on
+it to clear the assignment.
 
 ### Segment displays
 
@@ -101,7 +110,7 @@ long press for previous).
 
 #### Peeking
 
-##### Showing the name of the current display mode
+##### Showing the name of the current mode
 
 When switching display modes, the name of the new mode will be shown for a while. It's also possible to assign a button that,
 whilst pressed, will show the display mode's name. Helpful if you've forgotten what mode you're in!
@@ -114,7 +123,8 @@ Peeking the value of another mode (without changing the current mode) will follo
 ### Brightness control
 
 Similarly, brightness can be control by a rotary switch or UI. Press `Learn rotary` next to it and change the position of
-the rotary you wish to use for that function. If the rotary is detected, the button should change to `Forget rotary N`.
+the rotary you wish to use for that function. If the rotary is detected, the button should change to `Forget rotary N`. If
+the rotary switch isn't 12-position, you can set the correct number with the `Number of positions` setting.
 
 Brightness can also be set explicitly in the plugin's configuraion using a slider if no rotary switch is assigned.
 
@@ -133,7 +143,7 @@ The RPM LEDs will blink when the RPM % is at or above the threshold set in the S
 (`Car Settings` -> `Red line`). These settings control the blink on/off time (in milliseconds). Set the `off` value to 0 to
 disable shift point blinking completely.
 
-### Show new segment title for
+### Show name of new segment mode for
 
 When changing the left or right segment displays, some text can be shown for a small period of time showing the new mode
 for the display. 0 will disable.

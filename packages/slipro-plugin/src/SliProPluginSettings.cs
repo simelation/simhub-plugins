@@ -10,6 +10,41 @@ using System.Runtime.CompilerServices;
 
 namespace SimElation.SimHubIntegration.SliProPlugin
 {
+	/// <summary>A SimHub property.</summary>
+	public class GameProperty : INotifyPropertyChanged
+	{
+		/// <summary>
+		/// The property's key. Can be passed to <see cref="SimHub.Plugins.PluginManager.GetPropertyValue"/>.
+		/// </summary>
+		public String Key
+		{
+			get => m_key;
+
+			set
+			{
+				if (m_key != value)
+				{
+					m_key = value;
+					OnPropertyChanged();
+				}
+			}
+		}
+
+		/// <summary>Unassigned property.</summary>
+		public static String Unassigned = "";
+
+		/// <inheritdoc/>
+		public event PropertyChangedEventHandler PropertyChanged;
+
+		/// <inheritdoc/>
+		protected void OnPropertyChanged([CallerMemberName] string name = null)
+		{
+			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+		}
+
+		private String m_key = Unassigned;
+	}
+
 	/// <summary>Settings for the SLI-Pro plugin.</summary>
 	public class Settings : INotifyPropertyChanged
 	{
@@ -59,6 +94,18 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 			set
 			{
 				m_rightSegmentDisplayIndex = value;
+				OnPropertyChanged();
+			}
+		}
+
+		/// <summary>SimHub properties assigned to external LEDs.</summary>
+		public GameProperty[] ExternalLedProperties
+		{
+			get => m_externalLedProperties;
+
+			set
+			{
+				m_externalLedProperties = value;
 				OnPropertyChanged();
 			}
 		}
@@ -155,6 +202,16 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 
 		private int m_rightSegmentDisplayRotarySwitchIndex = SliPro.RotaryDetector.unknownIndex;
 		private int m_rightSegmentDisplayIndex = 0;
+
+		private GameProperty[] m_externalLedProperties =
+			new GameProperty[(int)SliPro.Constants.numberOfExternalLeds]
+			{
+				new GameProperty(),
+				new GameProperty(),
+				new GameProperty(),
+				new GameProperty(),
+				new GameProperty()
+			};
 
 		private String m_welcomeMessage = "Sim-Hub";
 		private long m_pitLaneAnimationSpeedMs = 250;

@@ -5,9 +5,12 @@
 using System;
 using System.Reflection;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Controls;
 using MahApps.Metro.Controls.Dialogs;
+using MahApps.Metro.SimpleChildWindow;
 using SimElation.SliPro;
+using SimHub.Plugins.OutputPlugins.Dash.WPFUI;
 
 // ---------------------------------------------------------------------------------------------------------------------------------
 
@@ -111,6 +114,27 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 
 			String url = String.Format("{0}/{1}/packages/slipro-plugin/README.md", rootUrl, branch);
 			System.Diagnostics.Process.Start(url);
+		}
+
+		private async void OnExternalLedClick(object sender, System.Windows.RoutedEventArgs e)
+		{
+			// sender.DataContext is the bound GameProperty in settings.
+			var propertiesPicker = new PropertiesPicker();
+
+			// TODO highlight currently selected item??
+			await ChildWindowManager.ShowChildWindowAsync(Window.GetWindow(this), propertiesPicker);
+
+			var property = propertiesPicker.Result;
+			if (property == null)
+				return;
+
+			((sender as Button).DataContext as GameProperty).Key = property.Key;
+		}
+
+		private void OnExternalLedRightClick(object sender, System.Windows.RoutedEventArgs e)
+		{
+			// Clear down any assigned property key.
+			((sender as Button).DataContext as GameProperty).Key = GameProperty.Unassigned;
 		}
 
 		private async void OnLeftSegmentRotaryClick(object sender, System.Windows.RoutedEventArgs e)

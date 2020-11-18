@@ -17,18 +17,56 @@
 		<converters:RotarySwitchIndexConverter x:Key="RotarySwitchIndexConverter" />
 		<converters:IsRotarySwitchControlledConverter x:Key="IsRotarySwitchControlledConverter" />
 		<converters:IsNotRotarySwitchControlledConverter x:Key="IsNotRotarySwitchControlledConverter" />
+		<converters:GamePropertyToolTipConverter x:Key="GamePropertyToolTipConverter" />
+		<converters:GamePropertyLedColorConverter x:Key="GamePropertyLedColorConverter" />
 	</UserControl.Resources>
 
 	<ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
 		<StackPanel Orientation="Vertical">
+			
 			<styles:SHSection Title="{Binding Title}">
 				<StackPanel Orientation="Vertical">
 					<styles:SHLinkButtonSmall HorizontalAlignment="Left" Click="OnHelpClick">Help</styles:SHLinkButtonSmall>
-					<Image Source="..\assets\SLI-PRO-RevA.png" Stretch="None" MouseDown="OnSliProClick" Margin="0,20,0,20"/>
+
+					<Image Source="..\assets\SLI-PRO-RevA.png" Stretch="None" MouseDown="OnSliProClick"/>
+
+					<!-- External LEDs. -->
+					<GroupBox Header="External LEDs" HorizontalAlignment="Center" Margin="4,4,4,20">
+						<ItemsControl HorizontalAlignment="Center" ItemsSource="{Binding Path=Settings.ExternalLedProperties}">
+							<ItemsControl.ItemsPanel>
+								<ItemsPanelTemplate>
+									<!-- Default template is vertical layout, so override. -->
+									<StackPanel Orientation="Horizontal"/>
+								</ItemsPanelTemplate>
+							</ItemsControl.ItemsPanel>
+
+							<ItemsControl.ItemTemplate>
+								<DataTemplate>
+									<Button Height="34" Width="34" Margin="4,4,4,4"
+											ToolTip="{Binding Path=Key, Converter={StaticResource GamePropertyToolTipConverter}}"
+											Click="OnExternalLedClick" MouseRightButtonUp="OnExternalLedRightClick">
+										<Button.Template>
+											<ControlTemplate TargetType="{x:Type Button}">
+												<Grid>
+													<Ellipse Fill="{Binding Path=Key,
+														Converter={StaticResource GamePropertyLedColorConverter}}"/>
+													<ContentPresenter Content="{TemplateBinding Content}"
+																	  HorizontalAlignment="Center" VerticalAlignment="Center"/>
+												</Grid>
+											</ControlTemplate>
+										</Button.Template>
+									</Button>
+								</DataTemplate>
+							</ItemsControl.ItemTemplate>
+						</ItemsControl>
+					</GroupBox>
+
+					<!-- Device status. -->
 					<TextBlock Text="{Binding Path=Plugin.Device.Status}" FontSize="14" FontWeight="DemiBold"/>
+
 				</StackPanel>
 			</styles:SHSection>
-
+			
 			<styles:SHSection Title="SEGMENT DISPLAYS">
 				<StackPanel Orientation="Vertical">
 					<UniformGrid Rows="1" Columns="2">
@@ -76,7 +114,7 @@
 												Converter={StaticResource RotarySwitchIndexConverter}, ConverterParameter='brightness'}"
 											ToolTip="Learn or forget a rotary switch attached to the SLI-Pro to control the brightness." />
 
-					<Label VerticalAlignment="Center" Margin="4,4,4,4" Content="Number of rotary positions" />
+					<Label VerticalAlignment="Center" Margin="4,4,4,4" Content="Number of positions" />
 					<mah:NumericUpDown Minimum="2" Maximum="64" HasDecimals="False" Margin="4,4,4,4"
 									   IsEnabled="{Binding Path=Settings.SliProSettings.BrightnessRotarySwitchIndex,
 										   Converter={StaticResource IsRotarySwitchControlledConverter}}"
