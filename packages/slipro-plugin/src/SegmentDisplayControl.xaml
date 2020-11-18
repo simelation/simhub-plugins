@@ -38,12 +38,23 @@
 					</autogrid:AutoGrid>
 
 					<StackPanel Orientation="Vertical" Margin="4,4,2,0">
-						<ui:ControlsEditor FriendlyName="Next" x:Name="nextButtonEditor"/>
-						<ui:ControlsEditor FriendlyName="Previous" x:Name="previousButtonEditor"/>
+						<ui:ControlsEditor FriendlyName="Next" x:Name="nextButtonEditor"
+										   ToolTip="Assign a control to cycle to the next display mode."/>
+						<ui:ControlsEditor FriendlyName="Previous" x:Name="previousButtonEditor"
+										   ToolTip="Assign a control to cycle to the previous display mode."/>
+					</StackPanel>
+				</StackPanel>
+			</styles:SHSection>
+
+			<styles:SHSection Title="Peeking">
+				<StackPanel Orientation="Vertical">
+					<StackPanel Orientation="Vertical" Margin="4,4,2,0">
+						<ui:ControlsEditor FriendlyName="Current" x:Name="peekCurrentButtonEditor"
+										   ToolTip="Assign a control to show the current segment mode."/>
 					</StackPanel>
 				</StackPanel>
 			</styles:SHSection>
 		</StackPanel>
 	</GroupBox>
-	
+
 </UserControl>

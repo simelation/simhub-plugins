@@ -46,6 +46,12 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 			get => MakeSegmentDisplayActionName(SliProPlugin.LeftSegmentDisplayPreviousAction);
 		}
 
+		/// <summary>Peek current left segment display action name.</summary>
+		public static String PeekCurrentLeftSegmentDisplayAction
+		{
+			get => MakeSegmentDisplayActionName(SliProPlugin.PeekCurrentLeftSegmentDisplayAction);
+		}
+
 		/// <summary>Left segment display next action name.</summary>
 		public static String LeftSegmentDisplayNextAction
 		{
@@ -62,6 +68,12 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 		public static String RightSegmentDisplayNextAction
 		{
 			get => MakeSegmentDisplayActionName(SliProPlugin.RightSegmentDisplayNextAction);
+		}
+
+		/// <summary>Peek current right segment display action name.</summary>
+		public static String PeekCurrentRightSegmentDisplayAction
+		{
+			get => MakeSegmentDisplayActionName(SliProPlugin.PeekCurrentRightSegmentDisplayAction);
 		}
 
 		private static String MakeSegmentDisplayActionName(String baseName)

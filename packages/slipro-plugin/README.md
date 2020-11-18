@@ -73,7 +73,7 @@ Currently not configurable.
 
 Configuration is available in SimHub at `Additional Plugins` then the `SLI-Pro Plugin` tab.
 
-### Segment display switching
+### Segment displays
 
 Segment displays can be configured to be controlled by rotary switches connected to the SLI-Pro, or manually from the UI, or using
 controller buttons.
@@ -98,6 +98,18 @@ No rotary switch should be assigned in order to control the display using button
 `Click to configure` buttons for `Next` and `Previous` (which use the regular SimHub UI).
 Note the displays cycle, so it's not necessary to assign both (or you could assign short press to go to next,
 long press for previous).
+
+#### Peeking
+
+##### Showing the name of the current display mode
+
+When switching display modes, the name of the new mode will be shown for a while. It's also possible to assign a button that,
+whilst pressed, will show the display mode's name. Helpful if you've forgotten what mode you're in!
+
+To configure, press `Click to configure` for `Current` under `Peeking`. You must set the `Press type` to `During`
+and then press the button you wish to use.
+
+Peeking the value of another mode (without changing the current mode) will follow in a future release.
 
 ### Brightness control
 

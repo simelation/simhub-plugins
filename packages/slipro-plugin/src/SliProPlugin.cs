@@ -66,7 +66,8 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 			private readonly SegmentDisplay[] m_segmentDisplayList;
 
 			private readonly Timer m_timer;
-			private bool m_showName = false;
+			private bool m_showNameTimer = false;
+			private int m_showNameButtonCount = 0;
 			private int m_currentIndex = -1;
 
 			public String[] NameList
@@ -78,9 +79,7 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 			{
 				m_position = position;
 				m_segmentDisplayList = segmentDisplayList;
-
-				// When timer fires, stop showing segment name.
-				m_timer = new Timer((object state) => m_showName = false);
+				m_timer = new Timer((object state) => m_showNameTimer = false);
 			}
 
 			public void ProcessData(PluginManager pluginManager, NormalizedData normalizedData, SliPro.SliPro sliPro)
@@ -89,7 +88,7 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 				{
 					var segmentDisplay = m_segmentDisplayList[m_currentIndex];
 
-					if (m_showName)
+					if ((m_showNameButtonCount > 0) || m_showNameTimer)
 						segmentDisplay.ShowName(sliPro, m_position);
 					else
 						segmentDisplay.ProcessData(pluginManager, normalizedData, sliPro, m_position);
@@ -125,8 +124,16 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 				{
 					// For future data updates, show the name of the current segment until the timer fires.
 					m_timer.Change(segmentNameTimeoutMs, Timeout.Infinite);
-					m_showName = true;
+					m_showNameTimer = true;
 				}
+			}
+
+			public void PeekName(bool isPress)
+			{
+				if (isPress)
+					++m_showNameButtonCount;
+				else
+					m_showNameButtonCount = Math.Max(0, m_showNameButtonCount - 1);
 			}
 		}
 
@@ -330,11 +337,17 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 		/// <summary>Left segment display next action name.</summary>
 		public const String LeftSegmentDisplayNextAction = "LeftSegmentDisplayNext";
 
+		/// <summary>Peek current left segment display action name.</summary>
+		public const String PeekCurrentLeftSegmentDisplayAction = "PeekCurrentLeftSegmentDisplay";
+
 		/// <summary>Right segment display previous action name.</summary>
 		public const String RightSegmentDisplayPreviousAction = "RightSegmentDisplayPrevious";
 
 		/// <summary>Right segment display next action name.</summary>
 		public const String RightSegmentDisplayNextAction = "RightSegmentDisplayNext";
+
+		/// <summary>Peek current right segment display action name.</summary>
+		public const String PeekCurrentRightSegmentDisplayAction = "PeekCurrentRightSegmentDisplay";
 
 		/// <summary>Instance of the current plugin manager.</summary>
 		public PluginManager PluginManager { get; set; }
@@ -432,18 +445,29 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 					m_settings.RightSegmentDisplayIndex = CycleSegmentDisplayAction(SegmentDisplayPosition.right, isNext);
 			}
 
-			// Segment display control actions.
-			pluginManager.AddAction(LeftSegmentDisplayPreviousAction, GetType(),
+			// Segment display control actions. Leaving these globally available; maybe something else will want to fire them.
+			pluginManager.AddAction<SliProPlugin>(LeftSegmentDisplayPreviousAction,
 				(pluginManager2, buttonName) => CycleLeftSegmentDisplayAction(false));
 
-			pluginManager.AddAction(LeftSegmentDisplayNextAction, GetType(),
+			pluginManager.AddAction<SliProPlugin>(LeftSegmentDisplayNextAction,
 				(pluginManager2, buttonName) => CycleLeftSegmentDisplayAction(true));
 
-			pluginManager.AddAction(RightSegmentDisplayPreviousAction, GetType(),
+			pluginManager.AddAction<SliProPlugin>(RightSegmentDisplayPreviousAction,
 				(pluginManager2, buttonName) => CycleRightSegmentDisplayAction(false));
 
-			pluginManager.AddAction(RightSegmentDisplayNextAction, GetType(),
+			pluginManager.AddAction<SliProPlugin>(RightSegmentDisplayNextAction,
 				(pluginManager2, buttonName) => CycleRightSegmentDisplayAction(true));
+
+			// Segment display peek actions. Note passing true for hidden so these actions aren't available globally.
+			pluginManager.AddAction<SliProPlugin>(PeekCurrentLeftSegmentDisplayAction,
+				(pluginManager2, buttonName) => m_segmentDisplayManagers[SegmentDisplayPosition.left].PeekName(true),
+				(pluginManager2, buttonName) => m_segmentDisplayManagers[SegmentDisplayPosition.left].PeekName(false),
+				true);
+
+			pluginManager.AddAction<SliProPlugin>(PeekCurrentRightSegmentDisplayAction,
+				(pluginManager2, buttonName) => m_segmentDisplayManagers[SegmentDisplayPosition.right].PeekName(true),
+				(pluginManager2, buttonName) => m_segmentDisplayManagers[SegmentDisplayPosition.right].PeekName(false),
+				true);
 
 			Logging.Current.Info("SLI-Pro: initialization complete");
 		}

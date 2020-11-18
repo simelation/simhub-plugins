@@ -35,6 +35,9 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 		private static readonly DependencyProperty PreviousDisplayProperty =
 			DependencyProperty.Register("PreviousDisplay", typeof(string), typeof(SegmentDisplayControl));
 
+		private static readonly DependencyProperty PeekCurrentDisplayProperty =
+			DependencyProperty.Register("PeekCurrentDisplay", typeof(string), typeof(SegmentDisplayControl));
+
 		private static readonly RoutedEvent LearnRotaryClickEvent = ButtonBase.ClickEvent.AddOwner(typeof(SegmentDisplayControl));
 
 		/// <summary>Title property for segment display (e.g. "Left segment", "Right segment").</summary>
@@ -86,6 +89,13 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 			set => SetValue(PreviousDisplayProperty, value);
 		}
 
+		/// <summary>Name for peek current display action.</summary>
+		public string PeekCurrentDisplay
+		{
+			get => GetValue(PeekCurrentDisplayProperty) as string;
+			set => SetValue(PeekCurrentDisplayProperty, value);
+		}
+
 		/// <summary>Click handler for learn/forget rotary.</summary>
 		public event RoutedEventHandler LearnRotaryClick
 		{
@@ -106,6 +116,7 @@ namespace SimElation.SimHubIntegration.SliProPlugin
 			// and then it blows up making the ui:ControlEditor trying to assign null for ActionName.
 			nextButtonEditor.ActionName = NextDisplay;
 			previousButtonEditor.ActionName = PreviousDisplay;
+			peekCurrentButtonEditor.ActionName = PeekCurrentDisplay;
 		}
 	}
 }

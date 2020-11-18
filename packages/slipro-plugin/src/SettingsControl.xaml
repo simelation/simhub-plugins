@@ -28,7 +28,7 @@
 					<TextBlock Text="{Binding Path=Plugin.Device.Status}" FontSize="14" FontWeight="DemiBold"/>
 				</StackPanel>
 			</styles:SHSection>
-			
+
 			<styles:SHSection Title="SEGMENT DISPLAYS">
 				<StackPanel Orientation="Vertical">
 					<UniformGrid Rows="1" Columns="2">
@@ -40,7 +40,8 @@
 													 SelectedIndex="{Binding Path=Settings.LeftSegmentDisplayIndex, Mode=TwoWay}"
 													 LearnRotaryClick="OnLeftSegmentRotaryClick"
 													 NextDisplay="{x:Static Member=local:SettingsControl.LeftSegmentDisplayNextAction}"
-													 PreviousDisplay="{x:Static Member=local:SettingsControl.LeftSegmentDisplayPreviousAction}"/>
+													 PreviousDisplay="{x:Static Member=local:SettingsControl.LeftSegmentDisplayPreviousAction}"
+													 PeekCurrentDisplay="{x:Static Member=local:SettingsControl.PeekCurrentLeftSegmentDisplayAction}"/>
 
 						<local:SegmentDisplayControl Label="Right display"
 													 RotarySwitchIndex="{Binding Path=Settings.RightSegmentDisplayRotarySwitchIndex, Mode=TwoWay}"
@@ -50,7 +51,8 @@
 													 SelectedIndex="{Binding Path=Settings.RightSegmentDisplayIndex, Mode=TwoWay}"
 													 LearnRotaryClick="OnRightSegmentRotaryClick"
 													 NextDisplay="{x:Static Member=local:SettingsControl.RightSegmentDisplayNextAction}"
-													 PreviousDisplay="{x:Static Member=local:SettingsControl.RightSegmentDisplayPreviousAction}"/>
+													 PreviousDisplay="{x:Static Member=local:SettingsControl.RightSegmentDisplayPreviousAction}"
+													 PeekCurrentDisplay="{x:Static Member=local:SettingsControl.PeekCurrentRightSegmentDisplayAction}"/>
 					</UniformGrid>
 
 					<!-- NB bug with RowCount 1 https://github.com/carbonrobot/wpf-autogrid/issues/6 -->
