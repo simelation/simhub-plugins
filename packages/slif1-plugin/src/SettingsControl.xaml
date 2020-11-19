@@ -1,0 +1,174 @@
+﻿<UserControl x:Class="SimElation.SimHubIntegration.SliF1Plugin.SettingsControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:styles="clr-namespace:SimHub.Plugins.Styles;assembly=SimHub.Plugins"
+			 xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+			 xmlns:local="clr-namespace:SimElation.SimHubIntegration.SliF1Plugin"
+			 xmlns:converters="clr-namespace:SimElation.SimHubIntegration.SliF1Plugin.Utils.ValueConverters"
+			 xmlns:autogrid="clr-namespace:WpfAutoGrid;assembly=WpfAutoGrid"
+			 xmlns:dialog="clr-namespace:MahApps.Metro.Controls.Dialogs;assembly=MahApps.Metro"
+			 dialog:DialogParticipation.Register="{Binding}"
+			 mc:Ignorable="d"
+			 d:DesignWidth="600" d:DesignHeight="800">
+	<UserControl.Resources>
+		<converters:AllowNullConverter x:Key="AllowNullConverter" />
+		<converters:RotarySwitchIndexConverter x:Key="RotarySwitchIndexConverter" />
+		<converters:IsRotarySwitchControlledConverter x:Key="IsRotarySwitchControlledConverter" />
+		<converters:IsNotRotarySwitchControlledConverter x:Key="IsNotRotarySwitchControlledConverter" />
+		<converters:GamePropertyToolTipConverter x:Key="GamePropertyToolTipConverter" />
+		<converters:GamePropertyLedColorConverter x:Key="GamePropertyLedColorConverter" />
+	</UserControl.Resources>
+
+	<ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+		<StackPanel Orientation="Vertical">
+			
+			<styles:SHSection Title="{Binding Title}">
+				<StackPanel Orientation="Vertical">
+					<styles:SHLinkButtonSmall HorizontalAlignment="Left" Click="OnHelpClick">Help</styles:SHLinkButtonSmall>
+					
+					<Image Source="..\assets\SLI-F1.png" Height="200" Stretch="Uniform" MouseDown="OnSliF1Click" Margin="0,20,0,20"/>
+
+					<!-- External LEDs. -->
+					<GroupBox Header="External LEDs" HorizontalAlignment="Center" Margin="4,4,4,20">
+						<ItemsControl HorizontalAlignment="Center" ItemsSource="{Binding Path=Settings.ExternalLedProperties}">
+							<ItemsControl.ItemsPanel>
+								<ItemsPanelTemplate>
+									<!-- Default template is vertical layout, so override. -->
+									<StackPanel Orientation="Horizontal"/>
+								</ItemsPanelTemplate>
+							</ItemsControl.ItemsPanel>
+
+							<ItemsControl.ItemTemplate>
+								<DataTemplate>
+									<Button Height="34" Width="34" Margin="4,4,4,4"
+											ToolTip="{Binding Path=Key, Converter={StaticResource GamePropertyToolTipConverter}}"
+											Click="OnExternalLedClick" MouseRightButtonUp="OnExternalLedRightClick">
+										<Button.Template>
+											<ControlTemplate TargetType="{x:Type Button}">
+												<Grid>
+													<Ellipse Fill="{Binding Path=Key,
+														Converter={StaticResource GamePropertyLedColorConverter}}"/>
+													<ContentPresenter Content="{TemplateBinding Content}"
+																	  HorizontalAlignment="Center" VerticalAlignment="Center"/>
+												</Grid>
+											</ControlTemplate>
+										</Button.Template>
+									</Button>
+								</DataTemplate>
+							</ItemsControl.ItemTemplate>
+						</ItemsControl>
+					</GroupBox>
+
+					<!-- Device status. -->
+					<TextBlock Text="{Binding Path=Plugin.Device.Status}" FontSize="14" FontWeight="DemiBold"/>
+
+				</StackPanel>
+			</styles:SHSection>
+			
+			<styles:SHSection Title="SEGMENT DISPLAYS">
+				<StackPanel Orientation="Vertical">
+					<UniformGrid Rows="1" Columns="2">
+						<local:SegmentDisplayControl Label="Left display"
+													 RotarySwitchIndex="{Binding Path=Settings.LeftSegmentDisplayRotarySwitchIndex, Mode=TwoWay}"
+													 LearnRotaryButtonContent="{Binding Path=Settings.LeftSegmentDisplayRotarySwitchIndex,
+														 Converter={StaticResource RotarySwitchIndexConverter}}"
+				 									 ItemsSource="{Binding LeftSegmentDisplayComboBoxContents}"
+													 SelectedIndex="{Binding Path=Settings.LeftSegmentDisplayIndex, Mode=TwoWay}"
+													 LearnRotaryClick="OnLeftSegmentRotaryClick"
+													 NextDisplay="{x:Static Member=local:SettingsControl.LeftSegmentDisplayNextAction}"
+													 PreviousDisplay="{x:Static Member=local:SettingsControl.LeftSegmentDisplayPreviousAction}"
+													 PeekCurrentDisplay="{x:Static Member=local:SettingsControl.PeekCurrentLeftSegmentDisplayAction}"/>
+
+						<local:SegmentDisplayControl Label="Right display"
+													 RotarySwitchIndex="{Binding Path=Settings.RightSegmentDisplayRotarySwitchIndex, Mode=TwoWay}"
+													 LearnRotaryButtonContent="{Binding Path=Settings.RightSegmentDisplayRotarySwitchIndex,
+														 Converter={StaticResource RotarySwitchIndexConverter}}"
+													 ItemsSource="{Binding RightSegmentDisplayComboBoxContents}"
+													 SelectedIndex="{Binding Path=Settings.RightSegmentDisplayIndex, Mode=TwoWay}"
+													 LearnRotaryClick="OnRightSegmentRotaryClick"
+													 NextDisplay="{x:Static Member=local:SettingsControl.RightSegmentDisplayNextAction}"
+													 PreviousDisplay="{x:Static Member=local:SettingsControl.RightSegmentDisplayPreviousAction}"
+													 PeekCurrentDisplay="{x:Static Member=local:SettingsControl.PeekCurrentRightSegmentDisplayAction}"/>
+					</UniformGrid>
+
+					<!-- NB bug with RowCount 1 https://github.com/carbonrobot/wpf-autogrid/issues/6 -->
+					<autogrid:AutoGrid RowCount="2" Columns="220,200,400">
+						<Label VerticalAlignment="Center" Margin="4,4,4,4" Content="Show name of new segment mode for" />
+						<mah:NumericUpDown Minimum="0" Maximum="60000" HasDecimals="False" Margin="4,4,4,4"
+										   VerticalAlignment="Center"
+										   Value="{Binding Path=Settings.SegmentNameTimeoutMs, Mode=TwoWay}"
+										   ToolTip="How long to display what information a segment display will show after changing mode." />
+						<Label VerticalAlignment="Center" Margin="0,4,4,4" Content="milliseconds after change" />
+					</autogrid:AutoGrid>
+				</StackPanel>
+			</styles:SHSection>
+
+			<styles:SHSection Title="DISPLAY BRIGHTNESS">
+				<autogrid:AutoGrid RowCount="3" Columns="220,28,172">
+					<Label />
+					<styles:SHButtonPrimary VerticalAlignment="Center" Margin="4,4,4,4" Grid.ColumnSpan="2"
+											x:Name="learnRotaryButton" Click="OnBrightnessRotaryClick"
+											Content="{Binding Path=Settings.SliF1Settings.BrightnessRotarySwitchIndex,
+												Converter={StaticResource RotarySwitchIndexConverter}, ConverterParameter='brightness'}"
+											ToolTip="Learn or forget a rotary switch attached to the SLI-F1 to control the brightness." />
+
+					<Label VerticalAlignment="Center" Margin="4,4,4,4" Content="Number of positions" />
+					<mah:NumericUpDown Minimum="2" Maximum="64" HasDecimals="False" Margin="4,4,4,4"
+									   IsEnabled="{Binding Path=Settings.SliF1Settings.BrightnessRotarySwitchIndex,
+										   Converter={StaticResource IsRotarySwitchControlledConverter}}"
+									   VerticalAlignment="Center" Grid.ColumnSpan="2"
+									   Value="{Binding Path=Settings.SliF1Settings.NumberOfBrightnessRotaryPositions, Mode=TwoWay}"
+									   ToolTip="How many positions the brightness rotary switch has." />
+
+					<Label HorizontalAlignment="Left" VerticalAlignment="Center" Margin="4,4,4,4" Content="Brightness level" />
+					<Slider Minimum="1" Maximum="254" VerticalAlignment="Center" Grid.ColumnSpan="2" Margin="4,4,4,4"
+						    IsEnabled="{Binding Path=Settings.SliF1Settings.BrightnessRotarySwitchIndex,
+								Converter={StaticResource IsNotRotarySwitchControlledConverter}}"
+							Value="{Binding Path=Settings.SliF1Settings.BrightnessLevel, Mode=TwoWay,
+								Converter={StaticResource AllowNullConverter}}"/>
+				</autogrid:AutoGrid>
+			</styles:SHSection>
+
+			<styles:SHSection Title="CONFIGURATION">
+				<autogrid:AutoGrid RowCount="6" Columns="220,200,200">
+					<Label VerticalAlignment="Center" Margin="4,4,4,4" Content="Welcome message" />
+					<TextBox Margin="4,4,4,4" VerticalAlignment="Center"
+							 Text="{Binding Path=Settings.WelcomeMessage, Mode=TwoWay}"
+							 ToolTip="Text to display using the segment displays when SimHub is running but no game is." />
+					<Label />
+
+					<Label VerticalAlignment="Center" Margin="4,4,4,4" Content="In pit lane animation speed" />
+					<mah:NumericUpDown Minimum="0" Maximum="20000" HasDecimals="False" Margin="4,4,4,4"
+									   VerticalAlignment="Center"
+									   Value="{Binding Path=Settings.PitLaneAnimationSpeedMs, Mode=TwoWay}"
+									   ToolTip="The rate in milliseconds at which to animate the RPM LEDs when in the pitlane. 0 to disable." />
+					<Label VerticalAlignment="Center" Margin="0,4,4,4" Content="milliseconds" />
+
+					<Label VerticalAlignment="Center" Margin="4,4,4,4" Content="Shift point blink on time" />
+					<mah:NumericUpDown Minimum="0" Maximum="20000" HasDecimals="False" Margin="4,4,4,4"
+									   VerticalAlignment="Center"
+									   Value="{Binding Path=Settings.ShiftPointBlinkOnSpeedMs, Mode=TwoWay}"
+									   ToolTip="How long in milliseconds to light the RPM LEDs when at or above the shift threshold." />
+					<Label VerticalAlignment="Center" Margin="0,4,4,4" Content="milliseconds" />
+
+					<Label VerticalAlignment="Center" Margin="4,4,4,4" Content="Shift point blink off time" />
+					<mah:NumericUpDown Minimum="0" Maximum="20000" HasDecimals="False" Margin="4,4,4,4"
+									   VerticalAlignment="Center"
+									   Value="{Binding Path=Settings.ShiftPointBlinkOffSpeedMs, Mode=TwoWay}"
+									   ToolTip="How long in milliseconds to blank the RPM LEDs when at or above the shift threshold." />
+					<Label VerticalAlignment="Center" Margin="0,4,4,4" Content="milliseconds" />
+
+					<Label VerticalAlignment="Center" Margin="4,4,4,4" Content="Status LEDs blink interval" />
+					<mah:NumericUpDown Minimum="0" Maximum="20000" HasDecimals="False" Margin="4,4,4,4"
+									   VerticalAlignment="Center"
+									   Value="{Binding Path=Settings.StatusLedBlinkIntervalMs, Mode=TwoWay}"
+									   ToolTip="How long in milliseconds to light/blank a status LED when appropriate." />
+					<Label VerticalAlignment="Center" Margin="0,4,4,4" Content="milliseconds" />
+				</autogrid:AutoGrid>
+			</styles:SHSection>
+
+		</StackPanel>
+	</ScrollViewer>
+</UserControl>
