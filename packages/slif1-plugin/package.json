@@ -1,6 +1,6 @@
 {
 	"name": "@simelation/simhub-slif1-plugin",
-	"version": "0.0.0",
+	"version": "0.1.0",
 	"description": "SLI-F1 plugin for SimHub.",
 	"repository": {
 		"type": "git",

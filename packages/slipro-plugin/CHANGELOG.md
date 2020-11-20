@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.5.0](https://github.com/simelation/simhub-plugins/compare/@simelation/simhub-slipro-plugin@0.4.0...@simelation/simhub-slipro-plugin@0.5.0) (2020-11-20)
+
+### Bug Fixes
+
+-   **simhub-slipro-plugin:** time & delta formatting. ([62c7a9c](https://github.com/simelation/simhub-plugins/commit/62c7a9c05e82ca720fc0311c0405a3a72fd191e6))
+
+### Features
+
+-   **simhub-slipro-plugin:** added a peek current segment display mode name function assignable to a button. ([724c34e](https://github.com/simelation/simhub-plugins/commit/724c34e0d5aa0780cc0abae5b9d17f148baf9b39))
+-   **simhub-slipro-plugin:** added external LED support. ([626630c](https://github.com/simelation/simhub-plugins/commit/626630cdf5adb5a743ed24d531ae9e47ba81635a))
+-   **simhub-slipro-plugin:** added feedback dialogs for rotary detection process. ([826628b](https://github.com/simelation/simhub-plugins/commit/826628bf1aa378a8ae45925e76bc1f2d0ad64a6f))
+-   **simhub-slipro-plugin:** show device status in UI. ([8354147](https://github.com/simelation/simhub-plugins/commit/8354147eb7d208a8ab38767220af822e2c79c431))
+
 # [0.4.0](https://github.com/simelation/simhub-plugins/compare/@simelation/simhub-slipro-plugin@0.3.0...@simelation/simhub-slipro-plugin@0.4.0) (2020-11-01)
 
 ### Bug Fixes
