@@ -125,6 +125,7 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <None Include="CHANGELOG.md" />
     <None Include="package.json" />
     <None Include="README.md" />
   </ItemGroup>
