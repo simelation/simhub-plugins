@@ -1,0 +1,24 @@
+﻿<!-- Various styles for the plugin. -->
+<ResourceDictionary 
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:local="clr-namespace:SimElation.Simhub.SliPlugin">
+
+	<!-- LED style. -->
+	<Style TargetType="{x:Type ToggleButton}" x:Key="LedToggleButtonStyle">
+		<Setter Property="Template">
+			<Setter.Value>
+				<ControlTemplate TargetType="ToggleButton">
+					<Ellipse x:Name="ledCircle" Height="34" Width="34" Fill="{TemplateBinding local:ThemeProperties.SetLedBrush}"
+							 Stroke="DarkSlateGray" StrokeThickness="1.5"/>
+					<ControlTemplate.Triggers>
+						<Trigger Property="IsChecked" Value="False">
+							<Setter TargetName="ledCircle" Property="Fill" Value="LightGray"/>
+						</Trigger>
+					</ControlTemplate.Triggers>
+				</ControlTemplate>
+			</Setter.Value>
+		</Setter>
+	</Style>
+
+</ResourceDictionary>

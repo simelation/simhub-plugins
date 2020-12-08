@@ -1,0 +1,38 @@
+﻿<UserControl x:Class="SimElation.Simhub.SliPlugin.RpmLedsEditor"
+			 x:Name="RpmLedsEditorObject"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:SimElation.Simhub.SliPlugin"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+
+	<UserControl.Resources>
+		<ResourceDictionary>
+			<ResourceDictionary.MergedDictionaries>
+				<ResourceDictionary Source="../../Properties/Styles.xaml" />
+			</ResourceDictionary.MergedDictionaries>
+		</ResourceDictionary>
+	</UserControl.Resources>
+	
+	<ItemsControl HorizontalAlignment="Center" ItemsSource="{Binding ItemsSource, ElementName=RpmLedsEditorObject}">
+		<ItemsControl.ItemsPanel>
+			<ItemsPanelTemplate>
+				<!-- Default template is vertical layout, so override. -->
+				<StackPanel Orientation="Horizontal"/>
+			</ItemsPanelTemplate>
+		</ItemsControl.ItemsPanel>
+
+		<ItemsControl.ItemTemplate>
+			<DataTemplate>
+				<ToggleButton Margin="4,4,4,4" IsChecked="{Binding Path=IsSet}"
+							  local:ThemeProperties.SetLedBrush="{Binding Path=SetBrush}">
+					<ToggleButton.Style>
+						<Style TargetType="{x:Type ToggleButton}" BasedOn="{StaticResource LedToggleButtonStyle}"/>
+					</ToggleButton.Style>
+				</ToggleButton>
+			</DataTemplate>
+		</ItemsControl.ItemTemplate>
+	</ItemsControl>
+</UserControl>
