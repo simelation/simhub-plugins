@@ -1,12 +1,14 @@
 ﻿<UserControl x:Class="SimElation.Simhub.SliPlugin.DeviceInstanceControl"
+			 x:Name="deviceInstanceControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:SimElation.Simhub.SliPlugin"
 			 xmlns:autogrid="clr-namespace:WpfAutoGrid;assembly=WpfAutoGrid"
  			 xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+             xmlns:local="clr-namespace:SimElation.Simhub.SliPlugin"
 			 xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+             xmlns:simelation="clr-namespace:SimElation"
              xmlns:styles="clr-namespace:SimHub.Plugins.Styles;assembly=SimHub.Plugins"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800"
@@ -18,6 +20,9 @@
 		<local:IsRotarySwitchControlledConverter x:Key="IsRotarySwitchControlledConverter" />
 		<local:IsNotRotarySwitchControlledConverter x:Key="IsNotRotarySwitchControlledConverter" />
 		<local:BoolToPitLaneLedColorConverter x:Key="BoolToPitLaneLedColorConverter" />
+		<local:IsVJoyInstalledToVisibilityConverter x:Key="IsVJoyInstalledToVisibilityConverter" />
+		<local:IsVJoyInvalidVersionToVisibilityConverter x:Key="IsVJoyInvalidVersionToVisibilityConverter" />
+		<BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
 	</UserControl.Resources>
 
 	<StackPanel Orientation="Vertical" IsEnabled="{Binding Path=ManagedDevice.IsAvailable, FallbackValue=false}">
@@ -44,13 +49,12 @@
 										ToolTip="Learn or forget a rotary switch attached to the SLI to control the brightness." />
 				<Label />
 
-				<Label VerticalAlignment="Center" Margin="4,4,4,4" Content="Number of rotary positions" />
+				<Label VerticalAlignment="Center" Margin="4,4,4,4" Content="Number of rotary switch positions" />
 				<mah:NumericUpDown Minimum="2" Maximum="64" HasDecimals="False" Margin="4,4,4,4"
 								   IsEnabled="{Binding Path=DeviceSettings.BrightnessRotarySwitchIndex,
 									   Converter={StaticResource IsRotarySwitchControlledConverter}}"
 								   VerticalAlignment="Center"
-								   Value="{Binding Path=DeviceSettings.NumberOfBrightnessRotaryPositions, Mode=TwoWay}"
-								   ToolTip="How many positions the brightness rotary switch has." />
+								   Value="{Binding Path=DeviceSettings.NumberOfBrightnessRotaryPositions, Mode=TwoWay}" />
 				<Label />
 			</autogrid:AutoGrid>
 		</styles:SHSection>
@@ -166,6 +170,63 @@
 						<Label VerticalAlignment="Center" Margin="0,4,4,4" Content="milliseconds (0 to disable blinking)" />
 					</autogrid:AutoGrid>
 				</GroupBox>
+			</StackPanel>
+		</styles:SHSection>
+
+		<!-- Rotary switch -> vJoy mapping. Don't show at all if vJoy driver not installed. -->
+		<styles:SHSection Title="ROTARY SWITCH TO VJOY BUTTON MAPPING"
+						  Visibility="{Binding Path=DriverVersion, Source={x:Static simelation:VJoyManager.Instance},
+							  Converter={StaticResource IsVJoyInstalledToVisibilityConverter}}">
+
+			<StackPanel Orientation="Vertical" Margin="0,0,0,0">
+				<Border BorderBrush="LightGray" Background="IndianRed" BorderThickness="1,1,1,1" Margin="4,4,4,4"
+						Visibility="{Binding Path=IsValidVersion, Source={x:Static simelation:VJoyManager.Instance},
+							Converter={StaticResource IsVJoyInvalidVersionToVisibilityConverter}}">
+					<TextBlock FontSize="15" Margin="4,4,4,4"
+							   Text="{Binding Path=InvalidVersionString, ElementName=deviceInstanceControl}"/>
+				</Border>
+
+				<Border BorderBrush="LightGray" Background="IndianRed" BorderThickness="1,1,1,1" Margin="4,4,4,4"
+						Visibility="{Binding Path=IsBadVersion, Source={x:Static simelation:VJoyManager.Instance},
+							Converter={StaticResource BooleanToVisibilityConverter}}">
+					<TextBlock FontSize="15" Margin="4,4,4,4"
+   							   Text="{Binding Path=BadVersionString, ElementName=deviceInstanceControl}"/>
+				</Border>
+
+				<!-- Don't show main area if driver version doesn't match dll version. -->
+				<StackPanel Orientation="Vertical"
+							Visibility="{Binding Path=IsValidVersion, Source={x:Static simelation:VJoyManager.Instance},
+								Converter={StaticResource BooleanToVisibilityConverter}}">
+					<autogrid:AutoGrid RowCount="2" Columns="220,200,*">
+						<!-- Row 1. -->
+						<Label VerticalAlignment="Center" Margin="4,4,4,4" Content="vJoy button press time" />
+						<mah:NumericUpDown Minimum="0" Maximum="20000" HasDecimals="False" Margin="4,4,4,4"
+										   VerticalAlignment="Center"
+										   Value="{Binding Path=DeviceSettings.VJoyButtonPulseMs, Mode=TwoWay}"
+										   ToolTip="How long in milliseconds to &quot;press&quot; a vJoy button." />
+						<!-- Autogrid bug with 1 row https://github.com/carbonrobot/wpf-autogrid/issues/6 -->
+						<autogrid:AutoGrid RowCount="2" Columns="*,*" Margin="0,0,0,0">
+							<Label HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,4,4,4" Content="milliseconds" />
+							<styles:SHButtonPrimary HorizontalAlignment="Right" VerticalAlignment="Center" Margin="4,4,4,4"
+													Click="OnAddRotaryMappingClick"
+													Content="New mapping"
+													ToolTip="Add a new rotary switch to vJoy mapping" />
+						</autogrid:AutoGrid>
+
+						<!-- Row 2. -->
+						<Label />
+						<styles:SHButtonPrimary VerticalAlignment="Center" Margin="4,4,4,4"
+												Click="OnRefreshVJoyDevicesClick" Content="Refresh vJoy devices"/>
+					</autogrid:AutoGrid>
+
+					<ItemsControl ItemsSource="{Binding Path=DeviceSettings.RotarySwitchMappings}">
+						<ItemsControl.ItemTemplate>
+							<DataTemplate>
+								<local:RotarySwitchMappingControl/>
+							</DataTemplate>
+						</ItemsControl.ItemTemplate>
+					</ItemsControl>
+				</StackPanel>
 			</StackPanel>
 		</styles:SHSection>
 	</StackPanel>

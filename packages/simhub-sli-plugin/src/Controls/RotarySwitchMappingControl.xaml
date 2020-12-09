@@ -1,0 +1,85 @@
+﻿<UserControl x:Class="SimElation.Simhub.SliPlugin.RotarySwitchMappingControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+			 xmlns:autogrid="clr-namespace:WpfAutoGrid;assembly=WpfAutoGrid"
+ 			 xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+             xmlns:local="clr-namespace:SimElation.Simhub.SliPlugin"
+			 xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+             xmlns:simelation="clr-namespace:SimElation"
+             xmlns:styles="clr-namespace:SimHub.Plugins.Styles;assembly=SimHub.Plugins"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+
+	<UserControl.Resources>
+		<local:RotarySwitchIndexToTitleConverter x:Key="RotarySwitchIndexToTitleConverter"/>
+	</UserControl.Resources>
+
+	<!-- TODO get this styling from somewhere! -->
+	<Border BorderBrush="LightGray" Background="#f7f7f7" BorderThickness="1,1,1,1" Margin="2,2,2,2">
+		<StackPanel Orientation="Vertical">
+			<styles:SHSection Title="{Binding Path=RotarySwitchIndex,
+								  Converter={StaticResource RotarySwitchIndexToTitleConverter}}">
+				<autogrid:AutoGrid RowCount="3" Columns="220,200,*">
+					<Label VerticalAlignment="Center" Margin="4,4,4,4" Content="Number of rotary switch positions"/>
+					<mah:NumericUpDown Minimum="2" Maximum="12" HasDecimals="False" Margin="4,4,4,4"
+									   VerticalAlignment="Center"
+									   Value="{Binding Path=NumberOfPositions}"/>
+					<Button Margin="4,4,4,4" BorderBrush="Transparent" BorderThickness="0"
+							HorizontalAlignment="Right" VerticalAlignment="Center"
+							ToolTip="Remove this rotary switch to vJoy mapping"
+							Click="OnRemoveClick">
+						<iconPacks:PackIconMaterial Width="14" Height="14" Kind="TrashCanOutline" />
+					</Button>
+
+					<Label VerticalAlignment="Center" Margin="4,4,4,4" Content="vJoy device id"/>
+					<!--
+					Make the ComboBox editable so if the saved device id doesn't exist presently the UI is still correct.
+					Still need custom class as the standard wipes out Text if the items change.
+					-->
+					<local:RotarySwitchMappingControlComboBox
+						VerticalAlignment="Center" Margin="4,4,4,4" HorizontalContentAlignment="Right" IsEditable="true"
+						ItemsSource="{Binding Path=DeviceIds, Source={x:Static simelation:VJoyManager.Instance}}"
+						Text="{Binding Path=VJoyDeviceId}" ToolTip="The id of the vJoy device to map to"/>
+					<Label />
+
+					<Label VerticalAlignment="Center" Margin="4,4,4,4" Content="First vJoy button"/>
+					<mah:NumericUpDown Minimum="1" Maximum="128" HasDecimals="False" Margin="4,4,4,4"
+									   VerticalAlignment="Center"
+									   Value="{Binding Path=FirstVJoyButtonId}"
+									   ToolTip="The vJoy button id to correspond to the first rotary switch position"/>
+					<Label />
+				</autogrid:AutoGrid>
+			</styles:SHSection>
+
+			<styles:SHSection Title="Simulating button presses">
+				<autogrid:AutoGrid RowCount="3" Columns="220,200,*">
+					<!-- Row 1 -->
+					<Label VerticalAlignment="Center" Margin="4,4,4,4" Content="Simulate rotary switch position"/>
+					<mah:NumericUpDown Minimum="1" Maximum="{Binding Path=NumberOfPositions}" HasDecimals="False" Margin="4,4,4,4"
+									   VerticalAlignment="Center" 
+									   Value="{Binding Path=SimulateRotarySwitchPosition,
+										   RelativeSource={RelativeSource AncestorType=UserControl}}"/>
+					<Label />
+
+					<!-- Row 2 -->
+					<Label VerticalAlignment="Center" Margin="4,4,4,4" Content="Pause before button press for"/>
+					<mah:NumericUpDown Minimum="0" Maximum="30000" HasDecimals="False" Margin="4,4,4,4"
+									   VerticalAlignment="Center"
+									   Value="{Binding Path=SimulatePressPauseTimeMs,
+										   RelativeSource={RelativeSource AncestorType=UserControl}}"
+									   ToolTip="How long to pause after hitting 'Simulate button press'
+before actually simulating the button press. Give yourself enough time after pressing the button to alt-tab back to the game!"/>
+					<Label HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,4,4,4" Content="milliseconds"/>
+
+					<!-- Row 3 -->
+					<Label />
+					<styles:SHButtonPrimary Margin="4,4,4,4" VerticalAlignment="Center"
+											Content="Simulate button press" Click="OnTestButtonClick"/>
+					<Label />
+				</autogrid:AutoGrid>
+			</styles:SHSection>
+		</StackPanel>
+	</Border>
+</UserControl>

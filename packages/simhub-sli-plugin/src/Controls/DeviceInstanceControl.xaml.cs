@@ -39,6 +39,31 @@ namespace SimElation.Simhub.SliPlugin
 				};
 		}
 
+		/// <summary>Get the vJoy button pulse length.</summary>
+		public int? VJoyPulseButtonMs => m_deviceInstance?.DeviceSettings.VJoyButtonPulseMs;
+
+		/// <summary>Remove a rotary switch -> vJoy mapping.</summary>
+		/// <param name="rotarySwitchMapping"></param>
+		public void RemoveRotarySwitchMapping(DeviceInstance.Settings.RotarySwitchMapping rotarySwitchMapping)
+		{
+			if (m_deviceInstance != null)
+				m_deviceInstance.DeviceSettings.RotarySwitchMappings.Remove(rotarySwitchMapping);
+		}
+
+		/// <summary>Text to display when dll doesn't match driver version.</summary>
+		public static String InvalidVersionString
+		{
+			get => String.Format("vJoy unavailable: driver version {0:x} doesn't match dll version {1:x}.",
+				VJoyManager.Instance.DriverVersion, VJoyManager.Instance.DllVersion);
+		}
+
+		/// <summary>Text to display when dll version is bad and causes crashes.</summary>
+		public static String BadVersionString
+		{
+			get => String.Format("vJoy unavailable: dll version {0:x} is known to cause crashes. Try vJoy package 2.1.8 or later.",
+				VJoyManager.Instance.DllVersion);
+		}
+
 		private async void OnLeftSegmentRotaryClick(object sender, System.Windows.RoutedEventArgs e)
 		{
 			m_deviceInstance.DeviceSettings.LeftSegmentDisplayRotarySwitchIndex = await DetectOrForgetRotary(
@@ -92,7 +117,8 @@ namespace SimElation.Simhub.SliPlugin
 					{
 						dialog.SetProgress(1);
 						dialog.SetMessage((rotarySwitchIndex == RotarySwitchDetector.unknownIndex) ?
-							"No rotary detected" : String.Format("Detected rotary switch {0}", rotarySwitchIndex + 1));
+							"No rotary detected" : String.Format("Detected rotary switch {0}",
+							RotarySwitchDetector.RotarySwitchIndexToUiValue(rotarySwitchIndex)));
 
 						// Wait a bit to display detection feedback.
 						await Task.Delay(2000);
@@ -109,6 +135,22 @@ namespace SimElation.Simhub.SliPlugin
 			}
 
 			return rotarySwitchIndex;
+		}
+
+		private async void OnAddRotaryMappingClick(object sender, System.Windows.RoutedEventArgs e)
+		{
+			var rotarySwitchIndex = await DetectRotary("mapping to a vJoy device");
+			if (RotarySwitchDetector.unknownIndex == rotarySwitchIndex)
+				return;
+
+			var rotarySwitchMapping = new DeviceInstance.Settings.RotarySwitchMapping() { RotarySwitchIndex = rotarySwitchIndex };
+			m_deviceInstance.DeviceSettings.RotarySwitchMappings.Add(rotarySwitchMapping);
+		}
+
+		private void OnRefreshVJoyDevicesClick(object sender, System.Windows.RoutedEventArgs e)
+		{
+			// Just call through to the manager to get an up-to-date list. It's an ObservableCollection so the UI will update.
+			_ = VJoyManager.Instance.DeviceIds;
 		}
 
 		private DeviceInstance m_deviceInstance;
@@ -176,7 +218,7 @@ namespace SimElation.Simhub.SliPlugin
 			if ((int)value == SliDevices.RotarySwitchDetector.unknownIndex)
 				return "Learn rotary switch";
 			else
-				return String.Format("Forget rotary switch {0}", (int)value + 1);
+				return String.Format("Forget rotary switch {0}", RotarySwitchDetector.RotarySwitchIndexToUiValue((int)value));
 		}
 
 		/// <inheritdoc/>
@@ -229,6 +271,42 @@ namespace SimElation.Simhub.SliPlugin
 		public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
 		{
 			return System.Convert.ToBoolean(value) ? Colors.DimGray.ToString() : Colors.Blue.ToString();
+		}
+
+		/// <inheritdoc/>
+		public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+		{
+			return DependencyProperty.UnsetValue;
+		}
+	}
+
+	/// <summary>Visibility of rotary switch -> vJoy mapping section. Needs vJoy installed!</summary>
+	public sealed class IsVJoyInstalledToVisibilityConverter : IValueConverter
+	{
+		/// <inheritdoc/>
+		public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+		{
+			var driverVersion = (uint)value;
+
+			return (driverVersion > 0) ? Visibility.Visible : Visibility.Collapsed;
+		}
+
+		/// <inheritdoc/>
+		public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+		{
+			return DependencyProperty.UnsetValue;
+		}
+	}
+
+	/// <summary>If vJoy driver/dll versions don't match, return Visibility.Visible converter.</summary>
+	public sealed class IsVJoyInvalidVersionToVisibilityConverter : IValueConverter
+	{
+		/// <inheritdoc/>
+		public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+		{
+			var isValidVersion = (bool)value;
+
+			return isValidVersion ? Visibility.Collapsed : Visibility.Visible;
 		}
 
 		/// <inheritdoc/>

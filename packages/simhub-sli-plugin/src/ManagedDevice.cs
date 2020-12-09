@@ -416,10 +416,6 @@ namespace SimElation.Simhub.SliPlugin
 
 		private void OnRotarySwitchChange(int rotarySwitchIndex, int previousPosition, int newPosition)
 		{
-			Logging.Current.InfoFormat("{0}: {1} rotary switch {2} was {3}, now {4}",
-				Assembly.GetExecutingAssembly().GetName().Name, DeviceInfo.PrettyInfo, rotarySwitchIndex, previousPosition,
-				newPosition);
-
 			if (rotarySwitchIndex == m_settings.LeftSegmentDisplayRotarySwitchIndex)
 			{
 				// Note we don't need to check the position is a valid index; SegmentDisplayManager handles it.
@@ -434,6 +430,34 @@ namespace SimElation.Simhub.SliPlugin
 			{
 				m_settings.BrightnessLevel = Device.Settings.GetBrightnessLevelFromRotarySwitchPosition(newPosition,
 					m_settings.NumberOfBrightnessRotaryPositions);
+			}
+			else if (-1 != previousPosition)
+			{
+				// Above check to ignore startup initial read.
+				//lock (m_settings.m_lock)
+				{
+					foreach (var rotarySwitchMapping in m_settings.RotarySwitchMappings)
+					{
+						if (rotarySwitchMapping.RotarySwitchIndex == rotarySwitchIndex)
+						{
+							ProcessVJoyMappingRotarySwitchChange(rotarySwitchMapping, newPosition);
+						}
+					}
+				}
+			}
+		}
+
+		private async void ProcessVJoyMappingRotarySwitchChange(DeviceInstance.Settings.RotarySwitchMapping rotarySwitchMapping,
+			int newPosition)
+		{
+			uint buttonId = (uint)(newPosition) + rotarySwitchMapping.FirstVJoyButtonId;
+
+			if (!await VJoyManager.Instance.PulseButton(rotarySwitchMapping.VJoyDeviceId, buttonId, m_settings.VJoyButtonPulseMs))
+			{
+				Logging.Current.WarnFormat(
+					"{0}: failed to pulse button {1} on vJoy device {2} after rotary switch {3} changed to position {4}",
+					Assembly.GetExecutingAssembly().GetName().Name, buttonId, rotarySwitchMapping.VJoyDeviceId,
+					RotarySwitchDetector.RotarySwitchIndexToUiValue(rotarySwitchMapping.RotarySwitchIndex), newPosition);
 			}
 		}
 

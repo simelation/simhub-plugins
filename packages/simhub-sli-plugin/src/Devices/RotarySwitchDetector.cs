@@ -88,6 +88,13 @@ namespace SimElation.SliDevices
 			}
 		}
 
+		/// <summary>Display indexed from 1 for UI purposes.</summary>
+		/// <param name="rotarySwitchIndex"></param>
+		public static int RotarySwitchIndexToUiValue(int rotarySwitchIndex)
+		{
+			return rotarySwitchIndex + 1;
+		}
+
 		private bool m_isDisposed = false;
 
 		private readonly Callback m_callback;

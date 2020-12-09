@@ -3,7 +3,7 @@
 This is a simple plugin for SimHub to add support for [SLI-Pro](https://www.leobodnar.com/products/SLI-PRO/) and
 [SLI-F1](http://www.leobodnar.com/shop/index.php?main_page=product_info&cPath=97&products_id=184/) boards.
 
-Some ideas for improvements I might do are [here](https://github.com/simelation/simhub-plugins/issues/1).
+Some ideas for improvements I might make are [here](https://github.com/simelation/simhub-plugins/issues/).
 
 ## Installation from package
 
@@ -19,12 +19,14 @@ Copy the `package\bin\x86\Release\SimElation.SimHub.SliPlugin.dll` file from the
 For the SLI-Pro device, the plugin was tested using the custom Roso SLI-Pro firmware. I don't think there's any reason why
 it shouldn't work with the stock firmware, however. HID report layouts appear the same.
 
-## Segment displays
+## Features
+
+### Segment displays
 
 Data that can be displayed is as follows (in parentheses is the text that will be shown temporarily when changing mode on the
 SLI-Pro; the SLI-F1 is further truncated due to a 4 character limit):
 
-### Left segment display
+#### Left segment display
 
 1. Current lap # (`Lap`)
 1. Laps remaining (`togo`) or blank if not applicable
@@ -35,7 +37,7 @@ SLI-Pro; the SLI-F1 is further truncated due to a 4 character limit):
 1. Oil temperature (`Oil`)
 1. Water temperature (`H2O`)
 
-### Right segment display
+#### Right segment display
 
 1. Current laptime (`Currnt`)
 1. Last laptime (`Last`)
@@ -49,27 +51,51 @@ SLI-Pro; the SLI-F1 is further truncated due to a 4 character limit):
 Note that some of this data will come from the SimHub PersistantTrackerPlugin if not provided by the game
 (e.g. PC2/AMS2 lap time deltas).
 
-## Status LEDs
+### Status LEDs
 
 By default, these are configured to show the following data:
 
-### Left bank
+#### Left bank
 
 1. Blue: blue flag.
 1. Yellow: yellow flag.
 1. Red: fuel low alert (blinking).
 
-### Right bank
+#### Right bank
 
 1. Yellow: ABS active.
 1. Blue: TC active.
 1. Red: DRS. Blinking = available; solid = active.
 
-## External LEDs
+### External LEDs
 
-No external LEDs are configured by default.
+No external LEDs are configured by default, but they are supported.
 
-## Configuration
+### Rotary switches
+
+#### SLI-F1
+
+The SLI-F1 has support for 8 rotary switches. Switch 8 will appear as individual controller buttons (so it's trivial to configure a
+game for "digital" functions assigned to each switch position), but the other 7 switches will look like analog axes.
+This can be OK if you wish to use some of those rotary switches for controlling the segment display mode or device brightness,
+since games do not need to "see" those values (the plugin handles them internally). However, that potentially leaves 4 rotary
+switches which aren't usable in-game (well, unless an analog axis that only has values from 0 to 11 is of some use somewhere...).
+
+(AFAICT, this also appears to be the case with Fanaleds; at least I can't see a way to make use of the other rotary switches. Not
+sure about SLIMaxManager.)
+
+#### SLI-Pro
+
+The same is true of the SLI-Pro, though the numbers are different. I think the Roso firmware supports (at least) 2 switches
+that will appear as buttons and (at least) 3 as analog axes. The stock firmware may be different again.
+
+#### Rotary switch to vJoy button mapping
+
+As a generic solution to this that doesn't require game-specific plugins, the SLI plugin can watch the rotary switches which appear
+as analog axes for changes of position and map those changes to `vJoy` button presses. Most games should just work (though may be
+a PITA to configure) - possbily with the exception of ones that have a very low limit on the number supported controller devices.
+
+## Plugin configuration
 
 Configuration is available in SimHub at `Additional Plugins` then the `SLI Plugin` tab.
 
@@ -188,6 +214,123 @@ How quickly (in milliseconds) to animate the RPM LEDs when in the pits. Set to 0
 These settings control the blink on/off time (in milliseconds) when the RPM % is at or above the threshold set in the SimHub main
 configuration (`Car Settings` -> `Red line`). Set the `off` value to 0 to disable shift point blinking completely.
 
+### Rotary switch to vJoy button mapping
+
+First thing to say is if you don't require this functionality, there is nothing to do: the plugin doesn't require `vJoy` to be
+installed.
+
+#### vJoy installation
+
+So some bad news: the version of the vJoy library provided with SimHub (as of 7.3.0) can cause a crash of SimHub. So, we don't
+want to use that version. In fact, the plugin won't allow it: you should see a warning banner like
+`vJoy unavailable: dll version 216 is known to cause crashses`. The minimum version of vJoy that I have tested that works is
+2.1.8 (2.1.7 might be OK but I can't find it to try). The library version with SimHub is 2.1.6.
+Some more info [here](https://github.com/SHWotever/SimHub/issues/696).
+
+Good news is that the even though SimHub provides the vJoy library, it doesn't use it! And the next version is going to remove it.
+So, we can overwrite any version that is there with a working version such that the plugin will use that.
+
+Also, the driver version needs to match the library version in order for things to work. Again, the plugin will show a warning
+banner if that's not the case (`vJoy unavailable: driver version 221 doesn't match dll version 216`).
+
+Here's what I recommend doing:
+
+-   Install either the latest vJoy version from http://vjoystick.sourceforge.net/site/index.php/download-a-install/download or
+-   Install the (seemingly more active) fork from https://github.com/njz3/vJoy/releases.
+-   Copy the following files from `C:\Program Files\vJoy\x86` (note `x86` NOT `x64`) to your SimHub installation directory:
+    -   `vJoyInterface.dll`
+    -   `vJoyInterfaceWrap.dll`
+-   Start SimHub. The UI options for vJoy mapping should now appear on the `SLI Plugin` page under a managed SLI device section.
+
+Obviously you may need to copy these files again after upgrading SimHub, though hopefully it will ship fixed versions soon.
+
+I won't cover the configuration of vJoy here, but suffice to say you need at least one device with as many buttons configured as
+you have rotary switch positions you wish to map. The plugin doesn't do any validation that how you've configured a mapping
+is valid.
+
+Note I think there is an issue with the vJoy C# wrapper, though it doesn't seem to affect things.
+More info [here](https://github.com/njz3/vJoy/pull/2).
+
+#### Plugin configuration
+
+##### vJoy button press time
+
+This is how long the plugin will "press" the vJoy device's button when it sees a rotary switch has changed position.
+
+##### Refresh vJoy devices
+
+If you add/remove vJoy devices whilst SimHub is running, you can press this button to update the plugin's knowledge of those
+devices.
+
+##### Adding a new mapping
+
+Hit the `New mapping` button to add a rotary switch. When the dialog appears, changes the position of the rotary you wish to map.
+If the rotary is detected, a new panel should appear in the UI (`Configuration for rotary switch N`).
+
+###### Number of rotary switch positions
+
+Simply set this to the number of positions your rotary switch has (up to 12).
+
+###### vJoy device id
+
+The vJoy device you wish to map to (1 - 16, as seen tab title in the `vJoyConf` app).
+
+###### First vJoy button
+
+This is the button number on the vJoy device that should correspond to the first rotary switch position.
+Successive rotary positions will use successive vJoy buttons (so if you set the first vJoy button as 9 and have a
+12-position rotary, the first rotary position will use button 9 and the last will use button 20).
+
+Note that the default first button for a new mapping is 3: this is because for some reason, AMS2 (so maybe PC1/2 also) appear to
+treat buttons 1 and 2 on any vJoy device as left/right mouse button presses.
+
+#### Configuring the game
+
+You may wish to check using the `vJoy Monitor` application that the mapping is working once you've configured it, before attempting
+to configure your games. It can be tricky!
+
+You may be able to configure your games by simply assigning a control in-game and changing the position of the rotary switch you've
+just mapped.
+
+This will be somewhat dependent on how intelligent the game is: effectively it will "see" two different devices changing something
+(the original SLI device moving an analog axis and the virtual vJoy device button press). It may complain that it can't
+distinguish between the two inputs - AMS2 (so I guess PC1/2 also) is one where this can happen, even though if you're assigning a
+digital function it could happily ignore the analog input. AC is smart enough to figure it out more reliably, it seems.
+
+It's worth trying moving both up and down to select the rotary position you are trying to assign.
+I.e. if you are trying to set position 3, try moving to there from position 2 and if that doesn't work, try from position 4.
+
+If that doesn't work, there are a few more complicated things that might do the trick.
+
+##### Using the plugin's UI to press a vJoy button
+
+The plugin's UI can be used to "press" a vJoy button. But again it can be complicated: the game probably needs focus for it to
+recognize a button press, and it may be looking for the button to be pressed _or_ released.
+
+As a result, you can tell the plugin to `Pause before button press for` (in milliseconds) and how long it should `Press button for`
+(milliseconds again) after hitting `Simulate button press`.
+
+You can then alt-tab to the game and press its assign control button. All being well, the game should then recognize the
+vJoy button either when the plugin presses it, or when it releases it.
+
+(Running the game in windowed mode temporarily to configure this way may be easier, or if you have multiple monitors and can
+keep the desktop on one monitor with SimHub.)
+
+Simple!
+
+##### Calibrating the SLI device axis
+
+Another option to limit the chance of the game seeing an analog axis change on the SLI device may be to use the Windows game
+controller calibration for the SLI device, without adjusting the relevant rotary switch to its min and max positions
+(depends which input on the SLI device is being used for the rotary switch; hit enable `Display raw data` and try moving the
+rotary on each analog axis page in the calibration UI to figure it out, then rerun the calibration but don't move the rotary
+switch when it gets to that axis again).
+
+##### HidGuardian
+
+Another option may be to filter out the analog axis using [HidGuardian](https://github.com/ViGEm/HidGuardian). I haven't tried that
+myself yet, however, so can't comment further.
+
 ## Building from source
 
 In order to decouple the project files from the SimHub installation location, a symlink needs to be created in the same
@@ -204,9 +347,9 @@ Alternatively, `yarn prepare` in this directory will attempt to create the symli
 
 Debug builds will install the dll via this symlink. You may need to delete an existing `SimElation.SimHub.SliPlugin.dll` from the
 SimHub installation directory if previously installed before a debug build will succeed, since it will itself be a symlink to the
-built dll in `bin\Debug`.
+built dll in `bin\x86\Debug`.
 
-Release builds do not install the dll into the SimHub installation directory; the generated dll will only be in `bin\Release`.
+Release builds do not install the dll into the SimHub installation directory; the generated dll will only be in `bin\x86\Release`.
 
 ### Visual Studio 2019
 

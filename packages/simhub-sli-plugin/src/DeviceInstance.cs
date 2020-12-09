@@ -3,8 +3,10 @@
  */
 
 using System;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Windows.Data;
 using System.Windows.Media;
 using SimElation.SliDevices;
 
@@ -43,6 +45,74 @@ namespace SimElation.Simhub.SliPlugin
 
 				/// <summary>Get or set if the LED is lit.</summary>
 				public bool IsSet { get; set; } = false;
+			}
+
+			/// <summary>Settings for a single rotary -> vJoy mapping.</summary>
+			public sealed class RotarySwitchMapping : INotifyPropertyChanged
+			{
+				/// <summary>The rotary switch for this mapping.</summary>
+				public int RotarySwitchIndex
+				{
+					get => m_rotarySwitchIndex;
+
+					set
+					{
+						m_rotarySwitchIndex = value;
+						OnPropertyChanged();
+					}
+				}
+
+				/// <summary>The number of positions for the rotary switch.</summary>
+				public uint NumberOfPositions
+				{
+					get => m_numberOfPositions;
+
+					set
+					{
+						m_numberOfPositions = value;
+						OnPropertyChanged();
+					}
+				}
+
+				/// <summary>The vJoy device to map to.</summary>
+				public uint VJoyDeviceId
+				{
+					get => m_vJoyDeviceId;
+
+					set
+					{
+						m_vJoyDeviceId = value;
+						OnPropertyChanged();
+					}
+				}
+
+				/// <summary>
+				/// The vJoy button id to use for the first rotary position. Successive rotary positions increment the id.
+				/// </summary>
+				public uint FirstVJoyButtonId
+				{
+					get => m_firstVJoyButtonId;
+
+					set
+					{
+						m_firstVJoyButtonId = value;
+						OnPropertyChanged();
+					}
+				}
+
+				/// <inheritdoc/>
+				public event PropertyChangedEventHandler PropertyChanged;
+
+				/// <inheritdoc/>
+				private void OnPropertyChanged([CallerMemberName] string name = null)
+				{
+					PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+				}
+
+				private int m_rotarySwitchIndex = RotarySwitchDetector.unknownIndex;
+				private uint m_numberOfPositions = 12;
+				private uint m_vJoyDeviceId = VJoyManager.Instance.GetDefaultDeviceId();
+				private uint m_firstVJoyButtonId = 3;
 			}
 
 			/// <summary>The index of the rotary switch used to control the left segment display.</summary>
@@ -180,10 +250,34 @@ namespace SimElation.Simhub.SliPlugin
 			/// <summary>Right status LEDs.</summary>
 			public Led[] RightStatusLeds { get; set; }
 
+			/// <summary>How long to press a vJoy button for, in milliseconds.</summary>
+			public int VJoyButtonPulseMs
+			{
+				get => m_vJoyButtonPulseMs;
+
+				set
+				{
+					m_vJoyButtonPulseMs = value;
+					OnPropertyChanged();
+				}
+			}
+
+			/// <summary>The set of rotary switch -> vJoy mappings.</summary>
+			public ObservableCollection<RotarySwitchMapping> RotarySwitchMappings
+			{
+				get => m_rotarySwitchMappings;
+
+				set
+				{
+					m_rotarySwitchMappings = value;
+					OnPropertyChanged();
+				}
+			}
+
 			/// <summary>Default constructor.</summary>
 			public Settings()
 			{
-				// Needed for settings reading (when no device descriptor is available).
+				BindingOperations.EnableCollectionSynchronization(m_rotarySwitchMappings, m_lock);
 			}
 
 			/// <summary>Constructor.</summary>
@@ -252,6 +346,8 @@ namespace SimElation.Simhub.SliPlugin
 				}
 			}
 
+			private object m_lock = new object();
+
 			private int m_leftSegmentDisplayRotarySwitchIndex = RotarySwitchDetector.unknownIndex;
 			private int m_leftSegmentDisplayIndex = 0;
 
@@ -264,6 +360,10 @@ namespace SimElation.Simhub.SliPlugin
 			private long m_shiftPointBlinkOffSpeedMs = 50;
 			private long m_statusLedBlinkIntervalMs = 500;
 			private long m_segmentNameTimeoutMs = 1500;
+
+			private int m_vJoyButtonPulseMs = 50;
+			private ObservableCollection<RotarySwitchMapping> m_rotarySwitchMappings =
+				new ObservableCollection<RotarySwitchMapping>();
 		}
 
 		/// <summary>Info about the device (serial number, pretty string to display in UI, etc.).</summary>
