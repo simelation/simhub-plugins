@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# 0.6.0 (2020-12-09)
+
+### Features
+
+-   **simhub-sli-plugin:** all sorts. ([2ef9405](https://github.com/simelation/simhub-plugins/commit/2ef94052c09f10350139d4c666f97414ee5f2ce3))
+
 # [0.5.0](https://github.com/simelation/simhub-plugins/compare/@simelation/simhub-slipro-plugin@0.4.0...@simelation/simhub-slipro-plugin@0.5.0) (2020-11-20)
 
 ### Bug Fixes
