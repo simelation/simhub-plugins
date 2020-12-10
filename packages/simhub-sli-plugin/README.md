@@ -73,6 +73,19 @@ No external LEDs are configured by default.
 
 Configuration is available in SimHub at `Additional Plugins` then the `SLI Plugin` tab.
 
+When a supported device is first plugged in, it should appear in the UI under the `DEVICES` list. At this point, the device
+is not controlled by the plugin; it needs to be told to do that by hitting the toggle button next to `Unmanaged` in the header.
+
+The status should now change to `Available` and the full configuration UI will appear.
+
+Note that hitting the toggle button again will tell the plugin to stop managing the device (the status will go back to
+`Unmanaged`) and settings for that device will be deleted.
+
+If you have multiple devices, you can collapse the UI for a particular device that is being managed by clicking anywhere on
+the header other than the toggle button.
+
+If a managed device is unplugged, the UI for it will still be visible but you won't be able to edit any settings.
+
 ### Display brightness
 
 Brightness can be controlled by a rotary switch or from the UI. Press `Learn rotary switch` under `Display Brightness`
