@@ -12,7 +12,6 @@
              d:DesignHeight="450" d:DesignWidth="800"
 >	
 	<UserControl.Resources>
-		<local:AllowNullConverter x:Key="AllowNullConverter" />
 		<local:ProductIdToImageConverter x:Key="ProductIdToImageConverter" />
 		<local:ProductIdToStatusLedOrientation x:Key="ProductIdToStatusLedOrientation" />
 		<local:RotarySwitchIndexConverter x:Key="RotarySwitchIndexConverter" />
@@ -34,8 +33,7 @@
 						TickPlacement="Both" TickFrequency="32"
 						IsEnabled="{Binding Path=DeviceSettings.BrightnessRotarySwitchIndex,
 							Converter={StaticResource IsNotRotarySwitchControlledConverter}}"
-						Value="{Binding Path=DeviceSettings.BrightnessLevel, Mode=TwoWay,
-							Converter={StaticResource AllowNullConverter}}"/>
+						Value="{Binding Path=DeviceSettings.BrightnessLevel, Mode=TwoWay}"/>
 				<Label />
 
 				<Label />

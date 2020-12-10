@@ -114,25 +114,6 @@ namespace SimElation.Simhub.SliPlugin
 		private DeviceInstance m_deviceInstance;
 	}
 
-	/// <summary>Helper converter for MahApps to allow null, until 2.0.</summary>
-	/// <remarks>
-	/// See https://github.com/MahApps/MahApps.Metro/issues/3786
-	/// </remarks>
-	public sealed class AllowNullConverter : IValueConverter
-	{
-		/// <inheritdoc/>
-		public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-		{
-			return value;
-		}
-
-		/// <inheritdoc/>
-		public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-		{
-			return value;
-		}
-	}
-
 	/// <summary>Convert a product id to the appropriate image.</summary>
 	public sealed class ProductIdToImageConverter : IValueConverter
 	{
