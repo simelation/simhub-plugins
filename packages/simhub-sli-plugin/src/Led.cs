@@ -2,8 +2,10 @@
  * LED handling.
  */
 
+using System;
 using System.Diagnostics;
 using System.Windows.Media;
+using SimHub.Plugins.OutputPlugins.Dash.GLCDTemplating;
 using SimHub.Plugins.OutputPlugins.Dash.TemplatingCommon;
 using SimHub.Plugins.OutputPlugins.GraphicalDash.Models;
 
@@ -15,7 +17,10 @@ namespace SimElation.Simhub.SliPlugin
 	public sealed class Led
 	{
 		/// <summary>SimHub data for binding to game properties / ncalc.</summary>
-		public DashboardBindingData BindingData { get; set; } = new DashboardBindingData();
+		public ExpressionValue ExpressionValue { get; set; } = new ExpressionValue();
+
+		/// <summary>For FormulaPicker.EditPropertyName.</summary>
+		public String EditPropertyName { get; set; } = "";
 
 		/// <summary>Brush to paint the LED when on.</summary>
 		/// <remarks>No JsonIgnoreAttribute as saving the color out to config file simplifies reload.</remarks>
@@ -65,21 +70,12 @@ namespace SimElation.Simhub.SliPlugin
 		{
 			bool isSet = false;
 
-			if (BindingData.IsFormula)
+			if (!ExpressionValue.IsNone)
 			{
-				object res;
+				var res = ncalcEngine.ParseValueOrDefault(ExpressionValue, 0);
 
-				// TODO javascript not working.
-				if (BindingData.Formula.UseJavascript)
-					res = ncalcEngine.ParseValueJavascript(BindingData.Formula);
-				else
-					res = ncalcEngine.ParseValue(BindingData.Formula);
-
-				if (res is int)
-				{
-					State ledState = (Led.State)res;
-					isSet = ProcessLedState(ledState, blinkIntervalMs);
-				}
+				State ledState = (Led.State)res;
+				isSet = ProcessLedState(ledState, blinkIntervalMs);
 			}
 
 			return isSet;

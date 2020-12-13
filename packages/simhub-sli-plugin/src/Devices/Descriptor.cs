@@ -50,6 +50,8 @@ namespace SimElation.SliDevices
 	}
 }
 
+// ---------------------------------------------------------------------------------------------------------------------------------
+
 namespace SimElation.SliDevices
 {
 	using F1Descriptor = Descriptor<F1.Constants, F1.LedStateReport, F1.BrightnessReport, F1.InputReport>;

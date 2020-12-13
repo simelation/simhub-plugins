@@ -5,6 +5,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:SimElation.Simhub.SliPlugin"
+			 xmlns:wpfui="clr-namespace:SimHub.Plugins.OutputPlugins.Dash.WPFUI;assembly=SimHub.Plugins"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
 	
@@ -19,7 +20,10 @@
 	</UserControl.Resources>
 
 	<GroupBox Header="{Binding Path=Title, ElementName=statusLedArray}">
-		<ItemsControl HorizontalAlignment="Center" ItemsSource="{Binding Path=StatusLeds, ElementName=statusLedArray}">
+		<ItemsControl
+			HorizontalAlignment="Center" VerticalAlignment="Center" ItemsSource="{Binding Path=StatusLeds,
+			ElementName=statusLedArray}"
+		>
 			<ItemsControl.ItemsPanel>
 				<ItemsPanelTemplate>
 					<!-- Default template is vertical layout, so override. -->
@@ -29,12 +33,37 @@
 
 			<ItemsControl.ItemTemplate>
 				<DataTemplate>
-					<!-- Note only OneTime bind mode. IsChecked is handled in the code behind after initialisation. -->
-					<ToggleButton Style="{StaticResource LedToggleButtonStyle}" Margin="4,4,4,4"
-								  local:ThemeProperties.SetLedBrush="{Binding Path=SetBrush}"
-								  IsChecked="{Binding Path=BindingData,
-									  Converter={StaticResource IsDashBindingDataModeNotNone}, Mode=OneTime}"
-								  Click="OnClick"/>
+					<wpfui:FormulaPicker
+						EditPropertyName="{Binding Path=EditPropertyName}" Expression="{Binding Path=ExpressionValue}"
+						ShowAsButton="True" Margin="2,2,2,2"
+					>
+						<wpfui:FormulaPicker.Resources>
+							<Style TargetType="{x:Type Button}">
+								<Style.Triggers>
+									<DataTrigger Binding="{Binding Path=ExpressionValue.IsNone}" Value="True">
+										<Setter Property="Template">
+											<Setter.Value>
+												<ControlTemplate TargetType="Button">
+													<Ellipse Style="{StaticResource LedStyle}"/>
+												</ControlTemplate>
+											</Setter.Value>
+										</Setter>
+									</DataTrigger>
+
+									<DataTrigger Binding="{Binding Path=ExpressionValue.IsNone}" Value="False">
+										<Setter Property="Template">
+											<Setter.Value>
+												<ControlTemplate TargetType="Button">
+													<Ellipse Style="{StaticResource LedStyle}" Fill="{Binding Path=SetBrush}"/>
+												</ControlTemplate>
+											</Setter.Value>
+										</Setter>
+									</DataTrigger>
+								</Style.Triggers>
+							</Style>
+						</wpfui:FormulaPicker.Resources>
+						
+					</wpfui:FormulaPicker>
 				</DataTemplate>
 			</ItemsControl.ItemTemplate>
 		</ItemsControl>

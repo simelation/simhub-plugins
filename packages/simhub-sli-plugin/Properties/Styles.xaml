@@ -4,21 +4,13 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	xmlns:local="clr-namespace:SimElation.Simhub.SliPlugin">
 
-	<!-- LED style. -->
-	<Style TargetType="{x:Type ToggleButton}" x:Key="LedToggleButtonStyle">
-		<Setter Property="Template">
-			<Setter.Value>
-				<ControlTemplate TargetType="ToggleButton">
-					<Ellipse x:Name="ledCircle" Height="34" Width="34" Fill="{TemplateBinding local:ThemeProperties.SetLedBrush}"
-							 Stroke="DarkSlateGray" StrokeThickness="1.5"/>
-					<ControlTemplate.Triggers>
-						<Trigger Property="IsChecked" Value="False">
-							<Setter TargetName="ledCircle" Property="Fill" Value="LightGray"/>
-						</Trigger>
-					</ControlTemplate.Triggers>
-				</ControlTemplate>
-			</Setter.Value>
-		</Setter>
+	<!-- LED style (unlit). -->
+	<Style TargetType="{x:Type Ellipse}" x:Key="LedStyle">
+		<Setter Property="Height" Value="34"/>
+		<Setter Property="Width" Value="34"/>
+		<Setter Property="Fill" Value="LightGray"/>
+		<Setter Property="Stroke" Value="DarkSlateGray"/>
+		<Setter Property="StrokeThickness" Value="1.5"/>
 	</Style>
 
 </ResourceDictionary>

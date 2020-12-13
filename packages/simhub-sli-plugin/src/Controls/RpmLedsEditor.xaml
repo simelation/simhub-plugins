@@ -4,7 +4,6 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:SimElation.Simhub.SliPlugin"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
 
@@ -26,10 +25,31 @@
 
 		<ItemsControl.ItemTemplate>
 			<DataTemplate>
-				<ToggleButton Margin="4,4,4,4" IsChecked="{Binding Path=IsSet}"
-							  local:ThemeProperties.SetLedBrush="{Binding Path=SetBrush}">
+				<ToggleButton Margin="4,4,4,4" IsChecked="{Binding Path=IsSet}">
 					<ToggleButton.Style>
-						<Style TargetType="{x:Type ToggleButton}" BasedOn="{StaticResource LedToggleButtonStyle}"/>
+						<Style TargetType="{x:Type ToggleButton}" >
+							<Style.Triggers>
+								<DataTrigger Binding="{Binding Path=IsSet}" Value="False">
+									<Setter Property="Template">
+										<Setter.Value>
+											<ControlTemplate TargetType="ToggleButton">
+												<Ellipse Style="{StaticResource LedStyle}"/>
+											</ControlTemplate>
+										</Setter.Value>
+									</Setter>
+								</DataTrigger>
+
+								<DataTrigger Binding="{Binding Path=IsSet}" Value="True">
+									<Setter Property="Template">
+										<Setter.Value>
+											<ControlTemplate TargetType="ToggleButton">
+												<Ellipse Style="{StaticResource LedStyle}" Fill="{Binding Path=SetBrush}"/>
+											</ControlTemplate>
+										</Setter.Value>
+									</Setter>
+								</DataTrigger>
+							</Style.Triggers>
+						</Style>
 					</ToggleButton.Style>
 				</ToggleButton>
 			</DataTemplate>

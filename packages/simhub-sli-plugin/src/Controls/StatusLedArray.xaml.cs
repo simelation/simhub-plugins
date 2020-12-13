@@ -7,10 +7,7 @@ using System.Collections;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
 using System.Windows.Data;
-using MahApps.Metro.SimpleChildWindow;
-using SimHub.Plugins.OutputPlugins.EditorControls;
 
 // ---------------------------------------------------------------------------------------------------------------------------------
 
@@ -54,35 +51,6 @@ namespace SimElation.Simhub.SliPlugin
 		public StatusLedArray()
 		{
 			InitializeComponent();
-		}
-
-		private async void OnClick(object sender, System.Windows.RoutedEventArgs e)
-		{
-			var toggleButton = sender as ToggleButton;
-			var led = (toggleButton.DataContext as Led);
-			var bindingEditor = new BindingEditor();
-
-			// HACK Can't get ToggleButton to behave exactly as I want: binding IsChecked using OneTime mode, but after that
-			// clicking on the button WILL toggle the control's IsChecked property. I don't want that but there doesn't
-			// seem to be a OneTimeBindingThenLeaveItToCodeBehind. Maybe a custom toggle button or just a plain button is better
-			// (though the latter will complicated the styling, I think, since we can't trigger on IsChecked).
-			// So just toggle the IsChecked state here after a click before we decide whether it is truly checked once
-			// the user has closed the binding dialog.
-			toggleButton.IsChecked ^= true;
-
-			// Clone current state so cancelling the dialog doesn't overwrite settings. Clone() doesn't deep copy the
-			// actual Formula object though!
-			// TODO raise ticket about right thing to do.
-			var bindingData = (SimHub.Plugins.OutputPlugins.GraphicalDash.Models.DashboardBindingData)led.BindingData.Clone();
-			bindingData.Formula = new SimHub.Plugins.OutputPlugins.Dash.GLCDTemplating.ExpressionValue(
-				bindingData.Formula.Expression, bindingData.Formula.Interpreter);
-			bindingEditor.DataContext = bindingData;
-
-			await ChildWindowManager.ShowChildWindowAsync(Window.GetWindow(this), bindingEditor);
-			if (bindingEditor.OK)
-				led.BindingData = bindingData;
-
-			toggleButton.IsChecked = !led.BindingData.IsNone;
 		}
 	}
 

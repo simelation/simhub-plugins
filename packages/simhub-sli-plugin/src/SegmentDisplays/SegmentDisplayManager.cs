@@ -15,29 +15,6 @@ namespace SimElation.Simhub.SliPlugin
 	/// <summary>Class to manage left/right segment displays.</summary>
 	public class SegmentDisplayManager
 	{
-		/// <summary>Singleton of per-device type output formatters.</summary>
-		public sealed class OutputFormatters
-		{
-			/// <summary>Singleton instance.</summary>
-			public static OutputFormatters Instance { get => m_instance.Value; }
-
-			/// <summary>Dictionary of IOutputFormatters, indexed by USB product id.</summary>
-			public Dictionary<int, IOutputFormatters> Dictionary { get => m_dictionary; }
-
-			private static readonly Lazy<OutputFormatters> m_instance = new Lazy<OutputFormatters>(() => new OutputFormatters());
-			private readonly Dictionary<int, IOutputFormatters> m_dictionary;
-
-			private OutputFormatters()
-			{
-				m_dictionary =
-					new Dictionary<int, IOutputFormatters>()
-					{
-						{ SliDevices.Pro.Constants.CompileTime.productId, new SliProFormatters() },
-						{ SliDevices.F1.Constants.CompileTime.productId, new SliF1Formatters() }
-					};
-			}
-		}
-
 		/// <summary>Class wrapping the property for name of a display mode for the UI.</summary>
 		/// <remarks>
 		/// Needed to be able to use the name in xaml for the peek configuration buttons.

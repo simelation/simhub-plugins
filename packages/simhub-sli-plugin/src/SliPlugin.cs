@@ -308,7 +308,7 @@ namespace SimElation.Simhub.SliPlugin
 				new DeviceInstance()
 				{
 					DeviceInfo = deviceInfo,
-					DeviceSettings = new DeviceInstance.Settings(SliDevices.Descriptors.Instance.Dictionary[deviceInfo.ProductId])
+					DeviceSettings = new DeviceInstance.Settings(SliPluginDeviceDescriptors.Instance.Dictionary[deviceInfo.ProductId])
 				});
 		}
 

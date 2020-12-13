@@ -67,6 +67,24 @@ namespace SimElation.SliDevices.F1
 			};
 
 		/// <inheritdoc/>
+		public Color[] LeftStatusLedColors { get; } =
+			new Color[]
+			{
+				Colors.Yellow,
+				Colors.Blue,
+				Colors.Red
+			};
+
+		/// <inheritdoc/>
+		public Color[] RightStatusLedColors { get; } =
+			new Color[]
+			{
+				Colors.Yellow,
+				Colors.Blue,
+				Colors.Red
+			};
+
+		/// <inheritdoc/>
 		public uint NumberOfStatusLeds { get => CompileTime.numberOfStatusLeds; }
 
 		/// <inheritdoc/>

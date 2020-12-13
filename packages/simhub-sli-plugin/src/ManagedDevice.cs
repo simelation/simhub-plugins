@@ -46,7 +46,8 @@ namespace SimElation.Simhub.SliPlugin
 			m_actionNamePrefix = deviceInstance.MakeActionName("");
 
 			// Segment displays.
-			var outputFormatters = SegmentDisplayManager.OutputFormatters.Instance.Dictionary[deviceInstance.DeviceInfo.ProductId];
+			var outputFormatters =
+				SliPluginDeviceDescriptors.Instance.Dictionary[deviceInstance.DeviceInfo.ProductId].OutputFormatters;
 			m_segmentDisplayManagers =
 				new Dictionary<Device.SegmentDisplayPosition, SegmentDisplayManager>()
 				{

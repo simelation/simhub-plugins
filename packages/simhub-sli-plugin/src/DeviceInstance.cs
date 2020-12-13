@@ -9,6 +9,7 @@ using System.Runtime.CompilerServices;
 using System.Windows.Data;
 using System.Windows.Media;
 using SimElation.SliDevices;
+using SimHub.Plugins.OutputPlugins.Dash.GLCDTemplating;
 
 // ---------------------------------------------------------------------------------------------------------------------------------
 
@@ -281,19 +282,19 @@ namespace SimElation.Simhub.SliPlugin
 			}
 
 			/// <summary>Constructor.</summary>
-			/// <param name="descriptor">Descriptor describing the device.</param>
-			public Settings(IDescriptor descriptor) : this()
+			/// <param name="sliPluginDeviceDescriptor">Descriptor describing the device.</param>
+			public Settings(ISliPluginDeviceDescriptor sliPluginDeviceDescriptor) : this()
 			{
 				// In pit-lane LED animation. Default pattern is to alternate based on the colors changing.
-				PitLaneLeds1 = new RpmLed[descriptor.Constants.RevLedColors.Length];
-				PitLaneLeds2 = new RpmLed[descriptor.Constants.RevLedColors.Length];
+				PitLaneLeds1 = new RpmLed[sliPluginDeviceDescriptor.Descriptor.Constants.RevLedColors.Length];
+				PitLaneLeds2 = new RpmLed[sliPluginDeviceDescriptor.Descriptor.Constants.RevLedColors.Length];
 
 				Color? previousColor = null;
 				bool isLed1Set = false;
 
 				for (uint i = 0; i < PitLaneLeds1.Length; ++i)
 				{
-					var currentColor = descriptor.Constants.RevLedColors[i];
+					var currentColor = sliPluginDeviceDescriptor.Descriptor.Constants.RevLedColors[i];
 					if (previousColor != currentColor)
 					{
 						previousColor = currentColor;
@@ -304,45 +305,40 @@ namespace SimElation.Simhub.SliPlugin
 					PitLaneLeds2[i] = new RpmLed(currentColor, !isLed1Set);
 				}
 
-				// Status LEDs.
-				Led MakeStatusLed(Color color, String title, String formula)
+				// Need a deep copy of default Led arrays.
+				// TODO surely there's a better way.
+				Led[] CopyStatusLedArray(Led[] sourceArray)
 				{
-					var statusLed = new Led(color);
-					statusLed.BindingData.Mode = SimHub.Plugins.OutputPlugins.GraphicalDash.Models.BindingMode.Formula;
-					statusLed.BindingData.Formula = new SimHub.Plugins.OutputPlugins.Dash.GLCDTemplating.ExpressionValue(
-						formula, SimHub.Plugins.OutputPlugins.Dash.GLCDTemplating.Interpreter.NCalc);
-					statusLed.BindingData.TargetPropertyName = title;
+					var targetArray = new Led[sourceArray.Length];
 
-					return statusLed;
+					for (int i = 0; i < sourceArray.Length; ++i)
+					{
+						var sourceLed = sourceArray[i];
+						targetArray[i] =
+							new Led()
+							{
+								ExpressionValue = new ExpressionValue(sourceLed.ExpressionValue.Expression,
+									sourceLed.ExpressionValue.Interpreter),
+								EditPropertyName = sourceLed.EditPropertyName,
+								SetBrush = sourceLed.SetBrush.Clone()
+							};
+					}
+
+					return targetArray;
 				}
 
-				LeftStatusLeds = new Led[descriptor.Constants.NumberOfStatusLeds / 2];
-
-				LeftStatusLeds[0] = MakeStatusLed(Colors.Yellow, "Left status LED 1",
-					String.Format("if ([Flag_Yellow], {0}, {1})", (int)Led.State.on, (int)Led.State.off));
-				LeftStatusLeds[1] = MakeStatusLed(Colors.Blue, "Left status LED 2",
-					String.Format("if ([Flag_Blue], {0}, {1})", (int)Led.State.on, (int)Led.State.off));
-				LeftStatusLeds[2] = MakeStatusLed(Colors.Red, "Left status LED 3",
-					String.Format("if ([CarSettings_FuelAlertActive], {0}, {1})", (int)Led.State.blink, (int)Led.State.off));
-
-				RightStatusLeds = new Led[descriptor.Constants.NumberOfStatusLeds / 2];
-
-				RightStatusLeds[0] = MakeStatusLed(Colors.Yellow, "Right status LED 1",
-					String.Format("if ([ABSActive], {0}, {1})", (int)Led.State.on, (int)Led.State.off));
-				RightStatusLeds[1] = MakeStatusLed(Colors.Blue, "Right status LED 2",
-					String.Format("if ([TCActive], {0}, {1})", (int)Led.State.on, (int)Led.State.off));
-				RightStatusLeds[2] = MakeStatusLed(Colors.Red, "Right status LED 3",
-					// Flash for DRS available (to get attention!), solid for DRS on.
-					// NB rf2 (at least?) reports DRS available in the pits (in a practise session), so ignore DRS state if in pit.
-					String.Format("if (([IsInPitLane] || [IsInPit]), {2}, if ([DRSEnabled], {0}, if ([DRSAvailable], {1}, {2})))",
-						(int)Led.State.on, (int)Led.State.blink, (int)Led.State.off));
+				LeftStatusLeds = CopyStatusLedArray(sliPluginDeviceDescriptor.LeftStatusLeds);
+				RightStatusLeds = CopyStatusLedArray(sliPluginDeviceDescriptor.RightStatusLeds);
 
 				// External LEDs.
-				ExternalLeds = new Led[descriptor.Constants.NumberOfExternalLeds];
+				ExternalLeds = new Led[sliPluginDeviceDescriptor.Descriptor.Constants.NumberOfExternalLeds];
 				for (uint i = 0; i < ExternalLeds.Length; ++i)
 				{
-					ExternalLeds[i] = new Led();
-					ExternalLeds[i].BindingData.TargetPropertyName = String.Format("External LED {0}", (i + 1));
+					ExternalLeds[i] =
+						new Led()
+						{
+							EditPropertyName = String.Format("External LED {0}", (i + 1))
+						};
 				}
 			}
 

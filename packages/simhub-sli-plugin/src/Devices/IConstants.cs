@@ -17,7 +17,13 @@ namespace SimElation.SliDevices
 		/// <summary>Colors of the rev LED array. Length of this is therefore the number of rev LEDs.</summary>
 		Color[] RevLedColors { get; }
 
-		/// <summary>The number of status LEDs (3 left, 3 right).</summary>
+		/// <summary>Colors of the left status LED array.</summary>
+		Color[] LeftStatusLedColors { get; }
+
+		/// <summary>Colors of the right status LED array.</summary>
+		Color[] RightStatusLedColors { get; }
+
+		/// <summary>The number of status LEDs (total of left and right).</summary>
 		uint NumberOfStatusLeds { get; }
 
 		/// <summary>The number of external LEDs.</summary>
