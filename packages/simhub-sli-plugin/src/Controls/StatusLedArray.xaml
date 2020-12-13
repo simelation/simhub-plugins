@@ -1,5 +1,5 @@
 ﻿<UserControl x:Class="SimElation.Simhub.SliPlugin.StatusLedArray"
-			 x:Name="StatusLedArrayObject"
+			 x:Name="statusLedArray"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -18,12 +18,12 @@
 		</ResourceDictionary>
 	</UserControl.Resources>
 
-	<GroupBox Header="{Binding Path=Title, ElementName=StatusLedArrayObject}">
-		<ItemsControl HorizontalAlignment="Center" ItemsSource="{Binding Path=StatusLeds, ElementName=StatusLedArrayObject}">
+	<GroupBox Header="{Binding Path=Title, ElementName=statusLedArray}">
+		<ItemsControl HorizontalAlignment="Center" ItemsSource="{Binding Path=StatusLeds, ElementName=statusLedArray}">
 			<ItemsControl.ItemsPanel>
 				<ItemsPanelTemplate>
 					<!-- Default template is vertical layout, so override. -->
-					<StackPanel Orientation="{Binding Path=Orientation, ElementName=StatusLedArrayObject}"/>
+					<StackPanel Orientation="{Binding Path=Orientation, ElementName=statusLedArray}"/>
 				</ItemsPanelTemplate>
 			</ItemsControl.ItemsPanel>
 
