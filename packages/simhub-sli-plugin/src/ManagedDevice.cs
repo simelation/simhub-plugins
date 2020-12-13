@@ -265,13 +265,13 @@ namespace SimElation.Simhub.SliPlugin
 			// Left status LEDs.
 			foreach (var led in m_settings.LeftStatusLeds)
 			{
-				m_device.SetStatusLed(i, led.ProcessGameData(m_sliPlugin.Interpreter, m_settings.StatusLedBlinkIntervalMs));
+				m_device.SetStatusLed(i++, led.ProcessGameData(m_sliPlugin.Interpreter, m_settings.StatusLedBlinkIntervalMs));
 			}
 
 			// Right status LEDs.
 			foreach (var led in m_settings.RightStatusLeds)
 			{
-				m_device.SetStatusLed(i, led.ProcessGameData(m_sliPlugin.Interpreter, m_settings.StatusLedBlinkIntervalMs));
+				m_device.SetStatusLed(i++, led.ProcessGameData(m_sliPlugin.Interpreter, m_settings.StatusLedBlinkIntervalMs));
 			}
 
 			// External LEDs.
@@ -279,7 +279,7 @@ namespace SimElation.Simhub.SliPlugin
 
 			foreach (var led in m_settings.ExternalLeds)
 			{
-				m_device.SetExternalLed(i, led.ProcessGameData(m_sliPlugin.Interpreter, m_settings.StatusLedBlinkIntervalMs));
+				m_device.SetExternalLed(i++, led.ProcessGameData(m_sliPlugin.Interpreter, m_settings.StatusLedBlinkIntervalMs));
 			}
 
 			// Gear and revs.
