@@ -101,11 +101,12 @@ namespace SimElation.SliDevices
 
 			private int m_brightnessRotarySwitchIndex = RotarySwitchDetector.unknownIndex;
 			private int m_numberOfBrightnessRotaryPositions = defaultNumberOfBrightnessRotaryPositions;
-			private byte m_brightnessLevel = GetBrightnessLevelFromRotarySwitchPosition(-1, defaultNumberOfBrightnessRotaryPositions);
+			private byte m_brightnessLevel =
+				GetBrightnessLevelFromRotarySwitchPosition(-1, defaultNumberOfBrightnessRotaryPositions);
 		}
 
 		/// <summary>Descriptor for the device's class (report formats, constants, etc.).</summary>
-		public IDescriptor Descriptor { get; }
+		public IDeviceDescriptor DeviceDescriptor { get; }
 
 		/// <summary>Delegate to access a <see cref="log4net.ILog"/> object for logging purposes.</summary>
 		/// <returns><see cref="log4net.ILog"/> object.</returns>
@@ -172,27 +173,27 @@ namespace SimElation.SliDevices
 		private String m_status = initializingStatus;
 
 		/// <summary>Constructor.</summary>
-		/// <param name="descriptor">Descriptor for the device's class (report formats, constants, etc.).</param>
+		/// <param name="deviceDescriptor">Descriptor for the device's class (report formats, constants, etc.).</param>
 		/// <param name="deviceInfo">Info about this device instance (serial number, etc.).</param>
 		/// <param name="settings">Settings for the SLI device.</param>
 		/// <param name="getLog">Function to use for logging.</param>
 		/// <param name="rotarySwitchChangeCallback">Callback for when a rotary switch changes position.</param>
-		public Device(IDescriptor descriptor, DeviceInfo deviceInfo, Settings settings, GetLog getLog,
+		public Device(IDeviceDescriptor deviceDescriptor, DeviceInfo deviceInfo, Settings settings, GetLog getLog,
 			RotarySwitchChangeCallback rotarySwitchChangeCallback)
 		{
 			getLog().InfoFormat("{0}: constructing in thread {1}", Assembly.GetExecutingAssembly().GetName().Name,
 				Thread.CurrentThread.ManagedThreadId);
 
-			Descriptor = descriptor;
+			DeviceDescriptor = deviceDescriptor;
 			m_hidDevice = deviceInfo.HidDevice;
 			m_settings = settings;
 			m_getLog = getLog;
 			m_rotarySwitchChangeCallback = rotarySwitchChangeCallback;
 
-			m_ledHidReport = new HidReport((int)Descriptor.LedStateReport.Length + 1);
-			m_prevLedHidReport = new HidReport((int)Descriptor.LedStateReport.Length + 1);
-			m_brightnessHidReport = new HidReport((int)Descriptor.BrightnessReport.Length + 1);
-			m_rotarySwitchPositions = new int[(int)Descriptor.Constants.MaxNumberOfRotarySwitches];
+			m_ledHidReport = new HidReport((int)DeviceDescriptor.LedStateReport.Length + 1);
+			m_prevLedHidReport = new HidReport((int)DeviceDescriptor.LedStateReport.Length + 1);
+			m_brightnessHidReport = new HidReport((int)DeviceDescriptor.BrightnessReport.Length + 1);
+			m_rotarySwitchPositions = new int[(int)DeviceDescriptor.Constants.MaxNumberOfRotarySwitches];
 
 			// Can't initialize these above as MaxNumberOfRotarySwitches isn't constant.
 			// TODO C# 8.0 fix probably; static interface members.
@@ -287,8 +288,8 @@ namespace SimElation.SliDevices
 			m_brightnessHidReport.ReportId = 0;
 
 			var txBuffer = m_brightnessHidReport.Data;
-			txBuffer[Descriptor.BrightnessReport.ReportTypeOffset] = Descriptor.BrightnessReport.ReportType;
-			txBuffer[Descriptor.BrightnessReport.BrightnessOffset] = level;
+			txBuffer[DeviceDescriptor.BrightnessReport.ReportTypeOffset] = DeviceDescriptor.BrightnessReport.ReportType;
+			txBuffer[DeviceDescriptor.BrightnessReport.BrightnessOffset] = level;
 
 			// Not going to worry about async for brightness control!
 			if (!m_hidDevice.WriteReport(m_brightnessHidReport))
@@ -306,15 +307,15 @@ namespace SimElation.SliDevices
 		public void SetTextMessage(String str)
 		{
 			// Split the message across the left and right segment displays and use the gear indicator if need be.
-			int substringLength = Math.Min(str.Length / 2, (int)Descriptor.Constants.SegmentDisplayWidth);
+			int substringLength = Math.Min(str.Length / 2, (int)DeviceDescriptor.Constants.SegmentDisplayWidth);
 			String left = str.Substring(0, substringLength);
 			String right = str.Substring(str.Length - substringLength);
 
-			m_ledHidReport.Data[Descriptor.LedStateReport.GearOffset] =
+			m_ledHidReport.Data[DeviceDescriptor.LedStateReport.GearOffset] =
 				(byte)(((left.Length + right.Length) != str.Length) ? str[substringLength] : ' ');
 
-			SetSegment(SegmentDisplayPosition.left, left.PadLeft((int)Descriptor.Constants.SegmentDisplayWidth));
-			SetSegment(SegmentDisplayPosition.right, right.PadRight((int)Descriptor.Constants.SegmentDisplayWidth));
+			SetSegment(SegmentDisplayPosition.left, left.PadLeft((int)DeviceDescriptor.Constants.SegmentDisplayWidth));
+			SetSegment(SegmentDisplayPosition.right, right.PadRight((int)DeviceDescriptor.Constants.SegmentDisplayWidth));
 		}
 
 		/// <summary>Set the contents of a segment display.</summary>
@@ -331,7 +332,7 @@ namespace SimElation.SliDevices
 		/// <param name="firstSegmentIndex">0-index of the first character in the display (NOT in <paramref name="str"/> to set.
 		/// </param>
 		/// <param name="numberOfCharacters">The number of characters to set.</param>
-		/// <param name="str">The string to display. If shorter than <paramref name="numberOfCharacters"/>, it is space padded.</param>
+		/// <param name="str">The string to display. If shorter than <paramref name="numberOfCharacters"/>, it is padded.</param>
 		/// <param name="decimalOrPrimeIndexList">
 		/// Optional indexes for decimal/prime indicators to set. Index 0 is the first character in
 		/// the segment display, not the <paramref name="firstSegmentIndex">th</paramref> character.
@@ -342,14 +343,14 @@ namespace SimElation.SliDevices
 			switch (segmentDisplayPosition)
 			{
 				case SegmentDisplayPosition.left:
-					InternalSetSegment(Descriptor.LedStateReport.LeftSegmentDisplayOffset,
-						Descriptor.Constants.SegmentDisplayWidth, firstSegmentIndex, numberOfCharacters, str,
+					InternalSetSegment(DeviceDescriptor.LedStateReport.LeftSegmentDisplayOffset,
+						DeviceDescriptor.Constants.SegmentDisplayWidth, firstSegmentIndex, numberOfCharacters, str,
 						decimalOrPrimeIndexList);
 					break;
 
 				case SegmentDisplayPosition.right:
-					InternalSetSegment(Descriptor.LedStateReport.RightSegmentDisplayOffset,
-						Descriptor.Constants.SegmentDisplayWidth, firstSegmentIndex, numberOfCharacters, str,
+					InternalSetSegment(DeviceDescriptor.LedStateReport.RightSegmentDisplayOffset,
+						DeviceDescriptor.Constants.SegmentDisplayWidth, firstSegmentIndex, numberOfCharacters, str,
 						decimalOrPrimeIndexList);
 					break;
 			}
@@ -359,7 +360,7 @@ namespace SimElation.SliDevices
 		/// <param name="value"></param>
 		public void SetGear(String value)
 		{
-			m_ledHidReport.Data[Descriptor.LedStateReport.GearOffset] =
+			m_ledHidReport.Data[DeviceDescriptor.LedStateReport.GearOffset] =
 				(byte)((value.Length == 1) ? Char.ToLower(value[0]) : '-');
 		}
 
@@ -378,7 +379,7 @@ namespace SimElation.SliDevices
 		public bool SetRevLeds(double minRpmPercent, double rpmPercent, uint firstLedIndex = 0,
 			uint? maxNumberOfLeds = null)
 		{
-			uint numberOfLeds = (uint)Descriptor.Constants.RevLedColors.Length;
+			uint numberOfLeds = (uint)DeviceDescriptor.Constants.RevLedColors.Length;
 			uint maxNumberOfLeds2 = maxNumberOfLeds ?? numberOfLeds;
 
 			if ((firstLedIndex + maxNumberOfLeds2) > numberOfLeds)
@@ -397,7 +398,7 @@ namespace SimElation.SliDevices
 
 			for (uint i = firstLedIndex; i < maxNumberOfLeds2; ++i)
 			{
-				m_ledHidReport.Data[Descriptor.LedStateReport.RevLed1Offset + i] =
+				m_ledHidReport.Data[DeviceDescriptor.LedStateReport.RevLed1Offset + i] =
 					(byte)(((i - firstLedIndex) < numberOfSetLeds) ? 1 : 0);
 			}
 
@@ -412,9 +413,9 @@ namespace SimElation.SliDevices
 		/// <param name="ledStates"></param>
 		public void SetRevLeds(bool[] ledStates)
 		{
-			for (int i = 0; i < Descriptor.Constants.RevLedColors.Length; ++i)
+			for (int i = 0; i < DeviceDescriptor.Constants.RevLedColors.Length; ++i)
 			{
-				m_ledHidReport.Data[Descriptor.LedStateReport.RevLed1Offset + i] =
+				m_ledHidReport.Data[DeviceDescriptor.LedStateReport.RevLed1Offset + i] =
 					(byte)(((i < ledStates.Length) && ledStates[i]) ? 1 : 0);
 			}
 		}
@@ -425,10 +426,10 @@ namespace SimElation.SliDevices
 		/// <returns>false if <paramref name="ledIndex"/> is out of range, otherwise true.</returns>
 		public bool SetRevLed(uint ledIndex, bool isSet)
 		{
-			if (ledIndex >= Descriptor.Constants.RevLedColors.Length)
+			if (ledIndex >= DeviceDescriptor.Constants.RevLedColors.Length)
 				return false;
 
-			m_ledHidReport.Data[Descriptor.LedStateReport.RevLed1Offset + ledIndex] = (byte)(isSet ? 1 : 0);
+			m_ledHidReport.Data[DeviceDescriptor.LedStateReport.RevLed1Offset + ledIndex] = (byte)(isSet ? 1 : 0);
 
 			return true;
 		}
@@ -443,10 +444,10 @@ namespace SimElation.SliDevices
 		/// <returns>false if <paramref name="ledIndex"/> is out of range, otherwise true.</returns>
 		public bool SetStatusLed(uint ledIndex, bool isSet)
 		{
-			if (ledIndex >= Descriptor.Constants.NumberOfStatusLeds)
+			if (ledIndex >= DeviceDescriptor.Constants.NumberOfStatusLeds)
 				return false;
 
-			m_ledHidReport.Data[Descriptor.LedStateReport.StatusLed1Offset + ledIndex] = (byte)(isSet ? 1 : 0);
+			m_ledHidReport.Data[DeviceDescriptor.LedStateReport.StatusLed1Offset + ledIndex] = (byte)(isSet ? 1 : 0);
 
 			return true;
 		}
@@ -457,10 +458,10 @@ namespace SimElation.SliDevices
 		/// <returns>false if <paramref name="ledIndex"/> is out of range, otherwise true.</returns>
 		public bool SetExternalLed(uint ledIndex, bool isSet)
 		{
-			if (ledIndex >= Descriptor.Constants.NumberOfExternalLeds)
+			if (ledIndex >= DeviceDescriptor.Constants.NumberOfExternalLeds)
 				return false;
 
-			m_ledHidReport.Data[Descriptor.LedStateReport.ExternalLed1Offset + ledIndex] = (byte)(isSet ? 1 : 0);
+			m_ledHidReport.Data[DeviceDescriptor.LedStateReport.ExternalLed1Offset + ledIndex] = (byte)(isSet ? 1 : 0);
 
 			return true;
 		}
@@ -539,7 +540,7 @@ namespace SimElation.SliDevices
 
 					task.SetResult(rotarySwitchIndex);
 				},
-				Descriptor);
+				DeviceDescriptor);
 
 			return task.Task;
 		}
@@ -605,7 +606,7 @@ namespace SimElation.SliDevices
 			foreach (uint i in decimalOrPrimeIndexList)
 			{
 				if (i < segmentLength)
-					m_ledHidReport.Data[reportOffset + i] |= Descriptor.LedStateReport.SegmentDisplayDecimalOrPrimeBit;
+					m_ledHidReport.Data[reportOffset + i] |= DeviceDescriptor.LedStateReport.SegmentDisplayDecimalOrPrimeBit;
 			}
 		}
 
@@ -698,7 +699,7 @@ namespace SimElation.SliDevices
 		private void ProcessRotarySwitch(int rotarySwitchIndex, byte[] rxBuffer)
 		{
 			// Should probably read ushorts but only 12 position rotary switches are supported (I think?).
-			int bufferOffset = (int)Descriptor.InputReport.RotarySwitchesOffset + (rotarySwitchIndex * 2);
+			int bufferOffset = (int)DeviceDescriptor.InputReport.RotarySwitchesOffset + (rotarySwitchIndex * 2);
 
 			if ((bufferOffset < 0) || (bufferOffset >= rxBuffer.Length))
 				return;
@@ -722,19 +723,19 @@ namespace SimElation.SliDevices
 			Array.Clear(txBuffer, 0, txBuffer.Length);
 			hidReport.ReportId = 0;
 
-			txBuffer[Descriptor.LedStateReport.ReportTypeOffset] = Descriptor.LedStateReport.ReportType;
+			txBuffer[DeviceDescriptor.LedStateReport.ReportTypeOffset] = DeviceDescriptor.LedStateReport.ReportType;
 
 			// Spaces for the segment displays.
-			txBuffer[Descriptor.LedStateReport.GearOffset] = (byte)' ';
+			txBuffer[DeviceDescriptor.LedStateReport.GearOffset] = (byte)' ';
 
-			for (uint i = 0; i < Descriptor.Constants.SegmentDisplayWidth; ++i)
+			for (uint i = 0; i < DeviceDescriptor.Constants.SegmentDisplayWidth; ++i)
 			{
-				txBuffer[Descriptor.LedStateReport.LeftSegmentDisplayOffset + i] = (byte)' ';
+				txBuffer[DeviceDescriptor.LedStateReport.LeftSegmentDisplayOffset + i] = (byte)' ';
 			}
 
-			for (uint i = 0; i < Descriptor.Constants.SegmentDisplayWidth; ++i)
+			for (uint i = 0; i < DeviceDescriptor.Constants.SegmentDisplayWidth; ++i)
 			{
-				txBuffer[Descriptor.LedStateReport.RightSegmentDisplayOffset + i] = (byte)' ';
+				txBuffer[DeviceDescriptor.LedStateReport.RightSegmentDisplayOffset + i] = (byte)' ';
 			}
 		}
 	}

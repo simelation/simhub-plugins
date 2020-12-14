@@ -25,11 +25,11 @@ namespace SimElation.SliDevices
 		/// <summary>Constructor.</summary>
 		/// <param name="timeoutMs">How long to detect for, in milliseconds.</param>
 		/// <param name="callback">Callback for when a rotary switch is detected.</param>
-		/// <param name="descriptor">The device descriptor, for input report format.</param>
-		public RotarySwitchDetector(int timeoutMs, Callback callback, IDescriptor descriptor)
+		/// <param name="deviceDescriptor">The device descriptor, for input report format.</param>
+		public RotarySwitchDetector(int timeoutMs, Callback callback, IDeviceDescriptor deviceDescriptor)
 		{
 			m_callback = callback;
-			m_descriptor = descriptor;
+			m_deviceDescriptor = deviceDescriptor;
 
 			// Cancelleation timer for nothing found.
 			m_timer = new Timer((object state) =>
@@ -38,7 +38,7 @@ namespace SimElation.SliDevices
 					m_callback(unknownIndex);
 			}, null, timeoutMs, Timeout.Infinite);
 
-			m_previousPositions = new int[(int)m_descriptor.Constants.MaxNumberOfRotarySwitches];
+			m_previousPositions = new int[(int)m_deviceDescriptor.Constants.MaxNumberOfRotarySwitches];
 			for (int i = 0; i < m_previousPositions.Length; ++i)
 			{
 				m_previousPositions[i] = -1;
@@ -65,9 +65,9 @@ namespace SimElation.SliDevices
 				return;
 
 			// Note rotary switch position is a uint16 in the InputReport but we are only reading the low byte (0-11).
-			for (int i = 0; i < m_descriptor.Constants.MaxNumberOfRotarySwitches; ++i)
+			for (int i = 0; i < m_deviceDescriptor.Constants.MaxNumberOfRotarySwitches; ++i)
 			{
-				var offset = m_descriptor.InputReport.RotarySwitchesOffset + (i * sizeof(ushort));
+				var offset = m_deviceDescriptor.InputReport.RotarySwitchesOffset + (i * sizeof(ushort));
 
 				if (offset < rxBuffer.Length)
 				{
@@ -103,6 +103,6 @@ namespace SimElation.SliDevices
 		private readonly int[] m_previousPositions;
 		private bool m_isFound = false;
 
-		private readonly IDescriptor m_descriptor;
+		private readonly IDeviceDescriptor m_deviceDescriptor;
 	}
 }

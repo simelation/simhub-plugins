@@ -5,7 +5,6 @@
 using System;
 using System.Collections.Generic;
 using System.Windows.Media;
-using SimElation.SliDevices;
 
 // ---------------------------------------------------------------------------------------------------------------------------------
 
@@ -18,7 +17,7 @@ namespace SimElation.Simhub.SliPlugin
 	public interface ISliPluginDeviceDescriptor
 	{
 		/// <summary>The plugin-agnostic device descriptor.</summary>
-		IDescriptor Descriptor { get; }
+		SliDevices.IDeviceDescriptor DeviceDescriptor { get; }
 
 		/// <summary>Output formatters interface.</summary>
 		IOutputFormatters OutputFormatters { get; }
@@ -57,7 +56,7 @@ namespace SimElation.Simhub.SliPlugin
 	// SLI-Pro descriptor.
 	sealed class SliProDeviceDescriptor : ISliPluginDeviceDescriptor
 	{
-		public IDescriptor Descriptor { get; } = s_descriptor;
+		public SliDevices.IDeviceDescriptor DeviceDescriptor { get; } = s_descriptor;
 		public IOutputFormatters OutputFormatters { get; } = new SliProFormatters();
 		public Led[] LeftStatusLeds { get; } =
 			new Led[]
@@ -87,13 +86,14 @@ namespace SimElation.Simhub.SliPlugin
 						(int) Led.State.on, (int) Led.State.blink, (int) Led.State.off))
 			};
 
-		private static IDescriptor s_descriptor = Descriptors.Instance.Dictionary[SliDevices.Pro.Constants.CompileTime.productId];
+		private static SliDevices.IDeviceDescriptor s_descriptor =
+			SliDevices.DeviceDescriptors.Instance.Dictionary[SliDevices.Pro.Constants.CompileTime.productId];
 	}
 
 	// SLI-F1 descriptor.
 	sealed class SliF1DeviceDescriptor : ISliPluginDeviceDescriptor
 	{
-		public IDescriptor Descriptor { get; } = s_descriptor;
+		public SliDevices.IDeviceDescriptor DeviceDescriptor { get; } = s_descriptor;
 		public IOutputFormatters OutputFormatters { get; } = new SliF1Formatters();
 		public Led[] LeftStatusLeds { get; } =
 			new Led[]
@@ -123,7 +123,8 @@ namespace SimElation.Simhub.SliPlugin
 						(int) Led.State.on, (int) Led.State.blink, (int) Led.State.off))
 			};
 
-		private static IDescriptor s_descriptor = Descriptors.Instance.Dictionary[SliDevices.F1.Constants.CompileTime.productId];
+		private static SliDevices.IDeviceDescriptor s_descriptor =
+			SliDevices.DeviceDescriptors.Instance.Dictionary[SliDevices.F1.Constants.CompileTime.productId];
 	}
 
 	static class MakeStatusLed

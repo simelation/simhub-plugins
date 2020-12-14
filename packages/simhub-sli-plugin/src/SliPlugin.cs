@@ -241,7 +241,7 @@ namespace SimElation.Simhub.SliPlugin
 		{
 			Logging.Current.DebugFormat("{0}: polling for devices...", Assembly.GetExecutingAssembly().GetName().Name);
 
-			var deviceInfoSet = SliDevices.DevicePoller.Poll(vendorId, SliDevices.Descriptors.Instance.ProductIds);
+			var deviceInfoSet = SliDevices.DevicePoller.Poll(vendorId, SliDevices.DeviceDescriptors.Instance.ProductIds);
 
 			// We might modify the DeviceInstances set, so don't walk it directly.
 			foreach (var deviceInstance in DeviceInstances.ToList())

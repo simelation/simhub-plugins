@@ -39,7 +39,7 @@ namespace SimElation.Simhub.SliPlugin
 			m_sliPlugin = sliPlugin;
 			m_settings = deviceInstance.DeviceSettings;
 			m_deviceInfo = deviceInstance.DeviceInfo;
-			m_device = new Device(Descriptors.Instance.Dictionary[m_deviceInfo.ProductId], m_deviceInfo, m_settings,
+			m_device = new Device(DeviceDescriptors.Instance.Dictionary[m_deviceInfo.ProductId], m_deviceInfo, m_settings,
 				() => Logging.Current, OnRotarySwitchChange);
 
 			// Prefix for all actions; used to clear them when we are disposed.

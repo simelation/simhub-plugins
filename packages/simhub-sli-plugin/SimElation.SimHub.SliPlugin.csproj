@@ -122,7 +122,7 @@
     <Compile Include="src\Devices\ILedStateReport.cs" />
     <Compile Include="src\Devices\RotarySwitchDetector.cs" />
     <Compile Include="src\Devices\Device.cs" />
-    <Compile Include="src\Devices\Descriptor.cs" />
+    <Compile Include="src\Devices\DeviceDescriptor.cs" />
     <Compile Include="src\SliPluginDeviceDescriptor.cs" />
     <Compile Include="src\NormalizedData.cs" />
     <Compile Include="src\SegmentDisplays\Formatters\SliF1OutputFormatters.cs" />

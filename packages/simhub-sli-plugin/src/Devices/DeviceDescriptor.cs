@@ -10,7 +10,7 @@ using System.Collections.Generic;
 namespace SimElation.SliDevices
 {
 	/// <summary>Interface describing a device.</summary>
-	public interface IDescriptor
+	public interface IDeviceDescriptor
 	{
 		/// <summary>Various device-specific constant values (number of LEDs, etc.).</summary>
 		IConstants Constants { get; }
@@ -30,7 +30,7 @@ namespace SimElation.SliDevices
 	/// <typeparam name="TLedStateReport">LED state report format.</typeparam>
 	/// <typeparam name="TBrightnessReport">LED brightness report format.</typeparam>
 	/// <typeparam name="TInputReport">Input report format.</typeparam>
-	public sealed class Descriptor<TConstants, TLedStateReport, TBrightnessReport, TInputReport> : IDescriptor
+	public sealed class DeviceDescriptor<TConstants, TLedStateReport, TBrightnessReport, TInputReport> : IDeviceDescriptor
 		where TConstants : IConstants, new()
 		where TLedStateReport : ILedStateReport, new()
 		where TBrightnessReport : IBrightnessReport, new()
@@ -54,38 +54,32 @@ namespace SimElation.SliDevices
 
 namespace SimElation.SliDevices
 {
-	using F1Descriptor = Descriptor<F1.Constants, F1.LedStateReport, F1.BrightnessReport, F1.InputReport>;
-	using ProDescriptor = Descriptor<Pro.Constants, Pro.LedStateReport, Pro.BrightnessReport, Pro.InputReport>;
+	using F1Descriptor = DeviceDescriptor<F1.Constants, F1.LedStateReport, F1.BrightnessReport, F1.InputReport>;
+	using ProDescriptor = DeviceDescriptor<Pro.Constants, Pro.LedStateReport, Pro.BrightnessReport, Pro.InputReport>;
 
 	/// <summary>Singleton of device descriptors.</summary>
-	public sealed class Descriptors
+	public sealed class DeviceDescriptors
 	{
 		/// <summary>Singleton instance.</summary>
-		public static Descriptors Instance { get => m_instance.Value; }
-
-		/// <summary>SLI-Pro descriptor.</summary>
-		public ProDescriptor ProDescriptor { get; } = new ProDescriptor();
-
-		/// <summary>SLI-F1 descriptor.</summary>
-		public F1Descriptor F1Descriptor { get; } = new F1Descriptor();
+		public static DeviceDescriptors Instance { get => m_instance.Value; }
 
 		/// <summary>Dictionary of descriptors, indexed by USB product id.</summary>
-		public Dictionary<int, IDescriptor> Dictionary { get => m_dictionary; }
+		public Dictionary<int, IDeviceDescriptor> Dictionary { get => m_dictionary; }
 
 		/// <summary>Array of supported product ids.</summary>
 		public int[] ProductIds { get => m_productIds; }
 
-		private static readonly Lazy<Descriptors> m_instance = new Lazy<Descriptors>(() => new Descriptors());
-		private readonly Dictionary<int, IDescriptor> m_dictionary;
+		private static readonly Lazy<DeviceDescriptors> m_instance = new Lazy<DeviceDescriptors>(() => new DeviceDescriptors());
+		private readonly Dictionary<int, IDeviceDescriptor> m_dictionary;
 		private readonly int[] m_productIds;
 
-		private Descriptors()
+		private DeviceDescriptors()
 		{
 			m_dictionary =
-				new Dictionary<int, IDescriptor>()
+				new Dictionary<int, IDeviceDescriptor>()
 				{
-					{ Pro.Constants.CompileTime.productId, ProDescriptor },
-					{ F1.Constants.CompileTime.productId, F1Descriptor }
+					{ Pro.Constants.CompileTime.productId, new ProDescriptor() },
+					{ F1.Constants.CompileTime.productId, new F1Descriptor() }
 				};
 
 			m_productIds = new int[m_dictionary.Keys.Count];
