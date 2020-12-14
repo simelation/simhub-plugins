@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.7.0](https://github.com/simelation/simhub-plugins/compare/@simelation/simhub-sli-plugin@0.6.0...@simelation/simhub-sli-plugin@0.7.0) (2020-12-14)
+
+### Bug Fixes
+
+-   **simhub-sli-plugin:** was always setting LED index 0 for status and external LEDs. ([2c54ccc](https://github.com/simelation/simhub-plugins/commit/2c54ccca80a6ae6db727db2e7e04dc00fdbe3acc))
+
+### Features
+
+-   **simhub-sli-plugin:** added support for mapping rotary switches to vJoy devices. ([a476b44](https://github.com/simelation/simhub-plugins/commit/a476b44ee2bca364404ef9d97590a229f04647c5))
+-   **simhub-sli-plugin:** use FormulaPicker for LEDs. Javascript now works. ([d54318d](https://github.com/simelation/simhub-plugins/commit/d54318dc85aeeae5c1d0a299378704f75f0b914e))
+
 # 0.6.0 (2020-12-09)
 
 ### Features
