@@ -198,12 +198,19 @@ of the mode that is being peeked.
 ### RPM LEDs
 
 Note the plugin does not make use of the SimHub `Car Settings` -> `Shift light N offset` settings for the different sections
-of the RPM display. It simply uses `Minimum displayed RPM` for the first LED and evenly distributes the LEDs up to 100% for
-the last LED.
+of the RPM display. It simply uses `Minimum displayed RPM` for the LED that has been configured as the first RPM LED
+(see next section) and evenly distributes RPM% across the remaining LEDs.
+
+##### Assignable LEDs
+
+The RPM LEDs can be used as additional assignable status LEDs, rather than for showing revs, if you prefer.
+The default is to use all RPM LEDs for the rev display, but increasing `Number of assignable LEDs` will un-gray LEDs
+(from the left) in the UI such that they can be clicked in order to assign an ncalc or Javascript expression.
 
 ##### In pit-lane animation
 
-Whilst in the pits, the RPM LEDs can animate between two different layouts. Simply click on an LED to toggle it on or off.
+Whilst in the pits, the RPM LEDs can animate between two different layouts. Simply click on an LED to toggle it on or off. Note
+all RPM LEDs are used here, irrespective of the `Number of assignable LEDs` setting.
 
 ###### Animation speed
 

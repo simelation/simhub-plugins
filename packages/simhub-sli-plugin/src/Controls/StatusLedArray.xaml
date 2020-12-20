@@ -4,7 +4,9 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+			 xmlns:autogrid="clr-namespace:WpfAutoGrid;assembly=WpfAutoGrid"
              xmlns:local="clr-namespace:SimElation.Simhub.SliPlugin"
+			 xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
 			 xmlns:wpfui="clr-namespace:SimHub.Plugins.OutputPlugins.Dash.WPFUI;assembly=SimHub.Plugins"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
@@ -12,60 +14,112 @@
 	<UserControl.Resources>
 		<ResourceDictionary>
 			<ResourceDictionary.MergedDictionaries>
-				<ResourceDictionary Source="../../Properties/Styles.xaml" />
+				<ResourceDictionary Source="../../Properties/Styles.xaml"/>
 			</ResourceDictionary.MergedDictionaries>
 
-			<local:IsDashBindingDataModeNotNone x:Key="IsDashBindingDataModeNotNone" />
+			<local:IsDashBindingDataModeNotNone x:Key="IsDashBindingDataModeNotNone"/>
+			<local:NumberEnabledVisibilityConverter x:Key="NumberEnabledVisibilityConverter"/>
+			<local:IsStatusLedEnabled x:Key="IsStatusLedEnabled"/>
+			<local:IsStatusLedAssigned x:Key="IsStatusLedAssigned"/>
 		</ResourceDictionary>
 	</UserControl.Resources>
 
 	<GroupBox Header="{Binding Path=Title, ElementName=statusLedArray}">
-		<ItemsControl
-			HorizontalAlignment="Center" VerticalAlignment="Center" ItemsSource="{Binding Path=StatusLeds,
-			ElementName=statusLedArray}"
-		>
-			<ItemsControl.ItemsPanel>
-				<ItemsPanelTemplate>
-					<!-- Default template is vertical layout, so override. -->
-					<StackPanel Orientation="{Binding Path=Orientation, ElementName=statusLedArray}"/>
-				</ItemsPanelTemplate>
-			</ItemsControl.ItemsPanel>
+		<StackPanel Orientation="Vertical" VerticalAlignment="Center">
+			<!-- NB bug with RowCount 1 https://github.com/carbonrobot/wpf-autogrid/issues/6 -->
+			<autogrid:AutoGrid
+				RowCount="2" Columns="220,200,400"
+				Visibility="{Binding Path=NumberEnabled, ElementName=statusLedArray,
+					Converter={StaticResource NumberEnabledVisibilityConverter}}"
+			>
+				<!-- Row 1. -->
+				<Label VerticalAlignment="Center" Margin="4,4,4,4" Content="Number of assignable LEDs"/>
+				<mah:NumericUpDown
+					Minimum="0" Maximum="{Binding Path=StatusLeds.Length, ElementName=statusLedArray}" HasDecimals="False"
+					Margin="4,4,4,4" VerticalAlignment="Center" Value="{Binding Path=NumberEnabled, ElementName=statusLedArray}"
+					ToolTip="How many of the LEDs to allow custom formula binding"/>
+				<Label/>
+			</autogrid:AutoGrid>
 
-			<ItemsControl.ItemTemplate>
-				<DataTemplate>
-					<wpfui:FormulaPicker
-						EditPropertyName="{Binding Path=EditPropertyName}" Expression="{Binding Path=ExpressionValue}"
-						ShowAsButton="True" Margin="2,2,2,2"
-					>
-						<wpfui:FormulaPicker.Resources>
-							<Style TargetType="{x:Type Button}">
-								<Style.Triggers>
-									<DataTrigger Binding="{Binding Path=ExpressionValue.IsNone}" Value="True">
-										<Setter Property="Template">
-											<Setter.Value>
-												<ControlTemplate TargetType="Button">
-													<Ellipse Style="{StaticResource LedStyle}"/>
-												</ControlTemplate>
-											</Setter.Value>
-										</Setter>
-									</DataTrigger>
+			<ItemsControl
+				HorizontalAlignment="Center" VerticalAlignment="Center" ItemsSource="{Binding Path=StatusLeds,
+				ElementName=statusLedArray}"
+			>
+				<ItemsControl.ItemsPanel>
+					<ItemsPanelTemplate>
+						<!-- Default template is vertical layout, so override. -->
+						<StackPanel Orientation="{Binding Path=Orientation, ElementName=statusLedArray}"/>
+					</ItemsPanelTemplate>
+				</ItemsControl.ItemsPanel>
 
-									<DataTrigger Binding="{Binding Path=ExpressionValue.IsNone}" Value="False">
-										<Setter Property="Template">
-											<Setter.Value>
-												<ControlTemplate TargetType="Button">
-													<Ellipse Style="{StaticResource LedStyle}" Fill="{Binding Path=SetBrush}"/>
-												</ControlTemplate>
-											</Setter.Value>
-										</Setter>
-									</DataTrigger>
-								</Style.Triggers>
-							</Style>
-						</wpfui:FormulaPicker.Resources>
-						
-					</wpfui:FormulaPicker>
-				</DataTemplate>
-			</ItemsControl.ItemTemplate>
-		</ItemsControl>
+				<ItemsControl.ItemTemplate>
+					<DataTemplate>
+						<wpfui:FormulaPicker
+							EditPropertyName="{Binding Path=EditPropertyName}" Expression="{Binding Path=ExpressionValue}"
+							ShowAsButton="True" Margin="4,4,4,4"
+						>
+							<wpfui:FormulaPicker.IsEnabled>
+								<!-- TODO surely a nicer way (see IsStatusLedEnabled for details...). -->
+								<MultiBinding Converter="{StaticResource IsStatusLedEnabled}">
+									<Binding Path="."/>
+									<Binding Path="StatusLeds" ElementName="statusLedArray"/>
+									<Binding Path="NumberEnabled" ElementName="statusLedArray"/>
+								</MultiBinding>
+							</wpfui:FormulaPicker.IsEnabled>
+
+							<wpfui:FormulaPicker.Resources>
+								<Style TargetType="{x:Type Button}">
+									<Style.Triggers>
+										<Trigger Property="IsEnabled" Value="False">
+											<!-- Gray out the LED even further if not enabled. -->
+											<Setter Property="Opacity" Value="0.25" />
+										</Trigger>
+
+										<DataTrigger Value="False">
+											<DataTrigger.Binding>
+												<MultiBinding Converter="{StaticResource IsStatusLedAssigned}">
+													<Binding Path="."/>
+													<Binding Path="StatusLeds" ElementName="statusLedArray"/>
+													<Binding Path="NumberEnabled" ElementName="statusLedArray"/>
+													<Binding Path="ExpressionValue.IsNone"/>
+												</MultiBinding>
+											</DataTrigger.Binding>
+
+											<Setter Property="Template">
+												<Setter.Value>
+													<ControlTemplate TargetType="Button">
+														<Ellipse Style="{StaticResource LedStyle}"/>
+													</ControlTemplate>
+												</Setter.Value>
+											</Setter>
+										</DataTrigger>
+
+										<DataTrigger Value="True">
+											<DataTrigger.Binding>
+												<MultiBinding Converter="{StaticResource IsStatusLedAssigned}">
+													<Binding Path="."/>
+													<Binding Path="StatusLeds" ElementName="statusLedArray"/>
+													<Binding Path="NumberEnabled" ElementName="statusLedArray"/>
+													<Binding Path="ExpressionValue.IsNone"/>
+												</MultiBinding>
+											</DataTrigger.Binding>
+
+											<Setter Property="Template">
+												<Setter.Value>
+													<ControlTemplate TargetType="Button">
+														<Ellipse Style="{StaticResource LedStyle}" Fill="{Binding Path=SetBrush}"/>
+													</ControlTemplate>
+												</Setter.Value>
+											</Setter>
+										</DataTrigger>
+									</Style.Triggers>
+								</Style>
+							</wpfui:FormulaPicker.Resources>
+
+						</wpfui:FormulaPicker>
+					</DataTemplate>
+				</ItemsControl.ItemTemplate>
+			</ItemsControl>
+		</StackPanel>
 	</GroupBox>
 </UserControl>

@@ -164,9 +164,6 @@ namespace SimElation.Simhub.SliPlugin
 				}
 			}
 
-			/// <summary>SimHub properties assigned to external LEDs.</summary>
-			public Led[] ExternalLeds { get; set; }
-
 			/// <summary>Text to display using the segment displays when SimHub is running but no game is.</summary>
 			public String WelcomeMessage
 			{
@@ -245,11 +242,29 @@ namespace SimElation.Simhub.SliPlugin
 			/// <summary>In pit-lane animation LEDs, pattern 2.</summary>
 			public RpmLed[] PitLaneLeds2 { get; set; }
 
+			/// <summary>How many RPM LEDs to use for bindable formulas (and not revs), from the left.</summary>
+			public uint NumberOfRpmStatusLeds
+			{
+				get => m_numberOfRpmStatusLeds;
+
+				set
+				{
+					m_numberOfRpmStatusLeds = value;
+					OnPropertyChanged();
+				}
+			}
+
+			/// <summary>SimHub properties assigned to RPM LEDs.</summary>
+			public Led[] RpmStatusLeds { get; set; }
+
 			/// <summary>Left status LEDs.</summary>
 			public Led[] LeftStatusLeds { get; set; }
 
 			/// <summary>Right status LEDs.</summary>
 			public Led[] RightStatusLeds { get; set; }
+
+			/// <summary>SimHub properties assigned to external LEDs.</summary>
+			public Led[] ExternalLeds { get; set; }
 
 			/// <summary>How long to press a vJoy button for, in milliseconds.</summary>
 			public int VJoyButtonPulseMs
@@ -305,6 +320,19 @@ namespace SimElation.Simhub.SliPlugin
 					PitLaneLeds2[i] = new RpmLed(currentColor, !isLed1Set);
 				}
 
+				// RPM LEDs bound to expressions.
+				RpmStatusLeds = new Led[sliPluginDeviceDescriptor.DeviceDescriptor.Constants.RevLedColors.Length];
+
+				for (uint i = 0; i < RpmStatusLeds.Length; ++i)
+				{
+					RpmStatusLeds[i] =
+						new Led()
+						{
+							SetBrush = new SolidColorBrush(sliPluginDeviceDescriptor.DeviceDescriptor.Constants.RevLedColors[i]),
+							EditPropertyName = String.Format("RPM LED {0}", (i + 1))
+						};
+				}
+
 				// Need a deep copy of default Led arrays.
 				// TODO surely there's a better way.
 				Led[] CopyStatusLedArray(Led[] sourceArray)
@@ -356,6 +384,8 @@ namespace SimElation.Simhub.SliPlugin
 			private long m_shiftPointBlinkOffSpeedMs = 50;
 			private long m_statusLedBlinkIntervalMs = 500;
 			private long m_segmentNameTimeoutMs = 1500;
+
+			private uint m_numberOfRpmStatusLeds = 0;
 
 			private int m_vJoyButtonPulseMs = 50;
 			private ObservableCollection<RotarySwitchMapping> m_rotarySwitchMappings =

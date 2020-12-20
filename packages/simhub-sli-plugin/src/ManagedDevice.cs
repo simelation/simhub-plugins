@@ -263,7 +263,18 @@ namespace SimElation.Simhub.SliPlugin
 		{
 			uint i = 0;
 
+			// RPM status LEDs.
+			foreach (var led in m_settings.RpmStatusLeds)
+			{
+				if (i >= m_settings.NumberOfRpmStatusLeds)
+					break;
+
+				m_device.SetRevLed(i++, led.ProcessGameData(m_sliPlugin.Interpreter, m_settings.StatusLedBlinkIntervalMs));
+			}
+
 			// Left status LEDs.
+			i = 0;
+
 			foreach (var led in m_settings.LeftStatusLeds)
 			{
 				m_device.SetStatusLed(i++, led.ProcessGameData(m_sliPlugin.Interpreter, m_settings.StatusLedBlinkIntervalMs));
@@ -412,7 +423,7 @@ namespace SimElation.Simhub.SliPlugin
 
 			double minRpmPercent = (100 * normalizedData.StatusData.CarSettings_MinimumShownRPM) /
 				normalizedData.StatusData.CarSettings_MaxRPM;
-			m_device.SetRevLeds(minRpmPercent, rpmPercent);
+			m_device.SetRevLeds(minRpmPercent, rpmPercent, m_settings.NumberOfRpmStatusLeds);
 		}
 
 		private void OnRotarySwitchChange(int rotarySwitchIndex, int previousPosition, int newPosition)

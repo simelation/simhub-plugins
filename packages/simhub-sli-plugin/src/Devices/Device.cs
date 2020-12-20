@@ -372,7 +372,8 @@ namespace SimElation.SliDevices
 		/// <param name="minRpmPercent">The rpm % at which the first rev LED should light.</param>
 		/// <param name="rpmPercent">The rpm %.</param>
 		/// <param name="firstLedIndex">The 0-based index of the first rev LED to set.</param>
-		/// <param name="maxNumberOfLeds">The number of rev LEDs to light when at 100% <paramref name="rpmPercent"/>.</param>
+		/// <param name="maxNumberOfLeds">The number of rev LEDs to light when at 100% <paramref name="rpmPercent"/>,
+		/// or null for all.</param>
 		/// <returns>
 		/// false if <paramref name="firstLedIndex"/> + <paramref name="maxNumberOfLeds"/> is out of range,
 		/// <paramref name="minRpmPercent"/> is >= 100, <paramref name="rpmPercent"/> is > 100.</returns>
@@ -380,10 +381,23 @@ namespace SimElation.SliDevices
 			uint? maxNumberOfLeds = null)
 		{
 			uint numberOfLeds = (uint)DeviceDescriptor.Constants.RevLedColors.Length;
-			uint maxNumberOfLeds2 = maxNumberOfLeds ?? numberOfLeds;
 
-			if ((firstLedIndex + maxNumberOfLeds2) > numberOfLeds)
+			if (firstLedIndex >= numberOfLeds)
 				return false;
+
+			uint maxNumberOfLeds2;
+
+			if (maxNumberOfLeds != null)
+			{
+				if ((firstLedIndex + maxNumberOfLeds) > numberOfLeds)
+					return false;
+
+				maxNumberOfLeds2 = (uint)maxNumberOfLeds;
+			}
+			else
+			{
+				maxNumberOfLeds2 = numberOfLeds - firstLedIndex;
+			}
 
 			if ((minRpmPercent >= 100) || (rpmPercent > 100))
 				return false;
@@ -392,11 +406,11 @@ namespace SimElation.SliDevices
 
 			if (rpmPercent >= minRpmPercent)
 			{
-				double val = ((rpmPercent - minRpmPercent) * (maxNumberOfLeds2 - firstLedIndex)) / (100 - minRpmPercent);
+				double val = ((rpmPercent - minRpmPercent) * maxNumberOfLeds2) / (100 - minRpmPercent);
 				numberOfSetLeds = (uint)Math.Round(val, MidpointRounding.AwayFromZero);
 			}
 
-			for (uint i = firstLedIndex; i < maxNumberOfLeds2; ++i)
+			for (uint i = firstLedIndex; i < (firstLedIndex + maxNumberOfLeds2); ++i)
 			{
 				m_ledHidReport.Data[DeviceDescriptor.LedStateReport.RevLed1Offset + i] =
 					(byte)(((i - firstLedIndex) < numberOfSetLeds) ? 1 : 0);

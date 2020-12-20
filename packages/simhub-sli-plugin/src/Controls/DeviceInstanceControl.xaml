@@ -60,7 +60,7 @@
 		</styles:SHSection>
 
 		<!-- LEDs. -->
-		<styles:SHSection Title="LEDs">
+		<styles:SHSection Title="ASSIGNABLE LEDs">
 			<StackPanel Orientation="Vertical">
 				<StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="4,4,4,4">
 					<!-- Left status LEDs. -->
@@ -137,6 +137,13 @@
 		<!-- RPM leds. -->
 		<styles:SHSection Title="RPM LEDs">
 			<StackPanel Orientation="Vertical">
+				<!-- Optional property binding. -->
+				<local:StatusLedArray
+					Title="ASSIGNABLE LEDs" Orientation="Horizontal"
+					StatusLeds="{Binding Path=DeviceSettings.RpmStatusLeds}"
+					NumberEnabled="{Binding Path=DeviceSettings.NumberOfRpmStatusLeds, Mode=TwoWay}"
+				/>
+
 				<GroupBox Header="In pit-lane animation">
 					<StackPanel Orientation="Vertical">
 						<autogrid:AutoGrid RowCount="2" Columns="220,200,400">
