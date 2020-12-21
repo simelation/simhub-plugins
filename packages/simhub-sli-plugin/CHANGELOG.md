@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.8.0](https://github.com/simelation/simhub-plugins/compare/@simelation/simhub-sli-plugin@0.7.0...@simelation/simhub-sli-plugin@0.8.0) (2020-12-21)
+
+### Features
+
+-   **simhub-sli-plugin:** added ability to assign expressions to a configurable number of RPM LEDs. ([fcf958b](https://github.com/simelation/simhub-plugins/commit/fcf958bde9dc70017c7ebf65529a4b30e049f799))
+
 # [0.7.0](https://github.com/simelation/simhub-plugins/compare/@simelation/simhub-sli-plugin@0.6.0...@simelation/simhub-sli-plugin@0.7.0) (2020-12-14)
 
 ### Bug Fixes
