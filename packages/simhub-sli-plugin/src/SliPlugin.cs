@@ -49,13 +49,16 @@ namespace SimElation.Simhub.SliPlugin
 			// Load settings.
 			var serializedSettings = this.ReadCommonSettings<SerializedSettings>(settingsName, () => new SerializedSettings());
 
-			foreach (var deviceInstance in serializedSettings.DeviceInstances)
+			foreach (var serializedDeviceInstance in serializedSettings.DeviceInstances)
 			{
+				serializedDeviceInstance.DeviceSettings.Fixup(
+					SliPluginDeviceDescriptors.Instance.Dictionary[serializedDeviceInstance.DeviceInfo.ProductId]);
+
 				DeviceInstances.Add(
 					new DeviceInstance()
 					{
-						DeviceInfo = deviceInstance.DeviceInfo,
-						DeviceSettings = deviceInstance.DeviceSettings,
+						DeviceInfo = serializedDeviceInstance.DeviceInfo,
+						DeviceSettings = serializedDeviceInstance.DeviceSettings,
 						// Anything in serialized settings was managed.
 						IsManaged = true
 					});
@@ -308,7 +311,8 @@ namespace SimElation.Simhub.SliPlugin
 				new DeviceInstance()
 				{
 					DeviceInfo = deviceInfo,
-					DeviceSettings = new DeviceInstance.Settings(SliPluginDeviceDescriptors.Instance.Dictionary[deviceInfo.ProductId])
+					DeviceSettings =
+						new DeviceInstance.Settings(SliPluginDeviceDescriptors.Instance.Dictionary[deviceInfo.ProductId])
 				});
 		}
 

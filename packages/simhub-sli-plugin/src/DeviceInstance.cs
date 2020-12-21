@@ -300,9 +300,26 @@ namespace SimElation.Simhub.SliPlugin
 			/// <param name="sliPluginDeviceDescriptor">Descriptor describing the device.</param>
 			public Settings(ISliPluginDeviceDescriptor sliPluginDeviceDescriptor) : this()
 			{
+				// Construct anything requiring the descriptor.
+				Fixup(sliPluginDeviceDescriptor);
+			}
+
+			/// <summary>Fixup any dynamic length / device-dependent settings.</summary>
+			/// <remarks>
+			/// When deserializing, the device descriptor isn't know. So anything "new" added to the config
+			/// that is dependent on the device details won't be initialized. Also just make sure dynamic length arrays are the
+			/// correct length, in case any mangling of config file happens.
+			/// </remarks>
+			public void Fixup(ISliPluginDeviceDescriptor sliPluginDeviceDescriptor)
+			{
 				// In pit-lane LED animation. Default pattern is to alternate based on the colors changing.
-				PitLaneLeds1 = new RpmLed[sliPluginDeviceDescriptor.DeviceDescriptor.Constants.RevLedColors.Length];
-				PitLaneLeds2 = new RpmLed[sliPluginDeviceDescriptor.DeviceDescriptor.Constants.RevLedColors.Length];
+				var rpmLeds = PitLaneLeds1;
+				Array.Resize(ref rpmLeds, sliPluginDeviceDescriptor.DeviceDescriptor.Constants.RevLedColors.Length);
+				PitLaneLeds1 = rpmLeds;
+
+				rpmLeds = PitLaneLeds2;
+				Array.Resize(ref rpmLeds, sliPluginDeviceDescriptor.DeviceDescriptor.Constants.RevLedColors.Length);
+				PitLaneLeds2 = rpmLeds;
 
 				Color? previousColor = null;
 				bool isLed1Set = false;
@@ -316,16 +333,18 @@ namespace SimElation.Simhub.SliPlugin
 						isLed1Set ^= true;
 					}
 
-					PitLaneLeds1[i] = new RpmLed(currentColor, isLed1Set);
-					PitLaneLeds2[i] = new RpmLed(currentColor, !isLed1Set);
+					PitLaneLeds1[i] ??= new RpmLed(currentColor, isLed1Set);
+					PitLaneLeds2[i] ??= new RpmLed(currentColor, !isLed1Set);
 				}
 
 				// RPM LEDs bound to expressions.
-				RpmStatusLeds = new Led[sliPluginDeviceDescriptor.DeviceDescriptor.Constants.RevLedColors.Length];
+				var statusLeds = RpmStatusLeds;
+				Array.Resize(ref statusLeds, sliPluginDeviceDescriptor.DeviceDescriptor.Constants.RevLedColors.Length);
+				RpmStatusLeds = statusLeds;
 
 				for (uint i = 0; i < RpmStatusLeds.Length; ++i)
 				{
-					RpmStatusLeds[i] =
+					RpmStatusLeds[i] ??=
 						new Led()
 						{
 							SetBrush = new SolidColorBrush(sliPluginDeviceDescriptor.DeviceDescriptor.Constants.RevLedColors[i]),
@@ -342,7 +361,7 @@ namespace SimElation.Simhub.SliPlugin
 					for (int i = 0; i < sourceArray.Length; ++i)
 					{
 						var sourceLed = sourceArray[i];
-						targetArray[i] =
+						targetArray[i] ??=
 							new Led()
 							{
 								ExpressionValue = new ExpressionValue(sourceLed.ExpressionValue.Expression,
@@ -355,14 +374,24 @@ namespace SimElation.Simhub.SliPlugin
 					return targetArray;
 				}
 
+				statusLeds = LeftStatusLeds;
+				Array.Resize(ref statusLeds, sliPluginDeviceDescriptor.LeftStatusLeds.Length);
+				LeftStatusLeds = statusLeds;
 				LeftStatusLeds = CopyStatusLedArray(sliPluginDeviceDescriptor.LeftStatusLeds);
+
+				statusLeds = RightStatusLeds;
+				Array.Resize(ref statusLeds, sliPluginDeviceDescriptor.RightStatusLeds.Length);
+				RightStatusLeds = statusLeds;
 				RightStatusLeds = CopyStatusLedArray(sliPluginDeviceDescriptor.RightStatusLeds);
 
 				// External LEDs.
-				ExternalLeds = new Led[sliPluginDeviceDescriptor.DeviceDescriptor.Constants.NumberOfExternalLeds];
+				statusLeds = ExternalLeds;
+				Array.Resize(ref statusLeds, (int)sliPluginDeviceDescriptor.DeviceDescriptor.Constants.NumberOfExternalLeds);
+				ExternalLeds = statusLeds;
+
 				for (uint i = 0; i < ExternalLeds.Length; ++i)
 				{
-					ExternalLeds[i] =
+					ExternalLeds[i] ??=
 						new Led()
 						{
 							EditPropertyName = String.Format("External LED {0}", (i + 1))
