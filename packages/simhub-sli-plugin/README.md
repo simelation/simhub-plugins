@@ -228,16 +228,12 @@ installed.
 
 #### vJoy installation
 
-So some bad news: the version of the vJoy library provided with SimHub (as of 7.3.0) can cause a crash of SimHub. So, we don't
-want to use that version. In fact, the plugin won't allow it: you should see a warning banner like
-`vJoy unavailable: dll version 216 is known to cause crashses`. The minimum version of vJoy that I have tested that works is
-2.1.8 (2.1.7 might be OK but I can't find it to try). The library version with SimHub is 2.1.6.
+So some bad news: some versions of the vJoy library can cause a crash of SimHub. So, we don't want to use those versions.
+Good news: the plugin won't allow it - you should see a warning banner like `vJoy unavailable: dll version 216 is known to cause crashses`.
+The minimum version of vJoy that I have tested that works is 2.1.8. 2.1.6 is definitely bad and 2.1.7 I can't find it to try.
 Some more info [here](https://github.com/SHWotever/SimHub/issues/696).
 
-Good news is that the even though SimHub provides the vJoy library, it doesn't use it! And the next version is going to remove it.
-So, we can overwrite any version that is there with a working version such that the plugin will use that.
-
-Also, the driver version needs to match the library version in order for things to work. Again, the plugin will show a warning
+Also with vJoy, the driver version needs to match the library version in order for things to work. Again, the plugin will show a warning
 banner if that's not the case (`vJoy unavailable: driver version 221 doesn't match dll version 216`).
 
 Here's what I recommend doing:
@@ -248,8 +244,6 @@ Here's what I recommend doing:
     -   `vJoyInterface.dll`
     -   `vJoyInterfaceWrap.dll`
 -   Start SimHub. The UI options for vJoy mapping should now appear on the `SLI Plugin` page under a managed SLI device section.
-
-Obviously you may need to copy these files again after upgrading SimHub, though hopefully it will ship fixed versions soon.
 
 I won't cover the configuration of vJoy here, but suffice to say you need at least one device with as many buttons configured as
 you have rotary switch positions you wish to map. The plugin doesn't do any validation that how you've configured a mapping

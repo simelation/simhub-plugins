@@ -161,6 +161,7 @@
     </Compile>
     <Compile Include="src\Led.cs" />
     <Compile Include="src\VJoyManager.cs" />
+    <Compile Include="src\VJoyWrap.cs" />
   </ItemGroup>
   <ItemGroup>
     <Page Include="Properties\DesignTimeResources.xaml" Condition="'$(DesignTime)'=='true' OR ('$(SolutionPath)'!='' AND Exists('$(SolutionPath)') AND '$(BuildingInsideVisualStudio)'!='true' AND '$(BuildingInsideExpressionBlend)'!='true')">

@@ -4,8 +4,10 @@
 
 using System;
 using System.Collections.ObjectModel;
+using System.Threading;
 using System.Threading.Tasks;
-using vJoyInterfaceWrap;
+using System.Reflection;
+using Logging = SimHub.Logging;
 
 // ---------------------------------------------------------------------------------------------------------------------------------
 
@@ -60,7 +62,7 @@ namespace SimElation
 			/// <summary>Constructor.</summary>
 			/// <param name="vJoy"></param>
 			/// <param name="id">This device's id, indexed from 1.</param>
-			public Device(vJoy vJoy, uint id)
+			public Device(VJoyWrap vJoy, uint id)
 			{
 				m_vJoy = vJoy;
 				m_id = id;
@@ -111,23 +113,39 @@ namespace SimElation
 			private delegate void SetButtonFn(bool isSet);
 
 			private readonly uint m_id;
-			private readonly vJoy m_vJoy;
+			private readonly VJoyWrap m_vJoy;
 			private bool m_hasAcquired = false;
 		}
 
 		private VJoyManager()
 		{
-			m_isValidVersion = m_vJoy.DriverMatch(ref m_dllVersion, ref m_driverVersion);
+			try
+			{
+				// Note extra level of indirection here. VJoyManager needs to work if vJoyInterfaceWrap isn't available, so wrap
+				// the calls we need to make to it in VJoyWrap.cs.
+				m_vJoy = new VJoyWrap();
+			}
+			catch (Exception e)
+			{
+				m_vJoy = null;
+				Logging.Current.InfoFormat("{0}: no vjoy found by thread {1}, {2}", Assembly.GetExecutingAssembly().GetName().Name,
+					Thread.CurrentThread.ManagedThreadId, e.Message);
+			}
+
+			m_isValidVersion = (m_vJoy != null) && m_vJoy.DriverMatch(ref m_dllVersion, ref m_driverVersion);
 
 			// 0x216 is definitely bad. 0x218 or later seem OK. Can't find 0x217 to test so assume bad.
 			m_isBadVersion = m_dllVersion < 0x218;
 			m_isAvailable = m_isValidVersion && !m_isBadVersion;
 
-			for (uint i = firstDeviceId; i < m_instances.Length; ++i)
+			if (m_isAvailable)
 			{
-				// NB doesn't appear to be a way to enumerate using HidLibrary and get back to the vJoy device id.
-				// Since there's a max of 16, just try them all via the vJoy interface.
-				m_instances[i] = new Device(m_vJoy, i);
+				for (uint i = firstDeviceId; i < m_instances.Length; ++i)
+				{
+					// NB doesn't appear to be a way to enumerate using HidLibrary and get back to the vJoy device id.
+					// Since there's a max of 16, just try them all via the vJoy interface.
+					m_instances[i] = new Device(m_vJoy, i);
+				}
 			}
 		}
 
@@ -171,7 +189,7 @@ namespace SimElation
 		private const uint firstDeviceId = 1;   // NB vJoy API starts device ids at 1.
 		private const uint maxDevices = 16;
 
-		private readonly vJoy m_vJoy = new vJoy();
+		private readonly VJoyWrap m_vJoy;
 		private uint m_dllVersion = 0;
 		private uint m_driverVersion = 0;
 		private readonly bool m_isValidVersion;
