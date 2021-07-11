@@ -1,0 +1,4 @@
+#!/bin/bash
+
+# pre-commit
+yarn --silent lint-staged -r

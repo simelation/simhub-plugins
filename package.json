@@ -12,6 +12,7 @@
 	"scripts": {
 		"lerna": "lerna",
 		"preinstall": "dotnet tool restore",
+		"postinstall": "husky install",
 		"prepare_comment": "echo Workaround for https://github.com/yarnpkg/yarn/issues/3911",
 		"prepare": "lerna run prepare --",
 		"build": "lerna --concurrency 4 run build --",
@@ -24,20 +25,14 @@
 		"yarn:unpublish-links": "lerna exec yarn unlink --"
 	},
 	"devDependencies": {
-		"@commitlint/cli": "^9.1.1",
-		"@commitlint/config-conventional": "^9.1.1",
-		"@commitlint/config-lerna-scopes": "^9.1.1",
-		"husky": "^4.2.5",
-		"lerna": "^3.22.1",
-		"lint-staged": "^10.2.11",
-		"prettier": "^2.0.5",
+		"@commitlint/cli": "^12.1.4",
+		"@commitlint/config-conventional": "^12.1.4",
+		"@commitlint/config-lerna-scopes": "^12.1.4",
+		"husky": "^6.0.0",
+		"lerna": "^4.0.0",
+		"lint-staged": "^11.0.0",
+		"prettier": "^2.3.2",
 		"yarn-upgrade-all": "^0.5.4"
-	},
-	"husky": {
-		"hooks": {
-			"commit-msg": "commitlint -E HUSKY_GIT_PARAMS",
-			"pre-commit": "lint-staged -r"
-		}
 	},
 	"lint-staged": {
 		"*.{js,jsx,ts,tsx,json,css,md,html}": "prettier --write",

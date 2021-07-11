@@ -1,0 +1,4 @@
+#!/bin/bash
+
+# commit-msg.
+yarn --silent commitlint -e $1
