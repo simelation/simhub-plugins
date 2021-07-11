@@ -70,6 +70,18 @@ namespace SimElation.Simhub.SliPlugin
 		/// <param name="decimalOrPrimeIndexList">To receive the index of decimal point.</param>
 		void Temperature(String prefix, double temperature, ref String str, ref uint[] decimalOrPrimeIndexList);
 
+		/// <summary>Format a speed.</summary>
+		/// <param name="speed"></param>
+		/// <param name="str">To receive the formatted string.</param>
+		/// <param name="decimalOrPrimeIndexList">To receive the index of decimal point.</param>
+		void Speed(double speed, ref String str, ref uint[] decimalOrPrimeIndexList);
+
+		/// <summary>Format an RPM.</summary>
+		/// <param name="rpm"></param>
+		/// <param name="str">To receive the formatted string.</param>
+		/// <param name="decimalOrPrimeIndexList">To receive the index of decimal point.</param>
+		void Rpm(double rpm, ref String str, ref uint[] decimalOrPrimeIndexList);
+
 		/// <summary>Prefix for oil temperature (e.g. "o" or "Oil").</summary>
 		String OilTemperaturePrefix();
 

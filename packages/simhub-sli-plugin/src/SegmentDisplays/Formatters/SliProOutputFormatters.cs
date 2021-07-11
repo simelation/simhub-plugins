@@ -143,6 +143,18 @@ namespace SimElation.Simhub.SliPlugin
 		}
 
 		/// <inheritdoc/>
+		public void Speed(double speed, ref String str, ref uint[] decimalOrPrimeIndexList)
+		{
+			str = String.Format("{0,6:F0}", speed);
+		}
+
+		/// <inheritdoc/>
+		public void Rpm(double rpm, ref String str, ref uint[] decimalOrPrimeIndexList)
+		{
+			str = String.Format("{0,6:F0}", rpm);
+		}
+
+		/// <inheritdoc/>
 		public String OilTemperaturePrefix()
 		{
 			return "Oil";

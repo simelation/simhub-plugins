@@ -67,6 +67,8 @@ namespace SimElation.Simhub.SliPlugin
 									(NormalizedData normalizedData) => normalizedData.StatusData.OilTemperature),
 								new TempSegmentDisplay("H20", "Water temperature", outputFormatters.WaterTemperaturePrefix(),
 									(NormalizedData normalizedData) => normalizedData.StatusData.WaterTemperature),
+								new SpeedSegmentDisplay("Spd"),
+								new RpmSegmentDisplay("rPM")
 							})
 					},
 
@@ -100,7 +102,9 @@ namespace SimElation.Simhub.SliPlugin
 									{
 										var opponentList = normalizedData.StatusData.OpponentsBehindOnTrackPlayerClass;
 										return NextCarDelta(opponentList);
-									})
+									}),
+								new SpeedSegmentDisplay("Spd"),
+								new RpmSegmentDisplay("rPM")
 							})
 					}
 				};

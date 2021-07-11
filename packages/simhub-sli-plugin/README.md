@@ -36,6 +36,8 @@ SLI-Pro; the SLI-F1 is further truncated due to a 4 character limit):
 1. Brake bias, front:rear (`bbias`)
 1. Oil temperature (`Oil`)
 1. Water temperature (`H2O`)
+1. Current speed (`SPd`)
+1. Current RPM (`rPM`)
 
 #### Right segment display
 
@@ -47,6 +49,8 @@ SLI-Pro; the SLI-F1 is further truncated due to a 4 character limit):
 1. Delta to all-time best laptime (`dltAll`)
 1. Gap to car ahead (`gApAhd`)
 1. Gap to car behind (`gApbhd`)
+1. Current speed (`SPd`)
+1. Current RPM (`rPM`)
 
 Note that some of this data will come from the SimHub PersistantTrackerPlugin if not provided by the game
 (e.g. PC2/AMS2 lap time deltas).
