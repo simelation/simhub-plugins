@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.9.0](https://github.com/simelation/simhub-plugins/compare/@simelation/simhub-sli-plugin@0.8.0...@simelation/simhub-sli-plugin@0.9.0) (2021-07-11)
+
+### Bug Fixes
+
+-   **simhub-sli-plugin:** cope with no vjoy dlls in latest simhub. ([f718800](https://github.com/simelation/simhub-plugins/commit/f718800e61f7743e284f0c200e7abcab9f9d5ac0))
+
+### Features
+
+-   added speed and rpm segment displays. ([d2c6fe1](https://github.com/simelation/simhub-plugins/commit/d2c6fe1a3aed17080930e28a75a547261b710f77))
+
 # [0.8.0](https://github.com/simelation/simhub-plugins/compare/@simelation/simhub-sli-plugin@0.7.0...@simelation/simhub-sli-plugin@0.8.0) (2020-12-21)
 
 ### Features

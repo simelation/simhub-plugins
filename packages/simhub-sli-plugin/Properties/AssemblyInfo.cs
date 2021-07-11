@@ -10,8 +10,8 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyCulture("")]
 [assembly: ComVisible(false)]
 [assembly: Guid("064096f9-41a4-4304-811d-b2af7725254b")]
-[assembly: AssemblyVersion("0.8.0.0")]
-[assembly: AssemblyFileVersion("0.8.0.0")]
+[assembly: AssemblyVersion("0.9.0.0")]
+[assembly: AssemblyFileVersion("0.9.0.0")]
 
 #if (DEBUG)
 [assembly: AssemblyConfiguration("Debug")]
