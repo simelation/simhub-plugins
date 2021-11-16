@@ -50,7 +50,7 @@ namespace SimElation.Simhub.SliPlugin
 				branch = String.Format("%40simelation/simhub-sli-plugin%40{0}", tagVersion);
 			}
 
-			String url = String.Format("{0}/{1}/packages/sli-plugin/README.md", rootUrl, branch);
+			String url = String.Format("{0}/{1}/packages/simhub-sli-plugin/README.md", rootUrl, branch);
 			System.Diagnostics.Process.Start(url);
 		}
 
