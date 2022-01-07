@@ -40,11 +40,6 @@
       <HintPath>.\SimHub\GameReaderCommon.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="InputManager, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>.\SimHub\InputManager.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="log4net, Version=2.0.8.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>.\SimHub\log4net.dll</HintPath>
