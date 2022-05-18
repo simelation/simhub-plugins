@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.9.1](https://github.com/simelation/simhub-plugins/compare/@simelation/simhub-sli-plugin@0.9.0...@simelation/simhub-sli-plugin@0.9.1) (2022-05-18)
+
+### Bug Fixes
+
+-   wrong help url. ([2c30fe2](https://github.com/simelation/simhub-plugins/commit/2c30fe27757ae1df6db1cd6980363a9d1b44e727)), closes [#11](https://github.com/simelation/simhub-plugins/issues/11)
+
 # [0.9.0](https://github.com/simelation/simhub-plugins/compare/@simelation/simhub-sli-plugin@0.8.0...@simelation/simhub-sli-plugin@0.9.0) (2021-07-11)
 
 ### Bug Fixes
