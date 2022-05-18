@@ -17,7 +17,8 @@
 		"access": "public"
 	},
 	"files": [
-		"/bin/x86/Release/*.dll"
+		"/bin/x86/Release/*.dll",
+		"CHANGELOG.md"
 	],
 	"scripts": {
 		"prepare": "cmd /c if not exist SimHub mklink /D SimHub \"C:\\Program Files (x86)\\SimHub\"",

@@ -207,8 +207,8 @@ of the RPM display.
 It simply uses `Minimum displayed RPM %` for the LED that has been configured as the first RPM LED
 (see next section) and evenly distributes RPM% across the remaining LEDs.
 
-Note prior to version 0.10.0, `Minimum displayed RPM %` was the value in the SimHub `Car Settings` page, but this was removed
-in SimHub 7.4.13.
+Note prior to version 0.9.1, `Minimum displayed RPM %` was the value in the SimHub `Car Settings` page, but this was removed
+in SimHub 7.4.13 so is now a setting in the plugin itself.
 
 ##### Assignable LEDs
 
