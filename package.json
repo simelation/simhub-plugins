@@ -20,19 +20,19 @@
 		"clean": "lerna run clean && lerna clean",
 		"release": "lerna publish",
 		"test": "lerna run test --",
-		"upgrade-all": "yarn upgrade && lerna --concurrency 1 exec yarn-upgrade-all",
+		"upgrade-all": "yarn upgrade --latest -W && lerna --concurrency 1 exec yarn-upgrade-all",
 		"yarn:publish-links": "lerna exec yarn link --",
 		"yarn:unpublish-links": "lerna exec yarn unlink --"
 	},
 	"devDependencies": {
-		"@commitlint/cli": "^12.1.4",
-		"@commitlint/config-conventional": "^12.1.4",
-		"@commitlint/config-lerna-scopes": "^12.1.4",
-		"husky": "^6.0.0",
+		"@commitlint/cli": "^17.0.0",
+		"@commitlint/config-conventional": "^17.0.0",
+		"@commitlint/config-lerna-scopes": "^17.0.0",
+		"husky": "^8.0.1",
 		"lerna": "^4.0.0",
-		"lint-staged": "^11.0.0",
+		"lint-staged": "^12.4.1",
 		"prettier": "^2.3.2",
-		"yarn-upgrade-all": "^0.5.4"
+		"yarn-upgrade-all": "^0.7.1"
 	},
 	"lint-staged": {
 		"*.{js,jsx,ts,tsx,json,css,md,html}": "prettier --write",
