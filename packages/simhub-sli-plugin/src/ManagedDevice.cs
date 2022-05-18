@@ -425,9 +425,7 @@ namespace SimElation.Simhub.SliPlugin
 				}
 			}
 
-			double minRpmPercent = (100 * normalizedData.StatusData.CarSettings_MinimumShownRPM) /
-				normalizedData.StatusData.CarSettings_MaxRPM;
-			m_device.SetRevLeds(minRpmPercent, rpmPercent, m_settings.NumberOfRpmStatusLeds);
+			m_device.SetRevLeds(m_settings.MinimumRPM, rpmPercent, m_settings.NumberOfRpmStatusLeds);
 		}
 
 		private void OnRotarySwitchChange(int rotarySwitchIndex, int previousPosition, int newPosition)

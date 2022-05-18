@@ -236,6 +236,18 @@ namespace SimElation.Simhub.SliPlugin
 				}
 			}
 
+			/// <summary>How many RPM LEDs to use for bindable formulas (and not revs), from the left.</summary>
+			public uint MinimumRPM
+			{
+				get => m_minimumRpm;
+
+				set
+				{
+					m_minimumRpm = value;
+					OnPropertyChanged();
+				}
+			}
+
 			/// <summary>In pit-lane animation LEDs, pattern 1.</summary>
 			public RpmLed[] PitLaneLeds1 { get; set; }
 
@@ -414,6 +426,7 @@ namespace SimElation.Simhub.SliPlugin
 			private long m_statusLedBlinkIntervalMs = 500;
 			private long m_segmentNameTimeoutMs = 1500;
 
+			private uint m_minimumRpm = 85;
 			private uint m_numberOfRpmStatusLeds = 0;
 
 			private int m_vJoyButtonPulseMs = 50;

@@ -137,6 +137,15 @@
 		<!-- RPM leds. -->
 		<styles:SHSection Title="RPM LEDs">
 			<StackPanel Orientation="Vertical">
+				<autogrid:AutoGrid RowCount="2" Columns="220,200,400">
+					<Label VerticalAlignment="Center" Margin="4,4,4,4" Content="Minimum displayed RPM %" />
+					<Slider Minimum="0" Maximum="100" VerticalAlignment="Center" Margin="4,4,4,4"
+							TickPlacement="Both" TickFrequency="10"
+							Value="{Binding Path=DeviceSettings.MinimumRPM, Mode=TwoWay}"/>
+					<TextBlock FontSize="15" Margin="4,4,4,4"
+   							   Text="{Binding Path=DeviceSettings.MinimumRPM}"/>
+				</autogrid:AutoGrid>
+
 				<!-- Optional property binding. -->
 				<local:StatusLedArray
 					Title="ASSIGNABLE LEDs" Orientation="Horizontal"
