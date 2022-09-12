@@ -25,13 +25,13 @@
 		"yarn:unpublish-links": "lerna exec yarn unlink --"
 	},
 	"devDependencies": {
-		"@commitlint/cli": "^17.0.0",
-		"@commitlint/config-conventional": "^17.0.0",
-		"@commitlint/config-lerna-scopes": "^17.0.0",
+		"@commitlint/cli": "^17.0.3",
+		"@commitlint/config-conventional": "^17.0.3",
+		"@commitlint/config-lerna-scopes": "^17.0.2",
 		"husky": "^8.0.1",
-		"lerna": "^4.0.0",
-		"lint-staged": "^12.4.1",
-		"prettier": "^2.3.2",
+		"lerna": "^5.4.0",
+		"lint-staged": "^13.0.3",
+		"prettier": "^2.7.1",
 		"yarn-upgrade-all": "^0.7.1"
 	},
 	"lint-staged": {
