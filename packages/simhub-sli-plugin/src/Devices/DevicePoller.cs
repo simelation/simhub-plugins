@@ -26,7 +26,9 @@ namespace SimElation.SliDevices
 			foreach (var device in hidDevices)
 			{
 				var deviceInfo = ProcessDevice(device);
-				deviceSet.Add(deviceInfo.SerialNumber, deviceInfo);
+
+				if (deviceInfo != null)
+					deviceSet.Add(deviceInfo.SerialNumber, deviceInfo);
 			}
 
 			return deviceSet;
@@ -36,14 +38,15 @@ namespace SimElation.SliDevices
 		{
 			// Format up a nice device info string.
 			byte[] data;
-			String manufacturer = hidDevice.ReadManufacturer(out data) ? Encoding.Unicode.GetString(data).TrimEnd('\0') : "";
-			String product = hidDevice.ReadProduct(out data) ? Encoding.Unicode.GetString(data).TrimEnd('\0') : "";
 			String serialNumber = hidDevice.ReadSerialNumber(out data) ? Encoding.Unicode.GetString(data).TrimEnd('\0') : "";
 
-			// If for some reason serial number isn't returned, fake one. This is obviously no good for saving state
-			// but at least will allow things to work at run time.
+			// For some users, reading the serial number from a device that's already open is failing. I can't repro, so
+			// just ignore those devices here rather than in SliPlugin.PollForDevicesOnce().
 			if (serialNumber.Length == 0)
-				serialNumber = Guid.NewGuid().ToString();
+				return null;
+
+			String manufacturer = hidDevice.ReadManufacturer(out data) ? Encoding.Unicode.GetString(data).TrimEnd('\0') : "";
+			String product = hidDevice.ReadProduct(out data) ? Encoding.Unicode.GetString(data).TrimEnd('\0') : "";
 
 			String prettyInfo = String.Format("{0}{1}{2}{3}{4}{5}{6}",
 				manufacturer, (manufacturer.Length > 0) ? " " : "",
