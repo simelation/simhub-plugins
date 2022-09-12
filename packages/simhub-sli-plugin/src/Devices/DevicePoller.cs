@@ -4,8 +4,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text;
 using HidLibrary;
+using SimHub;
 
 // ---------------------------------------------------------------------------------------------------------------------------------
 
@@ -43,7 +46,15 @@ namespace SimElation.SliDevices
 			// If for some reason serial number isn't returned, fake one. This is obviously no good for saving state
 			// but at least will allow things to work at run time.
 			if (serialNumber.Length == 0)
+			{
+				data = new byte[0];
+				hidDevice.ReadSerialNumber(out data);
+				Logging.Current.InfoFormat("{0}: failed to get serial number for {1}, maybe due to {2}, out length == {3}",
+					Assembly.GetExecutingAssembly().GetName().Name, hidDevice.DevicePath, Marshal.GetLastWin32Error(), data.Length);
+
+				// TODO: not true. "Old" uuid will be removed on next poll. Why are people tripping over no serial number...
 				serialNumber = Guid.NewGuid().ToString();
+			}
 
 			String prettyInfo = String.Format("{0}{1}{2}{3}{4}{5}{6}",
 				manufacturer, (manufacturer.Length > 0) ? " " : "",
