@@ -7,7 +7,7 @@ Some ideas for improvements I might make are [here](https://github.com/simelatio
 
 ## Installation from package
 
-Release packages are available from [GitHub](https://github.com/orgs/simelation/packages?repo_name=simhub-plugins).
+Release packages are available from [GitHub](https://github.com/simelation/simhub-plugins/releases).
 Packages are currently published as gzipped tar files, so you may need an appropriate tool to unzip them
 (e.g. [7zip](https://www.7-zip.org/)).
 
@@ -371,4 +371,4 @@ Building within Visual Studio Code is supported, as long as `msbuild.exe` is in 
 
 If Visual Studio 2019 is not also installed, then you will probably need the
 [build tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/) and
-[.NET Framework](https://dotnet.microsoft.com/download/visual-studio-sdks) 4.7.2.
+[.NET Framework](https://dotnet.microsoft.com/download/visual-studio-sdks) 4.8.
