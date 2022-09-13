@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.10.0](https://github.com/simelation/simhub-plugins/compare/@simelation/simhub-sli-plugin@0.9.1...@simelation/simhub-sli-plugin@0.10.0) (2022-09-13)
+
+### Bug Fixes
+
+-   **simhub-sli-plugin:** ignore polled devices that the serial number can't be retrieved from. ([b248fc6](https://github.com/simelation/simhub-plugins/commit/b248fc665727f4257ec3c7c5b851ad195f757957)), closes [#13](https://github.com/simelation/simhub-plugins/issues/13)
+
+### Features
+
+-   **simhub-sli-plugin:** bumped to .net 4.8 for SimHub 8. ([9693ff1](https://github.com/simelation/simhub-plugins/commit/9693ff1034a1ad42ca1860af337602fa78bcc15e))
+
 ## [0.9.2](https://github.com/simelation/simhub-plugins/compare/@simelation/simhub-sli-plugin@0.9.1...@simelation/simhub-sli-plugin@0.9.2) (2022-09-12)
 
 **Note:** Version bump only for package @simelation/simhub-sli-plugin
