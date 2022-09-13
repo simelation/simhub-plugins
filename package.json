@@ -18,7 +18,7 @@
 		"build": "lerna --concurrency 4 run build --",
 		"develop": "lerna run develop --",
 		"clean": "lerna run clean && lerna clean",
-		"release": "lerna publish",
+		"release": "lerna version && yarn build && lerna exec yarn pack",
 		"test": "lerna run test --",
 		"upgrade-all": "yarn upgrade --latest -W && lerna --concurrency 1 exec yarn-upgrade-all",
 		"yarn:publish-links": "lerna exec yarn link --",
