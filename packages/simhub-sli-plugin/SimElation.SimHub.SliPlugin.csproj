@@ -96,10 +96,8 @@
       <Private>False</Private>
     </Reference>
     <Reference Include="WindowsBase" />
-    <Reference Include="WpfAutoGrid">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>.\SimHub\WpfAutoGrid.dll</HintPath>
-      <Private>False</Private>
+    <Reference Include="WpfAutoGrid, Version=1.4.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\WpfAutoGrid.1.4.0.0\lib\net45\WpfAutoGrid.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -198,6 +196,7 @@
   <ItemGroup>
     <None Include="CHANGELOG.md" />
     <None Include="package.json" />
+    <None Include="packages.config" />
     <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>

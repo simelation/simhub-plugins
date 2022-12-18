@@ -21,7 +21,7 @@
 		"CHANGELOG.md"
 	],
 	"scripts": {
-		"prepare": "cmd /c if not exist SimHub mklink /D SimHub \"C:\\Program Files (x86)\\SimHub\"",
+		"prepare": "cmd /c if not exist SimHub mklink /D SimHub \"C:\\Program Files (x86)\\SimHub\" && nuget.exe restore",
 		"build": "msbuild.exe SimElation.SimHub.SliPlugin.csproj /property:GenerateFullPaths=true /t:build /p:Configuration=Release /p:Platform=x86 /consoleloggerparameters:NoSummary",
 		"develop": "msbuild.exe SimElation.SimHub.SliPlugin.csproj /property:GenerateFullPaths=true /t:build /p:Configuration=Debug /p:Platform=x86 /consoleloggerparameters:NoSummary",
 		"clean-build": "msbuild.exe SimElation.SimHub.SliPlugin.csproj /property:GenerateFullPaths=true /t:clean /p:Configuration=Release /p:Platform=x86 /consoleloggerparameters:NoSummary",

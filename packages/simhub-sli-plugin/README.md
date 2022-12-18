@@ -12,7 +12,10 @@ Packages are currently published as gzipped tar files, so you may need an approp
 (e.g. [7zip](https://www.7-zip.org/)).
 
 Copy the `package\bin\x86\Release\SimElation.SimHub.SliPlugin.dll` file from the package to your SimHub installation directory
-(e.g. `C:\Program Files (x86)\SimHub`) and (re)start SimHub. SimHub should ask for confirmation to enable the new plugin.
+(e.g. `C:\Program Files (x86)\SimHub`). If the SimHub installation directory doesn't contain `WpfAutoGrid.dll` (it's been removed from recent versions),
+then also copy that file.
+
+Then (re)start SimHub. It should ask for confirmation to enable the new plugin.
 
 ## Stock SLI-Pro firmware vs. Roso firmware
 
