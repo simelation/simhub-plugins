@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.11.0](https://github.com/simelation/simhub-plugins/compare/@simelation/simhub-sli-plugin@0.9.1...@simelation/simhub-sli-plugin@0.11.0) (2022-12-18)
+
+### Bug Fixes
+
+-   **simhub-sli-plugin:** added external WpfAutoGrid dependency. ([1275613](https://github.com/simelation/simhub-plugins/commit/1275613ea3bc73fd662b965fe4e126221a616068))
+-   **simhub-sli-plugin:** ignore polled devices that the serial number can't be retrieved from. ([9d65802](https://github.com/simelation/simhub-plugins/commit/9d658028e1a88f430d3645b5e0872602f39b1316)), closes [#13](https://github.com/simelation/simhub-plugins/issues/13)
+
+### Features
+
+-   **simhub-sli-plugin:** bumped to .net 4.8 for SimHub 8. ([f062945](https://github.com/simelation/simhub-plugins/commit/f062945192ca04f8943d078bea01686c4c2d9c7c))
+
 # [0.10.0](https://github.com/simelation/simhub-plugins/compare/@simelation/simhub-sli-plugin@0.9.1...@simelation/simhub-sli-plugin@0.10.0) (2022-09-13)
 
 ### Bug Fixes
