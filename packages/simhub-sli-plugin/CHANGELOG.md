@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.11.1](https://github.com/simelation/simhub-plugins/compare/@simelation/simhub-sli-plugin@0.11.0...@simelation/simhub-sli-plugin@0.11.1) (2022-12-23)
+
+### Bug Fixes
+
+-   **simhub-sli-plugin:** properly save status led expressions. ([dd9872f](https://github.com/simelation/simhub-plugins/commit/dd9872f50e7a4a51564394e3e7db236841c78ab2))
+
 # [0.11.0](https://github.com/simelation/simhub-plugins/compare/@simelation/simhub-sli-plugin@0.9.1...@simelation/simhub-sli-plugin@0.11.0) (2022-12-18)
 
 ### Bug Fixes
