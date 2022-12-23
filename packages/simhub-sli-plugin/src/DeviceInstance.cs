@@ -318,7 +318,7 @@ namespace SimElation.Simhub.SliPlugin
 
 			/// <summary>Fixup any dynamic length / device-dependent settings.</summary>
 			/// <remarks>
-			/// When deserializing, the device descriptor isn't know. So anything "new" added to the config
+			/// When deserializing, the device descriptor isn't known. So anything "new" added to the config
 			/// that is dependent on the device details won't be initialized. Also just make sure dynamic length arrays are the
 			/// correct length, in case any mangling of config file happens.
 			/// </remarks>
@@ -366,13 +366,14 @@ namespace SimElation.Simhub.SliPlugin
 
 				// Need a deep copy of default Led arrays.
 				// TODO surely there's a better way.
-				Led[] CopyStatusLedArray(Led[] sourceArray)
+				void CopyStatusLedArray(Led[] sourceArray, ref Led[] targetArray)
 				{
-					var targetArray = new Led[sourceArray.Length];
+					Array.Resize(ref targetArray, sourceArray.Length);
 
 					for (int i = 0; i < sourceArray.Length; ++i)
 					{
 						var sourceLed = sourceArray[i];
+
 						targetArray[i] ??=
 							new Led()
 							{
@@ -382,19 +383,15 @@ namespace SimElation.Simhub.SliPlugin
 								SetBrush = sourceLed.SetBrush.Clone()
 							};
 					}
-
-					return targetArray;
 				}
 
 				statusLeds = LeftStatusLeds;
-				Array.Resize(ref statusLeds, sliPluginDeviceDescriptor.LeftStatusLeds.Length);
+				CopyStatusLedArray(sliPluginDeviceDescriptor.LeftStatusLeds, ref statusLeds);
 				LeftStatusLeds = statusLeds;
-				LeftStatusLeds = CopyStatusLedArray(sliPluginDeviceDescriptor.LeftStatusLeds);
 
 				statusLeds = RightStatusLeds;
-				Array.Resize(ref statusLeds, sliPluginDeviceDescriptor.RightStatusLeds.Length);
+				CopyStatusLedArray(sliPluginDeviceDescriptor.RightStatusLeds, ref statusLeds);
 				RightStatusLeds = statusLeds;
-				RightStatusLeds = CopyStatusLedArray(sliPluginDeviceDescriptor.RightStatusLeds);
 
 				// External LEDs.
 				statusLeds = ExternalLeds;
