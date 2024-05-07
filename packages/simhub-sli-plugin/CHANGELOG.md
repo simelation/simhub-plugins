@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.11.2](https://github.com/simelation/simhub-plugins/compare/@simelation/simhub-sli-plugin@0.11.1...@simelation/simhub-sli-plugin@0.11.2) (2024-05-07)
+
+### Bug Fixes
+
+-   build fix for SimHub >= 9.2.9 (FormulaPicker -> FormulaPickerButton). ([ed09d46](https://github.com/simelation/simhub-plugins/commit/ed09d46aec7a945b92fb92e9dbb495df09836154))
+
 ## [0.11.1](https://github.com/simelation/simhub-plugins/compare/@simelation/simhub-sli-plugin@0.11.0...@simelation/simhub-sli-plugin@0.11.1) (2022-12-23)
 
 ### Bug Fixes
