@@ -54,20 +54,20 @@
 
 				<ItemsControl.ItemTemplate>
 					<DataTemplate>
-						<wpfui:FormulaPicker
+						<wpfui:FormulaPickerButton
 							EditPropertyName="{Binding Path=EditPropertyName}" Expression="{Binding Path=ExpressionValue}"
-							ShowAsButton="True" Margin="4,4,4,4"
+							Margin="4,4,4,4"
 						>
-							<wpfui:FormulaPicker.IsEnabled>
+							<wpfui:FormulaPickerButton.IsEnabled>
 								<!-- TODO surely a nicer way (see IsStatusLedEnabled for details...). -->
 								<MultiBinding Converter="{StaticResource IsStatusLedEnabled}">
 									<Binding Path="."/>
 									<Binding Path="StatusLeds" ElementName="statusLedArray"/>
 									<Binding Path="NumberEnabled" ElementName="statusLedArray"/>
 								</MultiBinding>
-							</wpfui:FormulaPicker.IsEnabled>
+							</wpfui:FormulaPickerButton.IsEnabled>
 
-							<wpfui:FormulaPicker.Resources>
+							<wpfui:FormulaPickerButton.Resources>
 								<Style TargetType="{x:Type Button}">
 									<Style.Triggers>
 										<Trigger Property="IsEnabled" Value="False">
@@ -114,9 +114,9 @@
 										</DataTrigger>
 									</Style.Triggers>
 								</Style>
-							</wpfui:FormulaPicker.Resources>
+							</wpfui:FormulaPickerButton.Resources>
 
-						</wpfui:FormulaPicker>
+						</wpfui:FormulaPickerButton>
 					</DataTemplate>
 				</ItemsControl.ItemTemplate>
 			</ItemsControl>

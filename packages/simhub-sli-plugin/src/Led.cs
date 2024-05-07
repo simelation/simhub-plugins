@@ -19,7 +19,7 @@ namespace SimElation.Simhub.SliPlugin
 		/// <summary>SimHub data for binding to game properties / ncalc.</summary>
 		public ExpressionValue ExpressionValue { get; set; } = new ExpressionValue();
 
-		/// <summary>For FormulaPicker.EditPropertyName.</summary>
+		/// <summary>For FormulaPickerButton.EditPropertyName.</summary>
 		public String EditPropertyName { get; set; } = "";
 
 		/// <summary>Brush to paint the LED when on.</summary>
